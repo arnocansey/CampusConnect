@@ -113,6 +113,14 @@ export const getComments = async (req: AuthRequest, res: Response): Promise<void
           _count: {
             select: { likes: true },
           },
+          ...(req.user
+            ? {
+                likes: {
+                  where: { userId: req.user.id },
+                  select: { id: true },
+                },
+              }
+            : {}),
         },
         orderBy: { createdAt: 'asc' },
         take: 3,
@@ -140,9 +148,10 @@ export const getComments = async (req: AuthRequest, res: Response): Promise<void
         ...c,
         isLiked: c.likes?.length > 0,
         likes: undefined,
-        replies: c.replies?.map((r) => ({
+        replies: c.replies?.map((r: any) => ({
           ...r,
-          isLiked: false,
+          isLiked: r.likes?.length > 0,
+          likes: undefined,
         })),
       })),
       total,

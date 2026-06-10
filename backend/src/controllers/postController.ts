@@ -97,6 +97,12 @@ export const getFeed = async (req: AuthRequest, res: Response): Promise<void> =>
             select: { id: true },
           }
         : false,
+      savedPosts: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
     },
     skip,
     take: parseInt(limit as string),
@@ -111,7 +117,9 @@ export const getFeed = async (req: AuthRequest, res: Response): Promise<void> =>
       posts: posts.map((p) => ({
         ...p,
         isLiked: p.likes?.length > 0,
+        isSaved: p.savedPosts?.length > 0,
         likes: undefined,
+        savedPosts: undefined,
       })),
       total,
       page: parseInt(page as string),
@@ -147,6 +155,12 @@ export const getPost = async (req: AuthRequest, res: Response): Promise<void> =>
             select: { id: true },
           }
         : false,
+      savedPosts: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
     },
   });
 
@@ -159,7 +173,9 @@ export const getPost = async (req: AuthRequest, res: Response): Promise<void> =>
     data: {
       ...post,
       isLiked: post.likes?.length > 0,
+      isSaved: post.savedPosts?.length > 0,
       likes: undefined,
+      savedPosts: undefined,
     },
   });
 };

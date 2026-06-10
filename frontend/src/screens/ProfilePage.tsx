@@ -46,12 +46,12 @@ export function ProfilePage() {
     enabled: activeTab === 'products' && !!profileData?.id,
   });
 
-  const { data: userNotes } = useQuery({
-    queryKey: ['profileNotes', profileData?.id],
+  const { data: savedPosts } = useQuery({
+    queryKey: ['profileSavedPosts', profileData?.id],
     queryFn: async () => {
       if (!profileData?.id) return [];
-      const { data } = await api.get(`/notes?uploaderId=${profileData.id}`);
-      return data.data.notes;
+      const { data } = await api.get('/posts/saved');
+      return data.data;
     },
     enabled: activeTab === 'saved' && !!profileData?.id,
   });
@@ -70,6 +70,7 @@ export function ProfilePage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 flex gap-6">
+      <div className="hidden md:block w-64 shrink-0" />
       <div className="flex-1 max-w-3xl">
         {isLoading ? (
           <div className="animate-pulse">
@@ -255,27 +256,33 @@ export function ProfilePage() {
                 </div>
               )}
 
-              {activeTab === 'saved' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {userNotes?.length === 0 ? (
-                    <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">No saved notes</p>
-                  ) : (
-                    userNotes?.map((note: any) => (
-                      <Link
-                        key={note.id}
-                        href={`/notes/${note.id}`}
-                        className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:shadow-lg transition"
-                      >
-                        <h3 className="font-semibold text-sm dark:text-white">{note.title}</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{note.course}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{note.downloads} downloads</p>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
+            {activeTab === 'saved' && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {savedPosts?.length === 0 ? (
+                  <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">No saved posts</p>
+                ) : (
+                  savedPosts?.map((post: any) => (
+                    <Link
+                      key={post.id}
+                      href={`/post/${post.id}`}
+                      className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-lg transition"
+                    >
+                      {post.images?.[0] ? (
+                        <div className="aspect-square overflow-hidden">
+                          <img src={post.images[0]} alt="" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="aspect-square bg-gray-50 dark:bg-gray-800 flex items-center justify-center p-4">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 text-center line-clamp-4">{post.content}</p>
+                        </div>
+                      )}
+                    </Link>
+                  ))
+                )}
+              </div>
+            )}
 
-              {activeTab === 'likes' && (
+            {activeTab === 'likes' && (
                 <p className="text-center text-gray-500 dark:text-gray-400 py-12">Liked posts coming soon</p>
               )}
             </div>
