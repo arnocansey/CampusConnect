@@ -19,12 +19,9 @@ RUN corepack enable && corepack prepare pnpm@8 --activate
 
 WORKDIR /app
 
-COPY package.json ./
-COPY prisma ./prisma/
+COPY --from=builder /app ./
 
-RUN pnpm install --prod
-
-COPY --from=builder /app/dist ./dist
+RUN pnpm prune --prod
 
 EXPOSE 5000
 
