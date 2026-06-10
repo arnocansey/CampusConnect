@@ -124,7 +124,7 @@ export function NoteDetailPage() {
 
           const absoluteUrl = note.fileUrl.startsWith('http')
             ? note.fileUrl
-            : `${api.defaults.baseURL?.replace('/api', '') || 'http://localhost:5000'}${note.fileUrl}`;
+            : `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000'}${note.fileUrl}`;
 
           if (note.fileType === 'PDF') {
             return (
