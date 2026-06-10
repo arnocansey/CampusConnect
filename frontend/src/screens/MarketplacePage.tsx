@@ -88,7 +88,7 @@ export function MarketplacePage() {
     formData.append('category', category);
     formData.append('condition', condition);
     formData.append('location', location);
-    formData.append('currency', 'NGN');
+    formData.append('currency', 'GHS');
     
     if (images && images.length > 0) {
       for (let i = 0; i < images.length; i++) {
@@ -191,7 +191,7 @@ export function MarketplacePage() {
                 <div className="p-3">
                   <p className="font-semibold text-sm truncate dark:text-white">{item.title}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <p className="text-blue-600 dark:text-blue-400 font-bold text-sm">₦{item.price?.toLocaleString()}</p>
+                    <p className="text-blue-600 dark:text-blue-400 font-bold text-sm">GH₵{item.price?.toLocaleString()}</p>
                     {item.averageRating != null && item.averageRating > 0 && (
                       <div className="flex items-center gap-0.5">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -254,7 +254,7 @@ export function MarketplacePage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Price (₦) *</label>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Price (GH₵) *</label>
                   <Input
                     type="number"
                     placeholder="Price"

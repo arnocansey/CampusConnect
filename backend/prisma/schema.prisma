@@ -289,7 +289,7 @@ model MarketplaceItem {
   description String
   images      String[]
   price       Float
-  currency    String   @default("USD")
+  currency    String   @default("GHS")
   category    MarketplaceCategory
   condition   ItemCondition @default(USED)
   sellerId    String
@@ -520,7 +520,7 @@ model Hostel {
   latitude    Float?
   longitude   Float?
   pricePerMonth Float
-  currency    String   @default("USD")
+  currency    String   @default("GHS")
   roomType    RoomType
   facilities  String[]
   contactPhone String?

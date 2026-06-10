@@ -248,7 +248,7 @@ export function ProfilePage() {
                         )}
                         <div className="p-2">
                           <p className="font-semibold text-xs truncate dark:text-white">{item.title}</p>
-                          <p className="text-blue-600 dark:text-blue-400 font-bold text-xs mt-0.5">₦{item.price?.toLocaleString()}</p>
+                          <p className="text-blue-600 dark:text-blue-400 font-bold text-xs mt-0.5">GH₵{item.price?.toLocaleString()}</p>
                         </div>
                       </Link>
                     ))

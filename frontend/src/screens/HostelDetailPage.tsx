@@ -49,7 +49,7 @@ export function HostelDetailPage() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-xl font-bold">{hostel.name}</h2>
-            <span className="text-blue-600 font-bold text-xl">{formatPrice(hostel.pricePerMonth || 0, hostel.currency || 'NGN')}/mo</span>
+            <span className="text-blue-600 font-bold text-xl">{formatPrice(hostel.pricePerMonth || 0, hostel.currency || 'GHS')}/mo</span>
           </div>
 
           <p className="text-gray-500 flex items-center gap-1 mb-3">

@@ -267,7 +267,7 @@ export function JobsPage() {
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Salary Range</label>
                   <Input
                     type="text"
-                    placeholder="e.g. ₦100,000/mo"
+                    placeholder="e.g. GH₵5,000/mo"
                     value={salary}
                     onChange={(e) => setSalary(e.target.value)}
                   />
