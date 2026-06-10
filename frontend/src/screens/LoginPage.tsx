@@ -68,7 +68,7 @@ export function LoginPage() {
 
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" className="rounded border-gray-300" {...register('rememberMe')} />
+            <input type="checkbox" className="rounded border-gray-300" defaultChecked {...register('rememberMe')} />
             <span className="text-sm text-gray-600">Remember me</span>
           </label>
           <Link
