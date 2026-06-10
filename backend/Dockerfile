@@ -1,7 +1,6 @@
-FROM node:18-alpine AS builder
+FROM node:20-slim AS builder
 
 RUN corepack enable && corepack prepare pnpm@8 --activate
-RUN apk add --no-cache openssl1.1-compat
 
 WORKDIR /app
 
@@ -14,10 +13,9 @@ COPY . .
 
 RUN pnpm run build
 
-FROM node:18-alpine
+FROM node:20-slim
 
 RUN corepack enable && corepack prepare pnpm@8 --activate
-RUN apk add --no-cache openssl1.1-compat
 
 WORKDIR /app
 

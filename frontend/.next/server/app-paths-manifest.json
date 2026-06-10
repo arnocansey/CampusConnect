@@ -1,8 +1,8 @@
 {
-  "/feed/page": "app/feed/page.js",
-  "/marketplace/page": "app/marketplace/page.js",
-  "/jobs/[id]/page": "app/jobs/[id]/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/jobs/page": "app/jobs/page.js",
   "/explore/page": "app/explore/page.js",
+  "/login/page": "app/login/page.js",
+  "/jobs/[id]/page": "app/jobs/[id]/page.js",
   "/events/page": "app/events/page.js"
 }
