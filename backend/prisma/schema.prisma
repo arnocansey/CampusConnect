@@ -1,0 +1,744 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTH & USERS ====================
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  username        String    @unique
+  studentId       String?
+  fullName        String
+  phoneNumber     String?
+  passwordHash    String
+  profilePicture  String?
+  coverPhoto      String?
+  bio             String?
+  department      String?
+  program         String?
+  level           Int?
+  skills          String[]
+  interests       String[]
+  socialLinks     Json?
+  role            UserRole  @default(STUDENT)
+  isVerified      Boolean   @default(false)
+  verificationToken String?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+  refreshToken    String?
+  fcmToken        String?
+  lastSeen        DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  posts           Post[]
+  comments        Comment[]
+  likes           Like[]
+  savedPosts      SavedPost[]
+  stories         Story[]
+  followers       Follow[] @relation("following")
+  following       Follow[] @relation("followers")
+  messages        Message[]
+  groupMembers    GroupMember[]
+  groupMessages   GroupMessage[]
+  marketplaceItems MarketplaceItem[]
+  marketplaceReviews MarketplaceReview[] @relation("reviewer")
+  sellerReviews   MarketplaceReview[] @relation("seller")
+  notes           Note[]
+  noteDownloads   NoteDownload[]
+  noteBookmarks   NoteBookmark[]
+  noteRatings     NoteRating[]
+  jobApplications JobApplication[]
+  eventRegistrations EventRegistration[]
+  notifications   Notification[]
+  hostelReviews   HostelReview[]
+  reports         Report[]        @relation("reporter")
+  reportedContent Report[]        @relation("reportedContent")
+  adminActions    AdminAction[]
+  commentLikes    CommentLike[]
+  conversationMembers ConversationMember[]
+  noteComments    NoteComment[]
+  createdGroups   StudyGroup[]
+  organizedEvents Event[]
+  messageReactions MessageReaction[]
+
+  @@index([email])
+  @@index([username])
+}
+
+enum UserRole {
+  STUDENT
+  MODERATOR
+  ADMIN
+}
+
+// ==================== SOCIAL FEED ====================
+
+model Post {
+  id          String    @id @default(uuid())
+  content     String?
+  images      String[]
+  videoUrl    String?
+  documentUrl String?
+  type        PostType  @default(TEXT)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes       Like[]
+  comments    Comment[]
+  savedPosts  SavedPost[]
+  tags        String[]
+  isEdited    Boolean   @default(false)
+  isDeleted   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+  DOCUMENT
+  POLL
+  MARKETPLACE
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  images    String[]
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  likes     CommentLike[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
+}
+
+model SavedPost {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Story {
+  id              String      @id @default(uuid())
+  imageUrl        String?
+  backgroundColor String?
+  content         String?
+  authorId        String
+  author          User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  views           StoryView[]
+  expiresAt       DateTime
+  createdAt       DateTime    @default(now())
+
+  @@index([authorId])
+  @@index([expiresAt])
+}
+
+model StoryView {
+  id        String   @id @default(uuid())
+  storyId   String
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId  String
+  createdAt DateTime @default(now())
+
+  @@unique([storyId, viewerId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("followers", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// ==================== MESSAGING ====================
+
+model Conversation {
+  id          String         @id @default(uuid())
+  isGroup     Boolean        @default(false)
+  name        String?
+  avatar      String?
+  messages    Message[]
+  members     ConversationMember[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ConversationMember {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String?
+  imageUrl       String?
+  fileUrl        String?
+  type           MessageType  @default(TEXT)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  readBy         MessageRead[]
+  reactions      MessageReaction[]
+  isEdited       Boolean      @default(false)
+  isDeleted      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  VOICE
+  SYSTEM
+}
+
+model MessageRead {
+  id        String   @id @default(uuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  readAt    DateTime @default(now())
+
+  @@unique([messageId, userId])
+}
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji     String
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId])
+}
+
+// ==================== MARKETPLACE ====================
+
+model MarketplaceItem {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  images      String[]
+  price       Float
+  currency    String   @default("USD")
+  category    MarketplaceCategory
+  condition   ItemCondition @default(USED)
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  isAvailable Boolean  @default(true)
+  isSold      Boolean  @default(false)
+  location    String?
+  reviews     MarketplaceReview[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sellerId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+enum MarketplaceCategory {
+  BOOKS
+  ELECTRONICS
+  CLOTHING
+  ACCESSORIES
+  SERVICES
+  HOSTEL_ITEMS
+  OTHER
+}
+
+enum ItemCondition {
+  NEW
+  LIKE_NEW
+  USED
+  FAIR
+}
+
+model MarketplaceReview {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  reviewerId String
+  reviewer  User     @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  sellerId  String
+  seller    User     @relation("seller", fields: [sellerId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      MarketplaceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([reviewerId, itemId])
+}
+
+// ==================== NOTES HUB ====================
+
+model Note {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  fileUrl     String
+  fileType    NoteFileType
+  course      String
+  department  String
+  level       Int
+  semester    String?
+  uploaderId  String
+  uploader    User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  downloads   NoteDownload[]
+  bookmarks   NoteBookmark[]
+  ratings     NoteRating[]
+  comments    NoteComment[]
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([uploaderId])
+  @@index([course])
+  @@index([department])
+  @@index([level])
+}
+
+enum NoteFileType {
+  PDF
+  DOCX
+  PPT
+  ZIP
+  OTHER
+}
+
+model NoteDownload {
+  id       String @id @default(uuid())
+  noteId   String
+  note     Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  downloadedAt DateTime @default(now())
+
+  @@unique([noteId, userId])
+}
+
+model NoteBookmark {
+  id       String @id @default(uuid())
+  noteId   String
+  note     Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([noteId, userId])
+}
+
+model NoteRating {
+  id        String @id @default(uuid())
+  noteId    String
+  note      Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  createdAt DateTime @default(now())
+
+  @@unique([noteId, userId])
+}
+
+model NoteComment {
+  id        String   @id @default(uuid())
+  content   String
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([noteId])
+}
+
+// ==================== STUDY GROUPS ====================
+
+model StudyGroup {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  avatar      String?
+  course      String?
+  department  String?
+  level       Int?
+  isPublic    Boolean  @default(true)
+  maxMembers  Int      @default(50)
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  messages    GroupMessage[]
+  files       GroupFile[]
+  events      GroupEvent[]
+  announcements GroupAnnouncement[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([creatorId])
+  @@index([course])
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  group     StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      GroupRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  @@unique([groupId, userId])
+}
+
+enum GroupRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+model GroupMessage {
+  id        String   @id @default(uuid())
+  content   String
+  imageUrl  String?
+  fileUrl   String?
+  groupId   String
+  group     StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}
+
+model GroupFile {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  size      Int
+  groupId   String
+  group     StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  uploaderId String
+  uploadedAt DateTime @default(now())
+}
+
+model GroupEvent {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+  location    String?
+  groupId     String
+  group       StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model GroupAnnouncement {
+  id        String   @id @default(uuid())
+  content   String
+  groupId   String
+  group     StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  authorId  String
+  createdAt DateTime @default(now())
+}
+
+// ==================== HOSTEL FINDER ====================
+
+model Hostel {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  images      String[]
+  location    String
+  latitude    Float?
+  longitude   Float?
+  pricePerMonth Float
+  currency    String   @default("USD")
+  roomType    RoomType
+  facilities  String[]
+  contactPhone String?
+  contactEmail String?
+  reviews     HostelReview[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([location])
+  @@index([roomType])
+  @@index([pricePerMonth])
+}
+
+enum RoomType {
+  SINGLE
+  SHARED
+  SELF_CONTAINED
+}
+
+model HostelReview {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String
+  hostelId  String
+  hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, hostelId])
+}
+
+// ==================== JOBS & INTERNSHIPS ====================
+
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  company     String
+  description String
+  requirements String[]
+  salary      String?
+  jobType     JobType
+  location    String?
+  isRemote    Boolean  @default(false)
+  deadline    DateTime?
+  applicationUrl String?
+  contactEmail String?
+  applications JobApplication[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([jobType])
+  @@index([createdAt])
+}
+
+enum JobType {
+  PART_TIME
+  FULL_TIME
+  INTERNSHIP
+  FREELANCE
+  VOLUNTEER
+}
+
+model JobApplication {
+  id        String   @id @default(uuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeUrl String?
+  coverLetter String?
+  status    ApplicationStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobId, userId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
+}
+
+// ==================== EVENTS ====================
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  imageUrl    String?
+  venue       String
+  date        DateTime
+  endTime     DateTime?
+  organizerId String
+  organizer   User     @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  category    EventCategory @default(ACADEMIC)
+  maxAttendees Int?
+  registrations EventRegistration[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+  @@index([category])
+}
+
+enum EventCategory {
+  ACADEMIC
+  SOCIAL
+  SPORTS
+  CULTURAL
+  TECH
+  CAREER
+  OTHER
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketCode String  @default(uuid())
+  checkedIn Boolean  @default(false)
+  checkedInAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      NotificationType
+  content   String
+  link      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  senderId  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MESSAGE
+  EVENT
+  MARKETPLACE
+  GROUP
+  SYSTEM
+}
+
+// ==================== REPORTS & MODERATION ====================
+
+model Report {
+  id           String   @id @default(uuid())
+  reason       ReportReason
+  description  String?
+  contentType  ReportContentType
+  contentId    String
+  reporterId   String
+  reporter     User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId String?
+  reportedUser User?    @relation("reportedContent", fields: [reportedUserId], references: [id])
+  status       ReportStatus @default(PENDING)
+  resolvedBy   String?
+  resolvedAt   DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([status])
+  @@index([contentType])
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  INAPPROPRIATE_CONTENT
+  MISINFORMATION
+  OTHER
+}
+
+enum ReportContentType {
+  POST
+  COMMENT
+  USER
+  MESSAGE
+  MARKETPLACE_ITEM
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+model AdminAction {
+  id        String   @id @default(uuid())
+  action    AdminActionType
+  targetType String
+  targetId  String
+  reason    String?
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum AdminActionType {
+  WARN
+  SUSPEND
+  BAN
+  DELETE_CONTENT
+  RESTORE_CONTENT
+}

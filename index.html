@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusConnect - Learn. Connect. Trade.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.min.css">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  body { background: #F8FAFC; }
+  .sc-logo { background: linear-gradient(135deg, #7C3AED, #6366F1); }
+  .bottom-nav-item.active svg, .bottom-nav-item.active span { color: #2563EB; }
+  .bottom-nav-item.active svg { stroke-width: 2.5; }
+  .story-ring { background: linear-gradient(135deg, #7C3AED, #A855F7); padding: 2px; }
+  .glass-card { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .slide-up { animation: slideUp 0.4s ease; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .page { display: none; }
+  .page.active { display: block; }
+  .category-chip.active { background: #0F172A; color: white; }
+  .tab-btn.active { background: white; color: #0F172A; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+  .modal-overlay { background: rgba(0,0,0,0.5); }
+  .heart-anim { animation: heartBeat 0.3s ease; }
+  @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  .gradient-banner { background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%); }
+  .premium-badge { background: linear-gradient(135deg, #7C3AED, #A855F7); }
+  input:focus, textarea:focus { outline: none; }
+  .search-bar:focus-within { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+</style>
+</head>
+<body class="bg-[#F8FAFC] min-h-screen pb-20">
+
+<!-- Top Header -->
+<header class="sticky top-0 z-50 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="sc-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">SC</div>
+  </div>
+  <div class="flex items-center gap-3">
+    <button onclick="toggleSearch()" class="p-2 hover:bg-gray-100 rounded-full transition">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    </button>
+    <button onclick="showPage('notifications')" class="p-2 hover:bg-gray-100 rounded-full transition relative">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      <span class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">5</span>
+    </button>
+    <button onclick="toggleMenu()" class="p-2 hover:bg-gray-100 rounded-full transition">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- Search Overlay -->
+<div id="searchOverlay" class="fixed inset-0 z-50 bg-white hidden">
+  <div class="p-4">
+    <div class="flex items-center gap-3 mb-4">
+      <button onclick="toggleSearch()" class="p-2 hover:bg-gray-100 rounded-full">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="flex-1 search-bar bg-gray-100 rounded-xl px-4 py-3 flex items-center gap-2 transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search for people, topics, or posts..." class="bg-transparent flex-1 text-sm">
+      </div>
+    </div>
+    <div class="flex gap-2 mb-4">
+      <button class="tab-btn active px-5 py-2 rounded-full text-sm font-medium transition">Trending</button>
+      <button class="tab-btn px-5 py-2 rounded-full text-sm font-medium text-gray-500 transition">People</button>
+      <button class="tab-btn px-5 py-2 rounded-full text-sm font-medium text-gray-500 transition">Posts</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="flex items-center gap-2 mb-4">
+        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <h3 class="font-bold text-lg">Trending Topics</h3>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between py-2 border-b border-gray-50">
+          <div><p class="text-blue-600 font-semibold">#MidtermPrep</p><p class="text-sm text-gray-500">1,234 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">1</span>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-gray-50">
+          <div><p class="text-blue-600 font-semibold">#CampusLife</p><p class="text-sm text-gray-500">856 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">2</span>
+        </div>
+        <div class="flex items-center justify-between py-2">
+          <div><p class="text-blue-600 font-semibold">#StudyTips</p><p class="text-sm text-gray-500">632 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Menu -->
+<div id="sideMenu" class="fixed inset-0 z-50 hidden">
+  <div class="modal-overlay absolute inset-0" onclick="toggleMenu()"></div>
+  <div class="absolute right-0 top-0 h-full w-72 bg-white shadow-2xl p-6 slide-up">
+    <div class="flex items-center justify-between mb-8">
+      <div class="sc-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm">SC</div>
+      <button onclick="toggleMenu()" class="p-2 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="space-y-1">
+      <a onclick="showPage('home');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span class="font-medium">Home</span></a>
+      <a onclick="showPage('explore');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><span class="font-medium">Explore</span></a>
+      <a onclick="showPage('marketplace');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg><span class="font-medium">Marketplace</span></a>
+      <a onclick="showPage('notes');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span class="font-medium">Notes Hub</span></a>
+      <a onclick="showPage('groups');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span class="font-medium">Study Groups</span></a>
+      <a onclick="showPage('hostel');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span class="font-medium">Hostel Finder</span></a>
+      <a onclick="showPage('jobs');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span class="font-medium">Jobs & Internships</span></a>
+      <a onclick="showPage('events');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span class="font-medium">Campus Events</span></a>
+      <a onclick="showPage('messages');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span class="font-medium">Messages</span></a>
+      <a onclick="showPage('profile');toggleMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span class="font-medium">Profile</span></a>
+    </div>
+    <div class="mt-8 pt-6 border-t border-gray-100">
+      <div class="flex items-center gap-3 px-4">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">Y</div>
+        <div><p class="font-semibold text-sm">You</p><p class="text-xs text-gray-500">@yourname · Premium</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== HOME PAGE ==================== -->
+<div id="page-home" class="page active fade-in">
+  <!-- Stories -->
+  <div class="bg-white mx-4 mt-4 rounded-2xl p-4 border border-gray-100">
+    <div class="flex gap-4 overflow-x-auto pb-2">
+      <div class="flex flex-col items-center gap-1.5 min-w-[64px]">
+        <div class="story-ring rounded-full p-[2px]">
+          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <span class="text-xs font-medium">Your Story</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 min-w-[64px]">
+        <div class="story-ring rounded-full p-[2px]">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold border-2 border-white">A</div>
+        </div>
+        <span class="text-xs font-medium">Alex</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 min-w-[64px]">
+        <div class="story-ring rounded-full p-[2px]">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold border-2 border-white">J</div>
+        </div>
+        <span class="text-xs font-medium">Jordan</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 min-w-[64px]">
+        <div class="story-ring rounded-full p-[2px]">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-bold border-2 border-white">T</div>
+        </div>
+        <span class="text-xs font-medium">Taylor</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 min-w-[64px]">
+        <div class="story-ring rounded-full p-[2px]">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold border-2 border-white">R</div>
+        </div>
+        <span class="text-xs font-medium">Riley</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 min-w-[64px]">
+        <div class="story-ring rounded-full p-[2px]">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-bold border-2 border-white">M</div>
+        </div>
+        <span class="text-xs font-medium">Morgan</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Composer -->
+  <div class="bg-white mx-4 mt-4 rounded-2xl p-4 border border-gray-100 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm">Y</div>
+    <div class="flex-1 bg-gray-100 rounded-full px-4 py-3 text-gray-500 text-sm cursor-pointer hover:bg-gray-200 transition" onclick="openPostModal()">What's on your mind?</div>
+  </div>
+
+  <!-- Quick Access Cards -->
+  <div class="mx-4 mt-4 grid grid-cols-3 gap-3">
+    <div onclick="showPage('notes')" class="bg-white rounded-2xl p-3 border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
+      <div class="text-2xl mb-1">📚</div>
+      <p class="text-xs font-medium text-gray-700">Lecture Notes</p>
+    </div>
+    <div onclick="showPage('marketplace')" class="bg-white rounded-2xl p-3 border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
+      <div class="text-2xl mb-1">🛍️</div>
+      <p class="text-xs font-medium text-gray-700">Marketplace</p>
+    </div>
+    <div onclick="showPage('groups')" class="bg-white rounded-2xl p-3 border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
+      <div class="text-2xl mb-1">👥</div>
+      <p class="text-xs font-medium text-gray-700">Study Groups</p>
+    </div>
+    <div onclick="showPage('hostel')" class="bg-white rounded-2xl p-3 border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
+      <div class="text-2xl mb-1">🏠</div>
+      <p class="text-xs font-medium text-gray-700">Hostel Finder</p>
+    </div>
+    <div onclick="showPage('jobs')" class="bg-white rounded-2xl p-3 border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
+      <div class="text-2xl mb-1">💼</div>
+      <p class="text-xs font-medium text-gray-700">Jobs</p>
+    </div>
+    <div onclick="showPage('events')" class="bg-white rounded-2xl p-3 border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
+      <div class="text-2xl mb-1">📅</div>
+      <p class="text-xs font-medium text-gray-700">Events</p>
+    </div>
+  </div>
+
+  <!-- Posts Feed -->
+  <div id="postsFeed" class="mx-4 mt-4 space-y-4 pb-4">
+    <!-- Post 1 -->
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold text-sm">S</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="font-semibold text-sm">Sarah Johnson</p>
+              <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              <span class="premium-badge text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">Premium</span>
+            </div>
+            <p class="text-xs text-gray-500">@sarahj · 2 hours ago</p>
+          </div>
+        </div>
+        <button class="p-1 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+      </div>
+      <div class="px-4 pb-3">
+        <p class="text-sm leading-relaxed">Just finished my final project for Computer Science! Really proud of what we built as a team. Can't wait to present it tomorrow! 🎉</p>
+      </div>
+      <div class="px-4 pb-3">
+        <div class="bg-gray-100 rounded-xl h-48 flex items-center justify-center text-gray-400">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+      </div>
+      <div class="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+        <span>❤️ 42 · 💬 12 · ↗️ 8</span>
+        <button class="hover:text-gray-700">🔖 Save</button>
+      </div>
+      <div class="px-4 py-2 border-t border-gray-100 flex items-center gap-2">
+        <button onclick="toggleLike(this)" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span class="text-sm font-medium">Like</span>
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span class="text-sm font-medium">Comment</span>
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          <span class="text-sm font-medium">Share</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Post 2 - Marketplace -->
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">M</div>
+          <div>
+            <p class="font-semibold text-sm">Mike Chen</p>
+            <p class="text-xs text-gray-500">@mikec · 5 hours ago · 🛍️ Marketplace</p>
+          </div>
+        </div>
+        <button class="p-1 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+      </div>
+      <div class="px-4 pb-3">
+        <p class="text-sm leading-relaxed">Selling my MacBook Pro 2021 - barely used! Perfect for CS students. DM me if interested 💻</p>
+      </div>
+      <div class="px-4 pb-3">
+        <div class="bg-gray-100 rounded-xl h-48 flex items-center justify-center">
+          <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+      </div>
+      <div class="px-4 pb-3">
+        <div class="flex items-center justify-between bg-blue-50 rounded-xl p-3">
+          <div>
+            <p class="font-bold text-lg text-blue-600">$899</p>
+            <p class="text-xs text-gray-500">📍 Engineering Building</p>
+          </div>
+          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Chat Seller</button>
+        </div>
+      </div>
+      <div class="px-4 py-2 border-t border-gray-100 flex items-center gap-2">
+        <button onclick="toggleLike(this)" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span class="text-sm font-medium">Like</span>
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span class="text-sm font-medium">Comment</span>
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          <span class="text-sm font-medium">Share</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Post 3 -->
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">E</div>
+          <div>
+            <p class="font-semibold text-sm">Emma Wilson</p>
+            <p class="text-xs text-gray-500">@emmaw · 8 hours ago</p>
+          </div>
+        </div>
+        <button class="p-1 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+      </div>
+      <div class="px-4 pb-3">
+        <p class="text-sm leading-relaxed">Looking for study partners for the Data Structures midterm next week! Anyone in CS201? 📖📚</p>
+      </div>
+      <div class="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+        <span>❤️ 28 ·  15 · ↗️ 3</span>
+        <button class="hover:text-gray-700">🔖 Save</button>
+      </div>
+      <div class="px-4 py-2 border-t border-gray-100 flex items-center gap-2">
+        <button onclick="toggleLike(this)" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span class="text-sm font-medium">Like</span>
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span class="text-sm font-medium">Comment</span>
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          <span class="text-sm font-medium">Share</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== EXPLORE PAGE ==================== -->
+<div id="page-explore" class="page fade-in">
+  <div class="mx-4 mt-4">
+    <div class="search-bar bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center gap-2 transition">
+      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" placeholder="Search for people, topics, or posts..." class="bg-transparent flex-1 text-sm">
+    </div>
+  </div>
+  <div class="mx-4 mt-4 flex gap-2 bg-gray-100 rounded-xl p-1">
+    <button class="tab-btn active flex-1 py-2.5 rounded-lg text-sm font-medium transition" onclick="switchExploreTab(this,'trending')">Trending</button>
+    <button class="tab-btn flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 transition" onclick="switchExploreTab(this,'people')">People</button>
+    <button class="tab-btn flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 transition" onclick="switchExploreTab(this,'posts')">Posts</button>
+  </div>
+
+  <div id="explore-trending" class="mx-4 mt-4">
+    <div class="bg-white rounded-2xl border border-gray-100 p-5">
+      <div class="flex items-center gap-2 mb-4">
+        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <h3 class="font-bold text-lg">Trending Topics</h3>
+      </div>
+      <div class="space-y-1">
+        <div class="flex items-center justify-between py-3 border-b border-gray-50 hover:bg-gray-50 rounded-lg px-2 cursor-pointer transition">
+          <div><p class="text-blue-600 font-semibold">#MidtermPrep</p><p class="text-sm text-gray-500">1,234 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">1</span>
+        </div>
+        <div class="flex items-center justify-between py-3 border-b border-gray-50 hover:bg-gray-50 rounded-lg px-2 cursor-pointer transition">
+          <div><p class="text-blue-600 font-semibold">#CampusLife</p><p class="text-sm text-gray-500">856 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">2</span>
+        </div>
+        <div class="flex items-center justify-between py-3 border-b border-gray-50 hover:bg-gray-50 rounded-lg px-2 cursor-pointer transition">
+          <div><p class="text-blue-600 font-semibold">#StudyTips</p><p class="text-sm text-gray-500">632 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">3</span>
+        </div>
+        <div class="flex items-center justify-between py-3 border-b border-gray-50 hover:bg-gray-50 rounded-lg px-2 cursor-pointer transition">
+          <div><p class="text-blue-600 font-semibold">#TechConference2026</p><p class="text-sm text-gray-500">421 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">4</span>
+        </div>
+        <div class="flex items-center justify-between py-3 hover:bg-gray-50 rounded-lg px-2 cursor-pointer transition">
+          <div><p class="text-blue-600 font-semibold">#CareerFair</p><p class="text-sm text-gray-500">389 posts</p></div>
+          <span class="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">5</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="explore-people" class="mx-4 mt-4 hidden">
+    <div class="bg-white rounded-2xl border border-gray-100 p-5">
+      <h3 class="font-bold text-lg mb-4">Suggested People</h3>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold">A</div>
+            <div><p class="font-semibold text-sm">Alex Rivera</p><p class="text-xs text-gray-500">Computer Science · Level 300</p></div>
+          </div>
+          <button onclick="toggleFollow(this)" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition">Follow</button>
+        </div>
+        <div class="flex items-center justify-between py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-bold">J</div>
+            <div><p class="font-semibold text-sm">Jordan Lee</p><p class="text-xs text-gray-500">Business Admin · Level 200</p></div>
+          </div>
+          <button onclick="toggleFollow(this)" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition">Follow</button>
+        </div>
+        <div class="flex items-center justify-between py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">T</div>
+            <div><p class="font-semibold text-sm">Taylor Kim</p><p class="text-xs text-gray-500">Engineering · Level 400</p></div>
+          </div>
+          <button onclick="toggleFollow(this)" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition">Follow</button>
+        </div>
+        <div class="flex items-center justify-between py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold">R</div>
+            <div><p class="font-semibold text-sm">Riley Patel</p><p class="text-xs text-gray-500">Nursing · Level 200</p></div>
+          </div>
+          <button onclick="toggleFollow(this)" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition">Follow</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="explore-posts" class="mx-4 mt-4 hidden">
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition">
+        <div class="h-32 bg-gradient-to-br from-blue-400 to-purple-500"></div>
+        <div class="p-3"><p class="text-xs font-medium line-clamp-2">Study tips for finals week 📚</p><p class="text-[10px] text-gray-500 mt-1">by Sarah J.</p></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition">
+        <div class="h-32 bg-gradient-to-br from-green-400 to-teal-500"></div>
+        <div class="p-3"><p class="text-xs font-medium line-clamp-2">New coffee shop on campus! ☕</p><p class="text-[10px] text-gray-500 mt-1">by Mike C.</p></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition">
+        <div class="h-32 bg-gradient-to-br from-pink-400 to-rose-500"></div>
+        <div class="p-3"><p class="text-xs font-medium line-clamp-2">Hackathon winners announced 🏆</p><p class="text-[10px] text-gray-500 mt-1">by Emma W.</p></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition">
+        <div class="h-32 bg-gradient-to-br from-orange-400 to-amber-500"></div>
+        <div class="p-3"><p class="text-xs font-medium line-clamp-2">Free tutoring available 📖</p><p class="text-[10px] text-gray-500 mt-1">by Jordan L.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MARKETPLACE PAGE ==================== -->
+<div id="page-marketplace" class="page fade-in">
+  <div class="px-4 pt-4">
+    <h1 class="text-2xl font-bold text-gray-900">Marketplace</h1>
+    <p class="text-gray-500 text-sm mt-1">Buy and sell with your classmates</p>
+  </div>
+  <div class="px-4 mt-4">
+    <button class="bg-[#0F172A] text-white px-5 py-3 rounded-xl flex items-center gap-2 font-semibold hover:bg-gray-800 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+      Start Selling
+    </button>
+  </div>
+  <div class="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 p-4">
+    <div class="search-bar bg-gray-100 rounded-xl px-4 py-3 flex items-center gap-2 transition mb-3">
+      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" placeholder="Search products..." class="bg-transparent flex-1 text-sm">
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="flex-1 bg-gray-100 rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer">
+        <span class="text-sm font-medium">Most Recent</span>
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+      <button class="bg-gray-100 p-3 rounded-xl"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="flex gap-2 overflow-x-auto px-4 mt-4 pb-2">
+    <button class="category-chip active px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap transition" onclick="filterCategory(this)">All</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Books</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Electronics</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Clothing</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Accessories</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Services</button>
+  </div>
+
+  <!-- Featured -->
+  <div class="mx-4 mt-4">
+    <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-5 text-white relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+      <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-semibold">Featured</span>
+      <h3 class="font-bold text-lg mt-3">MacBook Pro 2024</h3>
+      <p class="text-sm text-white/80 mt-1">Like new · M3 Chip · 16GB RAM</p>
+      <div class="flex items-center justify-between mt-4">
+        <p class="font-bold text-xl">$1,299</p>
+        <button class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-semibold">View</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="px-4 mt-4 grid grid-cols-2 gap-3 pb-4">
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition">
+      <div class="h-32 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
+      <div class="p-3">
+        <p class="font-semibold text-sm truncate">MacBook Pro 2021</p>
+        <p class="text-blue-600 font-bold text-sm mt-1">$899</p>
+        <div class="flex items-center gap-1 mt-1">
+          <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px]">M</div>
+          <span class="text-[10px] text-gray-500">Mike C. · ⭐ 4.8</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition">
+      <div class="h-32 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+        <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <div class="p-3">
+        <p class="font-semibold text-sm truncate">CS Textbook Bundle</p>
+        <p class="text-blue-600 font-bold text-sm mt-1">$45</p>
+        <div class="flex items-center gap-1 mt-1">
+          <div class="w-5 h-5 rounded-full bg-pink-500 flex items-center justify-center text-white text-[10px]">S</div>
+          <span class="text-[10px] text-gray-500">Sarah J. · ⭐ 4.9</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition">
+      <div class="h-32 bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+        <svg class="w-10 h-10 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </div>
+      <div class="p-3">
+        <p class="font-semibold text-sm truncate">iPhone 14 Pro</p>
+        <p class="text-blue-600 font-bold text-sm mt-1">$699</p>
+        <div class="flex items-center gap-1 mt-1">
+          <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-[10px]">J</div>
+          <span class="text-[10px] text-gray-500">Jordan L. · ⭐ 4.7</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition">
+      <div class="h-32 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+        <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <div class="p-3">
+        <p class="font-semibold text-sm truncate">Design Services</p>
+        <p class="text-blue-600 font-bold text-sm mt-1">$25/hr</p>
+        <div class="flex items-center gap-1 mt-1">
+          <div class="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white text-[10px]">E</div>
+          <span class="text-[10px] text-gray-500">Emma W. · ⭐ 5.0</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition">
+      <div class="h-32 bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
+        <svg class="w-10 h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="p-3">
+        <p class="font-semibold text-sm truncate">Scientific Calculator</p>
+        <p class="text-blue-600 font-bold text-sm mt-1">$30</p>
+        <div class="flex items-center gap-1 mt-1">
+          <div class="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white text-[10px]">T</div>
+          <span class="text-[10px] text-gray-500">Taylor K. ·  4.6</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition">
+      <div class="h-32 bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center">
+        <svg class="w-10 h-10 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      </div>
+      <div class="p-3">
+        <p class="font-semibold text-sm truncate">Dorm Room Set</p>
+        <p class="text-blue-600 font-bold text-sm mt-1">$120</p>
+        <div class="flex items-center gap-1 mt-1">
+          <div class="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center text-white text-[10px]">R</div>
+          <span class="text-[10px] text-gray-500">Riley P. · ⭐ 4.8</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== NOTES HUB PAGE ==================== -->
+<div id="page-notes" class="page fade-in">
+  <div class="px-4 pt-4">
+    <h1 class="text-2xl font-bold text-gray-900">📚 Notes Hub</h1>
+    <p class="text-gray-500 text-sm mt-1">Share and discover academic resources</p>
+  </div>
+  <div class="mx-4 mt-4 search-bar bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center gap-2 transition">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" placeholder="Search notes, past questions..." class="bg-transparent flex-1 text-sm">
+  </div>
+  <div class="flex gap-2 overflow-x-auto px-4 mt-4 pb-2">
+    <button class="category-chip active px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap transition" onclick="filterCategory(this)">All Levels</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Level 100</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Level 200</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Level 300</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Level 400</button>
+  </div>
+  <div class="px-4 mt-4 space-y-3 pb-4">
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">📄</div>
+          <div>
+            <p class="font-semibold text-sm">Data Structures & Algorithms</p>
+            <p class="text-xs text-gray-500 mt-0.5">CS201 · Level 200 · 24 pages</p>
+            <p class="text-xs text-gray-400 mt-1">by Sarah Johnson · 2 days ago</p>
+          </div>
+        </div>
+        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-semibold">Free</span>
+      </div>
+      <div class="flex items-center gap-4 mt-3 text-xs text-gray-500">
+        <span>⬇️ 156 downloads</span>
+        <span>⭐ 4.9</span>
+        <span>💬 23 comments</span>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">📊</div>
+          <div>
+            <p class="font-semibold text-sm">Calculus II - Complete Notes</p>
+            <p class="text-xs text-gray-500 mt-0.5">MATH202 · Level 200 · 45 pages</p>
+            <p class="text-xs text-gray-400 mt-1">by Alex Rivera · 5 days ago</p>
+          </div>
+        </div>
+        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-semibold">Free</span>
+      </div>
+      <div class="flex items-center gap-4 mt-3 text-xs text-gray-500">
+        <span>⬇️ 89 downloads</span>
+        <span>⭐ 4.7</span>
+        <span>💬 12 comments</span>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">📝</div>
+          <div>
+            <p class="font-semibold text-sm">Past Questions - 2025 Exams</p>
+            <p class="text-xs text-gray-500 mt-0.5">Multiple Courses · Level 300</p>
+            <p class="text-xs text-gray-400 mt-1">by Jordan Lee · 1 week ago</p>
+          </div>
+        </div>
+        <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded-full font-semibold">Premium</span>
+      </div>
+      <div class="flex items-center gap-4 mt-3 text-xs text-gray-500">
+        <span>⬇️ 234 downloads</span>
+        <span>⭐ 4.8</span>
+        <span>💬 45 comments</span>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">🎯</div>
+          <div>
+            <p class="font-semibold text-sm">Machine Learning Tutorial</p>
+            <p class="text-xs text-gray-500 mt-0.5">CS401 · Level 400 · Video + PDF</p>
+            <p class="text-xs text-gray-400 mt-1">by Emma Wilson · 3 days ago</p>
+          </div>
+        </div>
+        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-semibold">Free</span>
+      </div>
+      <div class="flex items-center gap-4 mt-3 text-xs text-gray-500">
+        <span>⬇️ 312 downloads</span>
+        <span>⭐ 5.0</span>
+        <span>💬 67 comments</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STUDY GROUPS PAGE ==================== -->
+<div id="page-groups" class="page fade-in">
+  <div class="px-4 pt-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900"> Study Groups</h1>
+      <p class="text-gray-500 text-sm mt-1">Collaborate and learn together</p>
+    </div>
+    <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">+ Create</button>
+  </div>
+  <div class="mx-4 mt-4 search-bar bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center gap-2 transition">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" placeholder="Search study groups..." class="bg-transparent flex-1 text-sm">
+  </div>
+  <div class="px-4 mt-4 space-y-3 pb-4">
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold">IT</div>
+          <div>
+            <p class="font-semibold text-sm">IT Level 300 Group</p>
+            <p class="text-xs text-gray-500">250 members · Active now</p>
+          </div>
+        </div>
+        <button onclick="toggleJoin(this)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Join</button>
+      </div>
+      <div class="flex -space-x-2 mt-3">
+        <div class="w-7 h-7 rounded-full bg-blue-400 border-2 border-white flex items-center justify-center text-white text-[10px]">A</div>
+        <div class="w-7 h-7 rounded-full bg-green-400 border-2 border-white flex items-center justify-center text-white text-[10px]">B</div>
+        <div class="w-7 h-7 rounded-full bg-pink-400 border-2 border-white flex items-center justify-center text-white text-[10px]">C</div>
+        <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-gray-500 text-[10px]">+247</div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold">CS</div>
+          <div>
+            <p class="font-semibold text-sm">CS Algorithms Study</p>
+            <p class="text-xs text-gray-500">180 members · 2h ago</p>
+          </div>
+        </div>
+        <button onclick="toggleJoin(this)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Join</button>
+      </div>
+      <div class="flex -space-x-2 mt-3">
+        <div class="w-7 h-7 rounded-full bg-purple-400 border-2 border-white flex items-center justify-center text-white text-[10px]">D</div>
+        <div class="w-7 h-7 rounded-full bg-orange-400 border-2 border-white flex items-center justify-center text-white text-[10px]">E</div>
+        <div class="w-7 h-7 rounded-full bg-teal-400 border-2 border-white flex items-center justify-center text-white text-[10px]">F</div>
+        <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-gray-500 text-[10px]">+177</div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white font-bold">BA</div>
+          <div>
+            <p class="font-semibold text-sm">Business Admin Hub</p>
+            <p class="text-xs text-gray-500">320 members · 5h ago</p>
+          </div>
+        </div>
+        <button onclick="toggleJoin(this)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Join</button>
+      </div>
+      <div class="flex -space-x-2 mt-3">
+        <div class="w-7 h-7 rounded-full bg-green-400 border-2 border-white flex items-center justify-center text-white text-[10px]">G</div>
+        <div class="w-7 h-7 rounded-full bg-red-400 border-2 border-white flex items-center justify-center text-white text-[10px]">H</div>
+        <div class="w-7 h-7 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-white text-[10px]">I</div>
+        <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-gray-500 text-[10px]">+317</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== HOSTEL FINDER PAGE ==================== -->
+<div id="page-hostel" class="page fade-in">
+  <div class="px-4 pt-4">
+    <h1 class="text-2xl font-bold text-gray-900">🏠 Hostel Finder</h1>
+    <p class="text-gray-500 text-sm mt-1">Find your perfect accommodation</p>
+  </div>
+  <div class="mx-4 mt-4 search-bar bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center gap-2 transition">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    <input type="text" placeholder="Search hostels near campus..." class="bg-transparent flex-1 text-sm">
+  </div>
+  <div class="flex gap-2 overflow-x-auto px-4 mt-4 pb-2">
+    <button class="category-chip active px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap transition" onclick="filterCategory(this)">All</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Single Room</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Shared</button>
+    <button class="category-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white whitespace-nowrap transition" onclick="filterCategory(this)">Self-contained</button>
+  </div>
+  <div class="px-4 mt-4 space-y-3 pb-4">
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition">
+      <div class="h-40 bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center relative">
+        <svg class="w-16 h-16 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="absolute top-3 left-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-semibold">Available</span>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center justify-between">
+          <p class="font-bold text-sm">Sunrise Hostel</p>
+          <span class="text-blue-600 font-bold">$250/mo</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">📍 0.5km from campus · Single Room</p>
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-500">
+          <span>🛏️ Single</span><span>📶 WiFi</span><span>💧 Water</span><span>⚡ 24/7 Power</span>
+        </div>
+        <div class="flex items-center gap-2 mt-3">
+          <div class="flex text-yellow-400 text-xs">★★★★★</div>
+          <span class="text-xs text-gray-500">4.8 (124 reviews)</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition">
+      <div class="h-40 bg-gradient-to-br from-purple-200 to-purple-400 flex items-center justify-center relative">
+        <svg class="w-16 h-16 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="absolute top-3 left-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-semibold">Available</span>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center justify-between">
+          <p class="font-bold text-sm">Campus View Apartments</p>
+          <span class="text-blue-600 font-bold">$180/mo</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1"> 0.2km from campus · Shared Room</p>
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-500">
+          <span>🛏️ Shared</span><span>📶 WiFi</span><span>🍳 Kitchen</span>
+        </div>
+        <div class="flex items-center gap-2 mt-3">
+          <div class="flex text-yellow-400 text-xs">★★★★☆</div>
+          <span class="text-xs text-gray-500">4.5 (89 reviews)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== JOBS PAGE ==================== -->
+<div id="page-jobs" class="page fade-in">
+  <div class="px-4 pt-4">
+    <h1 class="text-2xl font-bold text-gray-900">💼 Jobs & Internships</h1>
+    <p class="text-gray-500 text-sm mt-1">Find opportunities near you</p>
+  </div>
+  <div class="mx-4 mt-4 search-bar bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center gap-2 transition">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" placeholder="Search jobs, internships..." class="bg-transparent flex-1 text-sm">
+  </div>
+  <div class="px-4 mt-4 space-y-3 pb-4">
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-2xl">💻</div>
+          <div>
+            <p class="font-semibold text-sm">Web Developer Intern</p>
+            <p class="text-xs text-gray-500 mt-0.5">TechCorp Inc. · Part-time</p>
+            <p class="text-xs text-gray-400 mt-1"> Remote · 💰 $20/hr</p>
+          </div>
+        </div>
+        <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded-full font-semibold">New</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-3">
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">React</span>
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Node.js</span>
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">3 months</span>
+      </div>
+      <button class="w-full mt-3 bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Apply Now</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-2xl">🎨</div>
+          <div>
+            <p class="font-semibold text-sm">Graphic Designer</p>
+            <p class="text-xs text-gray-500 mt-0.5">Creative Studio · Freelance</p>
+            <p class="text-xs text-gray-400 mt-1">📍 On-campus · 💰 $25/project</p>
+          </div>
+        </div>
+        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-semibold">Open</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-3">
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Figma</span>
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Photoshop</span>
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Illustrator</span>
+      </div>
+      <button class="w-full mt-3 bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Apply Now</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl">📚</div>
+          <div>
+            <p class="font-semibold text-sm">Math Tutor</p>
+            <p class="text-xs text-gray-500 mt-0.5">University Learning Center</p>
+            <p class="text-xs text-gray-400 mt-1">📍 Library · 💰 $15/hr</p>
+          </div>
+        </div>
+        <span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded-full font-semibold">Urgent</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-3">
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Calculus</span>
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Algebra</span>
+        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded-full">Statistics</span>
+      </div>
+      <button class="w-full mt-3 bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Apply Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== EVENTS PAGE ==================== -->
+<div id="page-events" class="page fade-in">
+  <div class="px-4 pt-4">
+    <h1 class="text-2xl font-bold text-gray-900">📅 Campus Events</h1>
+    <p class="text-gray-500 text-sm mt-1">Discover what's happening</p>
+  </div>
+  <div class="px-4 mt-4 space-y-3 pb-4">
+    <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-5 text-white cursor-pointer hover:shadow-lg transition">
+      <div class="flex items-center justify-between">
+        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-semibold">This Week</span>
+        <span class="text-xs text-white/80">Jun 12, 2026</span>
+      </div>
+      <h3 class="font-bold text-lg mt-3">Tech Conference 2026</h3>
+      <p class="text-sm text-white/80 mt-1">Annual technology conference featuring industry leaders</p>
+      <div class="flex items-center gap-3 mt-3 text-xs text-white/80">
+        <span>📍 Main Auditorium</span><span>👥 500 attending</span>
+      </div>
+      <button class="mt-4 bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition">Register Now</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex flex-col items-center justify-center text-white">
+          <span class="text-[10px] font-semibold">JUN</span>
+          <span class="text-lg font-bold leading-none">15</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm">Career Fair 2026</p>
+          <p class="text-xs text-gray-500 mt-0.5">📍 Student Center · 10:00 AM</p>
+          <p class="text-xs text-gray-400 mt-1">Connect with top employers</p>
+        </div>
+      </div>
+      <button class="w-full mt-3 border border-blue-600 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition">Register</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-400 to-pink-600 flex flex-col items-center justify-center text-white">
+          <span class="text-[10px] font-semibold">JUN</span>
+          <span class="text-lg font-bold leading-none">18</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm">Departmental Meeting - CS</p>
+          <p class="text-xs text-gray-500 mt-0.5">📍 CS Building Room 201 · 2:00 PM</p>
+          <p class="text-xs text-gray-400 mt-1">End of semester review</p>
+        </div>
+      </div>
+      <button class="w-full mt-3 border border-blue-600 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition">Register</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-md transition">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex flex-col items-center justify-center text-white">
+          <span class="text-[10px] font-semibold">JUN</span>
+          <span class="text-lg font-bold leading-none">22</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm">Hackathon 2026</p>
+          <p class="text-xs text-gray-500 mt-0.5"> Innovation Hub · 48 hours</p>
+          <p class="text-xs text-gray-400 mt-1">Build, innovate, win prizes!</p>
+        </div>
+      </div>
+      <button class="w-full mt-3 border border-blue-600 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MESSAGES PAGE ==================== -->
+<div id="page-messages" class="page fade-in">
+  <div class="px-4 pt-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900"> Messages</h1>
+    <button class="p-2 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>
+  </div>
+  <div class="mx-4 mt-4 search-bar bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center gap-2 transition">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" placeholder="Search messages..." class="bg-transparent flex-1 text-sm">
+  </div>
+  <div class="px-4 mt-4 space-y-1 pb-4">
+    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white cursor-pointer transition">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold">S</div>
+        <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#F8FAFC] rounded-full"></div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <p class="font-semibold text-sm">Sarah Johnson</p>
+          <span class="text-[10px] text-gray-400">2m ago</span>
+        </div>
+        <p class="text-xs text-gray-500 truncate">Hey! Are you coming to the study session?</p>
+      </div>
+      <span class="bg-blue-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">2</span>
+    </div>
+    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white cursor-pointer transition">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">M</div>
+        <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#F8FAFC] rounded-full"></div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <p class="font-semibold text-sm">Mike Chen</p>
+          <span class="text-[10px] text-gray-400">15m ago</span>
+        </div>
+        <p class="text-xs text-gray-500 truncate">The laptop is still available if you want it</p>
+      </div>
+      <span class="bg-blue-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">1</span>
+    </div>
+    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white cursor-pointer transition">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold">E</div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <p class="font-semibold text-sm">Emma Wilson</p>
+          <span class="text-[10px] text-gray-400">1h ago</span>
+        </div>
+        <p class="text-xs text-gray-500 truncate">Thanks for the notes! 📚</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white cursor-pointer transition">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold">A</div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <p class="font-semibold text-sm">Alex Rivera</p>
+          <span class="text-[10px] text-gray-400">3h ago</span>
+        </div>
+        <p class="text-xs text-gray-500 truncate">See you at the hackathon!</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white cursor-pointer transition">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold">📢</div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <p class="font-semibold text-sm">CampusConnect</p>
+          <span class="text-[10px] text-gray-400">1d ago</span>
+        </div>
+        <p class="text-xs text-gray-500 truncate">New feature: Study Groups are now live!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== NOTIFICATIONS PAGE ==================== -->
+<div id="page-notifications" class="page fade-in">
+  <div class="px-4 pt-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">🔔 Notifications</h1>
+    <button class="text-blue-600 text-sm font-semibold">Mark all read</button>
+  </div>
+  <div class="px-4 mt-4 space-y-2 pb-4">
+    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-pink-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
+        <div class="flex-1">
+          <p class="text-sm"><span class="font-semibold">Sarah Johnson</span> liked your post</p>
+          <p class="text-xs text-gray-500 mt-1">2 minutes ago</p>
+        </div>
+        <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-2"></div>
+      </div>
+    </div>
+    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">M</div>
+        <div class="flex-1">
+          <p class="text-sm"><span class="font-semibold">Mike Chen</span> wants to buy your textbook</p>
+          <p class="text-xs text-gray-500 mt-1">15 minutes ago</p>
+        </div>
+        <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-2"></div>
+      </div>
+    </div>
+    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-green-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">E</div>
+        <div class="flex-1">
+          <p class="text-sm"><span class="font-semibold">Emma Wilson</span> commented on your post</p>
+          <p class="text-xs text-gray-500 mt-1">1 hour ago</p>
+        </div>
+        <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-2"></div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-gray-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-purple-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">A</div>
+        <div class="flex-1">
+          <p class="text-sm"><span class="font-semibold">Alex Rivera</span> started following you</p>
+          <p class="text-xs text-gray-500 mt-1">3 hours ago</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-gray-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">📚</div>
+        <div class="flex-1">
+          <p class="text-sm">New notes uploaded in <span class="font-semibold">CS201</span></p>
+          <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-gray-100">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0"></div>
+        <div class="flex-1">
+          <p class="text-sm"><span class="font-semibold">Tech Conference 2026</span> is tomorrow!</p>
+          <p class="text-xs text-gray-500 mt-1">1 day ago</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PROFILE PAGE ==================== -->
+<div id="page-profile" class="page fade-in">
+  <div class="relative">
+    <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+    <div class="px-4 -mt-12">
+      <div class="w-24 h-24 rounded-full bg-white p-1">
+        <div class="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white">Y</div>
+      </div>
+      <div class="mt-3">
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-bold">Your Name</h1>
+          <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span class="premium-badge text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">Premium</span>
+        </div>
+        <p class="text-sm text-gray-500">@yourname · Computer Science · Level 300</p>
+        <p class="text-sm text-gray-600 mt-2">🎓 University Student |  Developer | 📚 Lifelong Learner</p>
+      </div>
+      <div class="flex gap-6 mt-4">
+        <div class="text-center"><p class="font-bold">142</p><p class="text-xs text-gray-500">Posts</p></div>
+        <div class="text-center"><p class="font-bold">1.2k</p><p class="text-xs text-gray-500">Followers</p></div>
+        <div class="text-center"><p class="font-bold">384</p><p class="text-xs text-gray-500">Following</p></div>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">Edit Profile</button>
+        <button class="flex-1 border border-gray-200 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Share Profile</button>
+      </div>
+    </div>
+  </div>
+  <div class="px-4 mt-4 flex gap-2 bg-gray-100 rounded-xl p-1">
+    <button class="tab-btn active flex-1 py-2.5 rounded-lg text-sm font-medium transition">Posts</button>
+    <button class="tab-btn flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 transition">Listings</button>
+    <button class="tab-btn flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 transition">Notes</button>
+    <button class="tab-btn flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 transition">Saved</button>
+  </div>
+  <div class="px-4 mt-4 pb-4">
+    <div class="bg-white rounded-2xl border border-gray-100 p-4">
+      <p class="text-sm">📌 Pinned: Excited to announce I'm starting my internship at TechCorp next month! 🚀</p>
+      <p class="text-xs text-gray-500 mt-2">3 days ago · ❤️ 89 · 💬 24</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== POST MODAL ==================== -->
+<div id="postModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closePostModal()"></div>
+  <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto slide-up">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg">Create Post</h3>
+      <button onclick="closePostModal()" class="p-2 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">Y</div>
+      <div>
+        <p class="font-semibold text-sm">Your Name</p>
+        <select class="text-xs text-gray-500 bg-transparent border-none">
+          <option>🌍 Public</option>
+          <option>👥 Friends</option>
+          <option> Private</option>
+        </select>
+      </div>
+    </div>
+    <textarea id="postContent" class="w-full h-32 resize-none text-sm placeholder-gray-400 border-none focus:ring-0" placeholder="What's on your mind?"></textarea>
+    <div class="flex items-center gap-2 py-3 border-y border-gray-100 my-3">
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600"><span>📷</span> Photo</button>
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600"><span>📄</span> File</button>
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600"><span>📍</span> Location</button>
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600"><span>🏷️</span> Tag</button>
+    </div>
+    <button onclick="submitPost()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">Post</button>
+  </div>
+</div>
+
+<!-- ==================== BOTTOM NAVIGATION ==================== -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-2 py-2 z-40">
+  <div class="flex items-center justify-around max-w-lg mx-auto">
+    <button onclick="showPage('home')" class="bottom-nav-item active flex flex-col items-center gap-0.5 px-3 py-1 transition" data-page="home">
+      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span class="text-[10px] font-semibold text-blue-600">Home</span>
+    </button>
+    <button onclick="showPage('explore')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 transition" data-page="explore">
+      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <span class="text-[10px] font-medium text-gray-400">Explore</span>
+    </button>
+    <button onclick="showPage('marketplace')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 transition" data-page="marketplace">
+      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      <span class="text-[10px] font-medium text-gray-400">Marketplace</span>
+    </button>
+    <button onclick="showPage('messages')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 transition" data-page="messages">
+      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+      <span class="text-[10px] font-medium text-gray-400">Messages</span>
+    </button>
+    <button onclick="showPage('notifications')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 transition relative" data-page="notifications">
+      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      <span class="absolute -top-1 right-0 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">5</span>
+      <span class="text-[10px] font-medium text-gray-400">Notifications</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) {
+    page.classList.add('active');
+    page.classList.remove('fade-in');
+    void page.offsetWidth;
+    page.classList.add('fade-in');
+  }
+  document.querySelectorAll('.bottom-nav-item').forEach(btn => {
+    const isActive = btn.dataset.page === pageId;
+    btn.classList.toggle('active', isActive);
+    const svg = btn.querySelector('svg');
+    const span = btn.querySelector('span');
+    if (isActive) {
+      svg.classList.remove('text-gray-400');
+      svg.classList.add('text-blue-600');
+      svg.setAttribute('stroke-width', '2.5');
+      span.classList.remove('text-gray-400', 'font-medium');
+      span.classList.add('text-blue-600', 'font-semibold');
+    } else {
+      svg.classList.remove('text-blue-600');
+      svg.classList.add('text-gray-400');
+      svg.setAttribute('stroke-width', '2');
+      span.classList.remove('text-blue-600', 'font-semibold');
+      span.classList.add('text-gray-400', 'font-medium');
+    }
+  });
+  window.scrollTo(0, 0);
+}
+
+function toggleSearch() {
+  const overlay = document.getElementById('searchOverlay');
+  overlay.classList.toggle('hidden');
+}
+
+function toggleMenu() {
+  const menu = document.getElementById('sideMenu');
+  menu.classList.toggle('hidden');
+}
+
+function toggleLike(btn) {
+  const svg = btn.querySelector('svg');
+  const isLiked = svg.getAttribute('fill') === 'currentColor';
+  if (isLiked) {
+    svg.setAttribute('fill', 'none');
+    svg.classList.remove('text-red-500');
+    svg.classList.add('text-gray-600');
+    btn.classList.remove('text-red-500');
+    btn.classList.add('text-gray-600');
+  } else {
+    svg.setAttribute('fill', 'currentColor');
+    svg.classList.remove('text-gray-600');
+    svg.classList.add('text-red-500');
+    btn.classList.remove('text-gray-600');
+    btn.classList.add('text-red-500');
+    svg.classList.add('heart-anim');
+    setTimeout(() => svg.classList.remove('heart-anim'), 300);
+  }
+}
+
+function toggleFollow(btn) {
+  if (btn.textContent === 'Follow') {
+    btn.textContent = 'Following';
+    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+  } else {
+    btn.textContent = 'Follow';
+    btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+    btn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+  }
+}
+
+function toggleJoin(btn) {
+  if (btn.textContent === 'Join') {
+    btn.textContent = 'Joined';
+    btn.classList.remove('bg-blue-600');
+    btn.classList.add('bg-green-600');
+  } else {
+    btn.textContent = 'Join';
+    btn.classList.add('bg-blue-600');
+    btn.classList.remove('bg-green-600');
+  }
+}
+
+function filterCategory(btn) {
+  btn.parentElement.querySelectorAll('.category-chip').forEach(c => {
+    c.classList.remove('active');
+    c.classList.add('bg-white');
+  });
+  btn.classList.add('active');
+  btn.classList.remove('bg-white');
+}
+
+function switchExploreTab(btn, tab) {
+  btn.parentElement.querySelectorAll('.tab-btn').forEach(t => {
+    t.classList.remove('active');
+    t.classList.add('text-gray-500');
+  });
+  btn.classList.add('active');
+  btn.classList.remove('text-gray-500');
+  document.getElementById('explore-trending').classList.add('hidden');
+  document.getElementById('explore-people').classList.add('hidden');
+  document.getElementById('explore-posts').classList.add('hidden');
+  document.getElementById('explore-' + tab).classList.remove('hidden');
+}
+
+function openPostModal() {
+  document.getElementById('postModal').classList.remove('hidden');
+}
+
+function closePostModal() {
+  document.getElementById('postModal').classList.add('hidden');
+}
+
+function submitPost() {
+  const content = document.getElementById('postContent').value.trim();
+  if (!content) return;
+  const feed = document.getElementById('postsFeed');
+  const post = document.createElement('div');
+  post.className = 'bg-white rounded-2xl border border-gray-100 overflow-hidden fade-in';
+  post.innerHTML = `
+    <div class="p-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">Y</div>
+        <div>
+          <p class="font-semibold text-sm">Your Name</p>
+          <p class="text-xs text-gray-500">@yourname · Just now</p>
+        </div>
+      </div>
+      <button class="p-1 hover:bg-gray-100 rounded-full"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+    </div>
+    <div class="px-4 pb-3"><p class="text-sm leading-relaxed">${content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p></div>
+    <div class="px-4 py-2 border-t border-gray-100 flex items-center gap-2">
+      <button onclick="toggleLike(this)" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="text-sm font-medium">Like</span>
+      </button>
+      <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        <span class="text-sm font-medium">Comment</span>
+      </button>
+      <button class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition text-gray-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        <span class="text-sm font-medium">Share</span>
+      </button>
+    </div>
+  `;
+  feed.insertBefore(post, feed.firstChild);
+  document.getElementById('postContent').value = '';
+  closePostModal();
+  showPage('home');
+}
+</script>
+</body>
+</html>
+
