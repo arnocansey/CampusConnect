@@ -1,8 +1,5 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/jobs/page": "app/jobs/page.js",
-  "/explore/page": "app/explore/page.js",
-  "/login/page": "app/login/page.js",
-  "/jobs/[id]/page": "app/jobs/[id]/page.js",
-  "/events/page": "app/events/page.js"
+  "/signup/page": "app/signup/page.js",
+  "/feed/page": "app/feed/page.js",
+  "/login/page": "app/login/page.js"
 }
