@@ -128,9 +128,9 @@ export default function AdminAuditPage() {
                 <tr className="border-b border-gray-100 dark:border-gray-800">
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Admin</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Action</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Target</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Details</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Timestamp</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">Target</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden lg:table-cell">Details</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">Timestamp</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400"></th>
                 </tr>
               </thead>
@@ -156,17 +156,17 @@ export default function AdminAuditPage() {
                         {log.action.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-gray-600 dark:text-gray-400 text-xs max-w-[150px] truncate block">
                         {log.target}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden lg:table-cell">
                       <p className="text-gray-500 dark:text-gray-500 text-xs max-w-[200px] truncate">
                         {log.details || '-'}
                       </p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-gray-500 dark:text-gray-500 text-xs">
                         {formatDate(log.timestamp)}
                       </span>

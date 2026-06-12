@@ -190,11 +190,11 @@ export default function AdminReportsPage() {
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800">
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Reporter</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Type</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">Type</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Reason</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Content Preview</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden lg:table-cell">Content Preview</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Status</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Created</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden lg:table-cell">Created</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Actions</th>
                 </tr>
               </thead>
@@ -214,7 +214,7 @@ export default function AdminReportsPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-gray-600 dark:text-gray-400 text-xs">
                         {report.contentType}
                       </span>
@@ -224,7 +224,7 @@ export default function AdminReportsPage() {
                         {report.reason}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden lg:table-cell">
                       <p className="text-gray-600 dark:text-gray-400 text-xs max-w-[200px] truncate">
                         {report.contentPreview || 'No preview available'}
                       </p>
@@ -234,41 +234,35 @@ export default function AdminReportsPage() {
                         {report.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden lg:table-cell">
                       <span className="text-gray-500 dark:text-gray-500 text-xs">
                         {formatDate(report.createdAt)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
+                        <button
+                          className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
                           onClick={() => setViewingReport(report)}
                         >
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
+                          <Eye className="w-4 h-4" />
+                        </button>
                         {report.status !== 'RESOLVED' && (
                           <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-green-600 hover:text-green-700"
+                            <button
+                              className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 transition"
                               onClick={() => resolveMutation.mutate(report.id)}
                               disabled={resolveMutation.isPending}
                             >
-                              <CheckCircle className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-red-600 hover:text-red-700"
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                            <button
+                              className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                               onClick={() => dismissMutation.mutate(report.id)}
                               disabled={dismissMutation.isPending}
                             >
-                              <XCircle className="w-3.5 h-3.5" />
-                            </Button>
+                              <XCircle className="w-4 h-4" />
+                            </button>
                           </>
                         )}
                       </div>

@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
     queryKey: ['adminDashboard'],
     queryFn: async () => {
       const res = await api.get('/admin/dashboard');
-      return res.data;
+      return res.data.data;
     },
   });
 
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
     queryKey: ['adminAnalytics', timeRange],
     queryFn: async () => {
       const res = await api.get('/admin/analytics', { params: { range: timeRange } });
-      return res.data;
+      return res.data.data;
     },
   });
 
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-gray-950">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
           <p className="mt-1 text-gray-500 dark:text-gray-400">
             Overview of your platform metrics and activity.
           </p>
@@ -165,7 +165,7 @@ export default function AdminDashboardPage() {
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* User Growth Chart */}
           <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">User Growth</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Monthly new user registrations</p>
@@ -322,7 +322,7 @@ export default function AdminDashboardPage() {
                       </p>
                     )}
                   </div>
-                  <time className="whitespace-nowrap text-xs text-gray-400 dark:text-gray-500">
+                  <time className="whitespace-nowrap text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
                     {new Date(activity.timestamp).toLocaleString()}
                   </time>
                 </li>

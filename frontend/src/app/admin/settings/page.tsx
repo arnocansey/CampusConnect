@@ -162,17 +162,17 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Tab Navigation */}
-        <div className="w-48 shrink-0">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-2 space-y-1">
+        <div className="lg:w-48 shrink-0">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-2 flex lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.value}
                   onClick={() => setActiveTab(tab.value)}
-                  className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium rounded-xl transition ${
+                  className={`flex items-center gap-2 px-3 py-2.5 text-sm font-medium rounded-xl transition whitespace-nowrap ${
                     activeTab === tab.value
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -214,8 +214,8 @@ export default function AdminSettingsPage() {
                   placeholder="A platform for university students..."
                 />
               </div>
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                <div>
+              <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">Maintenance Mode</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     When enabled, only admins can access the platform
@@ -245,7 +245,7 @@ export default function AdminSettingsPage() {
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Email Settings</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">SMTP configuration for outgoing emails</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">SMTP Host</label>
                   <Input
@@ -282,8 +282,8 @@ export default function AdminSettingsPage() {
                   placeholder="noreply@unihub.com"
                 />
               </div>
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                <div>
+              <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">Enable Email</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Allow the platform to send emails</p>
                 </div>
@@ -331,8 +331,8 @@ export default function AdminSettingsPage() {
                   { key: 'passwordRequireNumber', label: 'Require number' },
                   { key: 'passwordRequireSpecial', label: 'Require special character' },
                 ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                    <span className="text-sm text-gray-900 dark:text-white">{item.label}</span>
+                  <div key={item.key} className="flex items-center justify-between gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <span className="text-sm text-gray-900 dark:text-white min-w-0">{item.label}</span>
                     <button
                       type="button"
                       onClick={() => setSecurity({ ...security, [item.key]: !(security as any)[item.key] })}
@@ -349,7 +349,7 @@ export default function AdminSettingsPage() {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
                     Session Timeout (minutes)
@@ -402,8 +402,8 @@ export default function AdminSettingsPage() {
                 { key: 'eventReminders' as const, label: 'Event Reminders', desc: 'Reminders for upcoming events' },
                 { key: 'announcementNotifications' as const, label: 'Announcements', desc: 'Platform announcement notifications' },
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                  <div>
+                <div key={item.key} className="flex items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{item.desc}</p>
                   </div>

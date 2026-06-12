@@ -105,22 +105,22 @@ export default function AdminEventsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800">
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
                     Title
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">
                     Date
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">
                     Location
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400 hidden lg:table-cell">
                     Category
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
                     Approved
                   </th>
-                  <th className="text-right px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-right px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
                     Actions
                   </th>
                 </tr>
@@ -131,15 +131,15 @@ export default function AdminEventsPage() {
                     key={event.id}
                     className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4">
                       <div className="font-medium text-gray-900 dark:text-white">
                         {event.title}
                       </div>
-                      <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-xs">
+                      <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[150px] md:max-w-xs">
                         {event.description}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4 hidden md:table-cell">
                       <span className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300">
                         <Calendar className="w-3.5 h-3.5" />
                         {event.date
@@ -147,18 +147,18 @@ export default function AdminEventsPage() {
                           : "—"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4 hidden md:table-cell">
                       <span className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300">
                         <MapPin className="w-3.5 h-3.5" />
                         {event.location || "—"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4 hidden lg:table-cell">
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                         {event.category || "—"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4">
                       {event.isApproved ? (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
                           <CheckCircle className="w-3 h-3" />

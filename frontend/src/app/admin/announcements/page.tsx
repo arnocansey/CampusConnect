@@ -113,7 +113,7 @@ export default function AdminAnnouncementsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Announcements</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
@@ -160,7 +160,7 @@ export default function AdminAnnouncementsPage() {
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Audience Type *</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -246,7 +246,7 @@ export default function AdminAnnouncementsPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 whitespace-pre-wrap">
                     {announcement.message}
                   </p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-500">
                     {announcement.targeting && (
                       <span>Target: {announcement.targeting}</span>
                     )}
@@ -254,10 +254,8 @@ export default function AdminAnnouncementsPage() {
                     <span>{formatDate(announcement.createdAt)}</span>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0 ml-4"
+                <button
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0 ml-4 transition"
                   onClick={() => {
                     if (confirm('Delete this announcement?')) {
                       deleteMutation.mutate(announcement.id);
@@ -266,7 +264,7 @@ export default function AdminAnnouncementsPage() {
                   disabled={deleteMutation.isPending}
                 >
                   <Trash2 className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
             </div>
           ))}

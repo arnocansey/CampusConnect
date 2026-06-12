@@ -91,19 +91,19 @@ export default function AdminGroupsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800">
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
                     Name
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
                     Members
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">
                     Course
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-left px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">
                     Created
                   </th>
-                  <th className="text-right px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                  <th className="text-right px-4 md:px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
                     Actions
                   </th>
                 </tr>
@@ -114,27 +114,27 @@ export default function AdminGroupsPage() {
                     key={group.id}
                     className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4">
                       <div className="font-medium text-gray-900 dark:text-white">
                         {group.name}
                       </div>
-                      <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-xs">
+                      <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[150px] md:max-w-xs">
                         {group.description}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4">
                       <span className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300">
                         <Users className="w-3.5 h-3.5" />
                         {group._count?.members ?? 0}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                    <td className="px-4 md:px-6 py-4 text-gray-700 dark:text-gray-300 hidden md:table-cell">
                       {group.course || "—"}
                     </td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400 text-xs">
+                    <td className="px-4 md:px-6 py-4 text-gray-500 dark:text-gray-400 text-xs hidden md:table-cell">
                       {new Date(group.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 md:px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <a
                           href={`/groups/${group.id}`}

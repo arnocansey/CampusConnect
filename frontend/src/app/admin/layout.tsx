@@ -47,7 +47,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, loading, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState(true);
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'ADMIN')) {
@@ -56,7 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [user, loading, router]);
 
   useEffect(() => {
-    setSidebarOpen(false);
+    setMobileOpen(false);
   }, [pathname]);
 
   if (loading || !user || user.role !== 'ADMIN') {
@@ -68,11 +69,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return pathname === item.path || pathname.startsWith(item.path + '/');
   };
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ onNavClick }: { onNavClick?: () => void }) => (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-gray-100 dark:border-gray-800">
-        <Link href="/admin" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center text-white font-bold text-sm">
+        <Link href="/admin" className="flex items-center gap-3" onClick={onNavClick}>
+          <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center text-white font-bold text-sm shrink-0">
             AH
           </div>
           <div className="flex-1 min-w-0">
@@ -89,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link
               key={item.path}
               href={item.path}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onNavClick}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${
                 active
                   ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
@@ -135,33 +136,43 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:flex-col fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 z-40 transition-colors">
+      <aside
+        className={`hidden md:flex md:flex-col fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 z-40 transition-transform duration-200 ease-in-out ${
+          desktopOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <SidebarContent />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
+      {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
             className="absolute inset-0 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => setMobileOpen(false)}
           />
           <div className="absolute left-0 top-0 h-full w-72 bg-white dark:bg-gray-900 shadow-2xl transition-colors">
             <button
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setMobileOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             >
               <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </button>
-            <SidebarContent />
+            <SidebarContent onNavClick={() => setMobileOpen(false)} />
           </div>
         </div>
       )}
 
-      {/* Top Bar - Mobile */}
-      <div className="md:hidden sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-4 py-3 flex items-center justify-between transition-colors">
+      {/* Top Bar */}
+      <div className={`sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-4 py-3 flex items-center justify-between transition-all duration-200 ${desktopOpen ? 'md:ml-64' : 'md:ml-0'}`}>
         <button
-          onClick={() => setSidebarOpen(true)}
+          onClick={() => {
+            if (window.innerWidth >= 768) {
+              setDesktopOpen((prev) => !prev);
+            } else {
+              setMobileOpen(true);
+            }
+          }}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition"
         >
           <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
@@ -176,7 +187,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* Main Content */}
-      <main className="md:ml-64 min-h-screen transition-colors">
+      <main className={`min-h-screen transition-all duration-200 ${desktopOpen ? 'md:ml-64' : 'md:ml-0'}`}>
         <div className="p-4 md:p-6 lg:p-8">
           {children}
         </div>

@@ -29,11 +29,15 @@ model User {
   socialLinks     Json?
   role            UserRole  @default(STUDENT)
   isVerified      Boolean   @default(false)
+  isSuspended     Boolean   @default(false)
+  isBanned        Boolean   @default(false)
   verificationToken String?
   resetPasswordToken String?
   resetPasswordExpires DateTime?
   refreshToken    String?
   fcmToken        String?
+  universityId    String?
+  university      University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
   lastSeen        DateTime  @default(now())
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -68,6 +72,10 @@ model User {
   createdGroups   StudyGroup[]
   organizedEvents Event[]
   messageReactions MessageReaction[]
+  securityLogs    SecurityLog[]
+  auditLogs       AuditLog[]
+  sessions        ActiveSession[]
+  announcements   Announcement[]
 
   @@index([email])
   @@index([username])
@@ -296,6 +304,7 @@ model MarketplaceItem {
   seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   isAvailable Boolean  @default(true)
   isSold      Boolean  @default(false)
+  isApproved  Boolean  @default(false)
   location    String?
   reviews     MarketplaceReview[]
   createdAt   DateTime @default(now())
@@ -357,6 +366,8 @@ model Note {
   ratings     NoteRating[]
   comments    NoteComment[]
   tags        String[]
+  isApproved  Boolean  @default(false)
+  isRejected  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -525,6 +536,7 @@ model Hostel {
   facilities  String[]
   contactPhone String?
   contactEmail String?
+  isApproved   Boolean  @default(false)
   reviews     HostelReview[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -568,6 +580,7 @@ model Job {
   deadline    DateTime?
   applicationUrl String?
   contactEmail String?
+  isApproved   Boolean  @default(false)
   applications JobApplication[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -620,6 +633,7 @@ model Event {
   organizer   User     @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   category    EventCategory @default(ACADEMIC)
   maxAttendees Int?
+  isApproved   Boolean  @default(false)
   registrations EventRegistration[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -742,4 +756,99 @@ enum AdminActionType {
   BAN
   DELETE_CONTENT
   RESTORE_CONTENT
+}
+
+// ==================== UNIVERSITY ====================
+
+model University {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  location    String
+  logo        String?
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  students    User[]
+
+  @@index([name])
+}
+
+// ==================== SECURITY & AUDIT ====================
+
+model SecurityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  ip        String
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String          @id @default(uuid())
+  adminId   String
+  admin     User            @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action    AuditActionType
+  target    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime        @default(now())
+
+  @@index([adminId])
+  @@index([createdAt])
+}
+
+model ActiveSession {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ip         String
+  device     String
+  browser    String
+  lastActive DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum AuditActionType {
+  USER_BAN
+  USER_UNBAN
+  USER_ROLE_CHANGE
+  POST_DELETE
+  COMMENT_DELETE
+  GROUP_DELETE
+  SETTINGS_CHANGE
+  ANNOUNCEMENT_CREATE
+  ANNOUNCEMENT_DELETE
+  REPORT_RESOLVE
+  REPORT_DISMISS
+  SECURITY_ACTION
+}
+
+// ==================== ANNOUNCEMENTS ====================
+
+model Announcement {
+  id          String            @id @default(uuid())
+  title       String
+  message     String
+  type        AnnouncementType  @default(ALL)
+  targeting   String?
+  createdById String
+  createdBy   User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+
+  @@index([createdById])
+}
+
+enum AnnouncementType {
+  ALL
+  UNIVERSITY
+  DEPARTMENT
+  ROLE
 }

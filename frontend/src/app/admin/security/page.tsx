@@ -12,7 +12,6 @@ import {
   Laptop,
   Globe,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 
 interface Session {
@@ -103,7 +102,7 @@ export default function AdminSecurityPage() {
       </div>
 
       {/* Section Tabs */}
-      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveSection('sessions')}
           className={`px-4 py-2 text-sm font-medium rounded-lg transition flex items-center gap-2 ${
@@ -153,8 +152,8 @@ export default function AdminSecurityPage() {
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
                       <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">User</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">IP Address</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Device</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">IP Address</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">Device</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Last Active</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Actions</th>
                     </tr>
@@ -180,12 +179,12 @@ export default function AdminSecurityPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden md:table-cell">
                           <span className="font-mono text-xs text-gray-600 dark:text-gray-400">
                             {session.ip}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden md:table-cell">
                           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-xs">
                             {getDeviceIcon(session.device)}
                             <span className="max-w-[150px] truncate">{session.device}</span>
@@ -197,15 +196,14 @@ export default function AdminSecurityPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <Button
-                            variant="destructive"
-                            size="sm"
+                          <button
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition"
                             onClick={() => forceLogoutMutation.mutate(session.id)}
                             disabled={forceLogoutMutation.isPending}
                           >
-                            <LogOut className="w-3.5 h-3.5 mr-1" />
-                            Force Logout
-                          </Button>
+                            <LogOut className="w-3.5 h-3.5" />
+                            Force
+                          </button>
                         </td>
                       </tr>
                     ))}
