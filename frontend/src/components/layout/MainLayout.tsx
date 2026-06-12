@@ -177,8 +177,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
               href={`/profile/${user?.username}`}
               className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                {user?.fullName?.charAt(0)}
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                {user?.profilePicture ? (
+                  <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user?.fullName?.charAt(0)
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate dark:text-white">{user?.fullName}</p>
@@ -231,8 +235,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                   onClick={() => setSidebarOpen(false)}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                    {user?.fullName?.charAt(0)}
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                    {user?.profilePicture ? (
+                      <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      user?.fullName?.charAt(0)
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate dark:text-white">{user?.fullName}</p>

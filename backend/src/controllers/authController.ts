@@ -84,6 +84,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       role: true,
       passwordHash: true,
       isVerified: true,
+      profilePicture: true,
     },
   });
 
