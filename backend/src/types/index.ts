@@ -10,6 +10,8 @@ export interface AuthUser {
 
 export interface AuthRequest extends Request {
   user?: AuthUser;
+  params: Record<string, string>;
+  query: Record<string, string | string[] | undefined>;
 }
 
 export interface JwtPayload {

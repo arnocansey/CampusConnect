@@ -39,7 +39,7 @@ export function ChatPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout>(null);
 
   const { data: chatData } = useQuery({
     queryKey: ['messages', conversationId],
