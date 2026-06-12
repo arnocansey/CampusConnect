@@ -1,6 +1,5 @@
 "use client";
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -37,7 +36,6 @@ type SignupFormData = z.infer<typeof signupSchema>;
 export function SignupPage() {
   const { t } = useTranslation();
   const { signup } = useAuth();
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -50,7 +48,7 @@ export function SignupPage() {
     try {
       await signup(data);
       toast.success(t('auth.welcomeBack'));
-      router.push('/login');
+      window.location.href = '/login';
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('common.error'));
     }
