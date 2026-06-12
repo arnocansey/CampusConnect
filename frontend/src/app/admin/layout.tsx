@@ -48,27 +48,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
-
-  const isLoginPage = pathname === '/admin/login';
 
   useEffect(() => {
-    if (!loading && !isLoginPage && (!user || user.role !== 'ADMIN')) {
+    if (!loading && (!user || user.role !== 'ADMIN')) {
       router.replace('/admin/login');
     }
-  }, [user, loading, isLoginPage, router]);
+  }, [user, loading, router]);
 
   useEffect(() => {
     setSidebarOpen(false);
   }, [pathname]);
 
-  if (isLoginPage) {
-    return <>{children}</>;
-  }
-
-  if (!mounted || loading || !user || user.role !== 'ADMIN') {
+  if (loading || !user || user.role !== 'ADMIN') {
     return <LoadingSpinner />;
   }
 
