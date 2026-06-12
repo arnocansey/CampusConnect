@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { useTranslation } from '../i18n';
 
 
 const categoryButtons = [
@@ -20,6 +21,7 @@ const categoryButtons = [
 ];
 
 export function MarketplacePage() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   
@@ -67,7 +69,7 @@ export function MarketplacePage() {
       setLocation('');
       setImages(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      toast.success('Item listed successfully!');
+      toast.success(t('marketplace.listSuccessful'));
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to list item');
@@ -77,7 +79,7 @@ export function MarketplacePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !price.trim() || !location.trim()) {
-      toast.error('Please fill all required fields');
+      toast.error(t('marketplace.fillRequired'));
       return;
     }
 
@@ -104,12 +106,12 @@ export function MarketplacePage() {
       <div className="flex-1 max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Marketplace</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Buy and sell with your classmates</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('marketplace.title')}</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('marketplace.subtitle')}</p>
           </div>
           <Button size="sm" onClick={() => setShowSellModal(true)}>
             <Plus className="w-4 h-4 mr-1" />
-            Sell Item
+            {t('marketplace.sellItem')}
           </Button>
         </div>
 
@@ -119,7 +121,7 @@ export function MarketplacePage() {
             <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t('marketplace.searchProducts')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent flex-1 text-sm focus:outline-none dark:text-white dark:placeholder-gray-500"
@@ -150,10 +152,10 @@ export function MarketplacePage() {
         {/* Promo Banner */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl sm:p-6 p-4 text-white mb-6 relative overflow-hidden">
           <div className="relative z-10">
-            <span className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-semibold">Summer Sale</span>
-            <h2 className="text-2xl sm:text-3xl font-bold mt-2 sm:mt-3">Up to 50% off</h2>
-            <p className="text-white/80 mt-1 text-xs sm:text-sm">Discover amazing deals from your campus community</p>
-            <Button className="mt-4 bg-white text-blue-600 hover:bg-gray-100" size="sm">Shop Now</Button>
+            <span className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-semibold">{t('marketplace.summerSale')}</span>
+            <h2 className="text-2xl sm:text-3xl font-bold mt-2 sm:mt-3">{t('marketplace.upTo50Off')}</h2>
+            <p className="text-white/80 mt-1 text-xs sm:text-sm">{t('marketplace.discoverDeals')}</p>
+            <Button className="mt-4 bg-white text-blue-600 hover:bg-gray-100" size="sm">{t('marketplace.shopNow')}</Button>
           </div>
           <div className="absolute right-6 top-1/2 -translate-y-1/2 text-8xl opacity-20 hidden sm:block">🛍️</div>
         </div>
@@ -214,8 +216,8 @@ export function MarketplacePage() {
         {itemsData?.items?.length === 0 && (
           <div className="text-center py-16">
             <ShoppingCart className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 font-medium">No items found</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try a different search or category</p>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">{t('marketplace.noItemsFound')}</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">{t('marketplace.tryDifferent')}</p>
           </div>
         )}
       </div>
@@ -230,10 +232,10 @@ export function MarketplacePage() {
             >
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold text-gray-950 dark:text-white mb-4">List an Item for Sale</h2>
+            <h2 className="text-xl font-bold text-gray-950 dark:text-white mb-4">{t('marketplace.listForSale')}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Item Title *</label>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.itemTitle')}</label>
                 <Input
                   type="text"
                   placeholder="e.g. iPhone 13 Pro Max"
@@ -243,7 +245,7 @@ export function MarketplacePage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Description</label>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.description')}</label>
                 <textarea
                   placeholder="Tell buyers about your item (condition, specs, etc.)"
                   value={description}
@@ -254,7 +256,7 @@ export function MarketplacePage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Price (GH₵) *</label>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.price')}</label>
                   <Input
                     type="number"
                     placeholder="Price"
@@ -264,7 +266,7 @@ export function MarketplacePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Location/Meetup *</label>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.location')}</label>
                   <Input
                     type="text"
                     placeholder="e.g. Joju Hostel"
@@ -276,7 +278,7 @@ export function MarketplacePage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Category *</label>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.category')}</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
@@ -292,7 +294,7 @@ export function MarketplacePage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Condition *</label>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.condition')}</label>
                   <select
                     value={condition}
                     onChange={(e) => setCondition(e.target.value)}
@@ -306,7 +308,7 @@ export function MarketplacePage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Item Images</label>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.itemImages')}</label>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -318,10 +320,10 @@ export function MarketplacePage() {
               </div>
               <div className="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                 <Button variant="ghost" type="button" onClick={() => setShowSellModal(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" disabled={createItemMutation.isPending}>
-                  {createItemMutation.isPending ? 'Listing...' : 'List Item'}
+                  {createItemMutation.isPending ? t('marketplace.listing') : t('marketplace.listItem')}
                 </Button>
               </div>
             </form>

@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import toast from 'react-hot-toast';
+import { useTranslation } from '../i18n';
 
 const signupSchema = z
   .object({
@@ -34,6 +35,7 @@ const signupSchema = z
 type SignupFormData = z.infer<typeof signupSchema>;
 
 export function SignupPage() {
+  const { t } = useTranslation();
   const { signup } = useAuth();
   const router = useRouter();
   const {
@@ -47,10 +49,10 @@ export function SignupPage() {
   const onSubmit = async (data: SignupFormData) => {
     try {
       await signup(data);
-      toast.success('Account created! Please sign in.');
+      toast.success(t('auth.welcomeBack'));
       router.push('/login');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Signup failed');
+      toast.error(error.response?.data?.message || t('common.error'));
     }
   };
 
@@ -60,44 +62,44 @@ export function SignupPage() {
         <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 lg:hidden">
           CC
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
-        <p className="text-gray-500 mt-1">Join your campus community</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('auth.createAccount')}</h1>
+        <p className="text-gray-500 mt-1">{t('auth.joinCampus')}</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.fullName')}</label>
           <Input
-            placeholder="John Doe"
+            placeholder={t('auth_placeholder.johnDoe')}
             {...register('fullName')}
             error={errors.fullName?.message}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.username')}</label>
           <Input
-            placeholder="johndoe"
+            placeholder={t('auth_placeholder.johndoe')}
             {...register('username')}
             error={errors.username?.message}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.email')}</label>
           <Input
             type="email"
-            placeholder="you@university.edu"
+            placeholder={t('auth_placeholder.youUniversity')}
             {...register('email')}
             error={errors.email?.message}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.password')}</label>
           <Input
             type="password"
-            placeholder="Create a strong password"
+            placeholder={t('auth_placeholder.createPassword')}
             {...register('password')}
             error={errors.password?.message}
           />
@@ -105,25 +107,25 @@ export function SignupPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm Password
+            {t('auth.confirmPassword')}
           </label>
           <Input
             type="password"
-            placeholder="Confirm your password"
+            placeholder={t('auth_placeholder.confirmYourPassword')}
             {...register('confirmPassword')}
             error={errors.confirmPassword?.message}
           />
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating account...' : 'Create account'}
+          {isSubmitting ? t('auth.creatingAccount') : t('auth.createAccount')}
         </Button>
       </form>
 
       <p className="text-center mt-6 text-sm text-gray-600">
-        Already have an account?{' '}
+        {t('auth.alreadyHaveAccount')}{' '}
         <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-          Sign in
+          {t('auth.signIn')}
         </Link>
       </p>
     </div>

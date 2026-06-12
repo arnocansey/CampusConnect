@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from 'react';
+import { useTranslation } from '../i18n';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,6 +13,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 export function HomePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
@@ -50,6 +52,20 @@ export function HomePage() {
       const { data } = await api.post(`/users/${userId}/follow`);
       return data.data;
     },
+    onMutate: async (userId) => {
+      await queryClient.cancelQueries({ queryKey: ['suggestedUsers'] });
+      const previousSuggested = queryClient.getQueryData(['suggestedUsers']);
+      queryClient.setQueryData(['suggestedUsers'], (old: any) => {
+        if (!old) return old;
+        return old.filter((u: any) => u.id !== userId);
+      });
+      return { previousSuggested };
+    },
+    onError: (_err, _userId, context) => {
+      if (context?.previousSuggested) {
+        queryClient.setQueryData(['suggestedUsers'], context.previousSuggested);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suggestedUsers'] });
     },
@@ -69,7 +85,7 @@ export function HomePage() {
       setImagePreview(null);
       setHashtags('');
       setShowCreatePost(false);
-      toast.success('Post created!');
+      toast.success(t('home.postCreated'));
     },
   });
 
@@ -163,7 +179,7 @@ export function HomePage() {
               className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-3 text-gray-500 dark:text-gray-400 text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition"
               onClick={() => setShowCreatePost(true)}
             >
-              What's on your mind, {user?.fullName?.split(' ')[0]}?
+              {`${t('home.whatsOnYourMind')}, ${user?.fullName?.split(' ')[0]}?`}
             </div>
           </div>
 
@@ -172,7 +188,7 @@ export function HomePage() {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="What's on your mind?"
+                placeholder={t('home.whatToShare')}
                 maxLength={3000}
                 className="w-full h-32 resize-none text-sm placeholder-gray-400 dark:placeholder-gray-500 border-none focus:ring-0 p-0 bg-transparent dark:text-white"
               />
@@ -193,7 +209,7 @@ export function HomePage() {
                   type="text"
                   value={hashtags}
                   onChange={(e) => setHashtags(e.target.value)}
-                  placeholder="Add hashtags (comma separated)"
+                  placeholder={t('home.addHashtags')}
                   className="flex-1 text-sm bg-transparent focus:outline-none dark:text-white dark:placeholder-gray-500"
                 />
               </div>
@@ -202,22 +218,22 @@ export function HomePage() {
                 <div className="flex items-center gap-1">
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
                   <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-600 dark:text-gray-300">
-                    <Image className="w-5 h-5 text-green-500" /> Photo
+                    <Image className="w-5 h-5 text-green-500" /> {t('home.photo')}
                   </button>
                   <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-600 dark:text-gray-300">
-                    <Video className="w-5 h-5 text-blue-500" /> Video
+                    <Video className="w-5 h-5 text-blue-500" /> {t('home.video')}
                   </button>
                   <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-600 dark:text-gray-300">
-                    <BarChart3 className="w-5 h-5 text-orange-500" /> Poll
+                    <BarChart3 className="w-5 h-5 text-orange-500" /> {t('home.poll')}
                   </button>
                   <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-600 dark:text-gray-300">
-                    <MapPin className="w-5 h-5 text-red-500" /> Location
+                    <MapPin className="w-5 h-5 text-red-500" /> {t('home.location')}
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => { setShowCreatePost(false); removeImage(); }}>Cancel</Button>
+                  <Button variant="ghost" size="sm" onClick={() => { setShowCreatePost(false); removeImage(); }}>{t('common.cancel')}</Button>
                   <Button size="sm" onClick={handleCreatePost} disabled={(!content.trim() && !imageFile) || createPostMutation.isPending}>
-                    Post
+                    {t('common.post')}
                   </Button>
                 </div>
               </div>
@@ -232,42 +248,42 @@ export function HomePage() {
             className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col items-center"
           >
             <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">📚</div>
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">Lecture Notes</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t('home.lectureNotes')}</p>
           </Link>
           <Link
             href="/marketplace"
             className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col items-center"
           >
             <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">🛍️</div>
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">Marketplace</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t('home.marketplaceLabel')}</p>
           </Link>
           <Link
             href="/groups"
             className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col items-center"
           >
             <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">👥</div>
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">Study Groups</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t('home.studyGroups')}</p>
           </Link>
           <Link
             href="/hostels"
             className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col items-center"
           >
             <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">🏠</div>
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">Hostel Finder</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t('home.hostelFinder')}</p>
           </Link>
           <Link
             href="/jobs"
             className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col items-center"
           >
             <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">💼</div>
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">Jobs</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t('home.jobsLabel')}</p>
           </Link>
           <Link
             href="/events"
             className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col items-center"
           >
             <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">📅</div>
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">Events</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t('home.eventsLabel')}</p>
           </Link>
         </div>
 
@@ -364,22 +380,22 @@ export function HomePage() {
                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
                   >
                     <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                    <span className="text-sm font-medium">Like</span>
+                    <span className="text-sm font-medium">{t('common.like')}</span>
                   </button>
                   <Link href={`/post/${post.id}`} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
                     <MessageCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">Comment</span>
+                    <span className="text-sm font-medium">{t('common.comment')}</span>
                   </Link>
                   <button
                     onClick={() => saveMutation.mutate(post.id)}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isSaved ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`}
                   >
                     <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-current' : ''}`} />
-                    <span className="text-sm font-medium">Save</span>
+                    <span className="text-sm font-medium">{t('common.save')}</span>
                   </button>
                   <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
                     <Share2 className="w-5 h-5" />
-                    <span className="text-sm font-medium">Share</span>
+                    <span className="text-sm font-medium">{t('common.share')}</span>
                   </button>
                 </div>
               </div>
@@ -394,7 +410,7 @@ export function HomePage() {
           {/* Trending Topics */}
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 transition-colors">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-gray-900 dark:text-white">Trending Topics</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white">{t('home.trendingTopics')}</h3>
             </div>
             {trendingData?.length > 0 ? (
               <div className="space-y-3">
@@ -405,20 +421,20 @@ export function HomePage() {
                     </div>
                     <div>
                       <p className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-blue-500 transition">#{item.tag}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{formatNumber(item.count)} posts</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{`${formatNumber(item.count)} ${t('home.posts')}`}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400 dark:text-gray-500">No trending topics yet</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">{t('home.noTrending')}</p>
             )}
           </div>
 
           {/* Suggested Users */}
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 transition-colors">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-gray-900 dark:text-white">Suggested for you</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white">{t('home.suggestedForYou')}</h3>
               <button className="text-sm text-blue-500 hover:text-blue-600 font-medium">See all</button>
             </div>
             {suggestedData?.length > 0 ? (
@@ -437,13 +453,13 @@ export function HomePage() {
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">@{u.username}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={() => followMutation.mutate(u.id)}>
-                      Follow
+                      {t('common.follow')}
                     </Button>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400 dark:text-gray-500">No suggestions</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">{t('home.noSuggestions')}</p>
             )}
           </div>
         </div>

@@ -9,10 +9,12 @@ import { Post } from '../types';
 import { formatNumber } from '../utils';
 import { Button } from '../components/ui/Button';
 import { Settings, Share2, Grid3X3, Bookmark, ShoppingBag, Heart } from 'lucide-react';
+import { useTranslation } from '../i18n';
 
 type Tab = 'posts' | 'products' | 'saved' | 'likes';
 
 export function ProfilePage() {
+  const { t } = useTranslation();
   const { username } = useParams<{ username: string }>();
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
@@ -60,6 +62,27 @@ export function ProfilePage() {
     mutationFn: async (userId: string) => {
       const { data } = await api.post(`/users/${userId}/follow`);
       return data.data;
+    },
+    onMutate: async (_userId) => {
+      await queryClient.cancelQueries({ queryKey: ['profile', username] });
+      const previousProfile = queryClient.getQueryData(['profile', username]);
+      queryClient.setQueryData(['profile', username], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          isFollowing: !old.isFollowing,
+          _count: {
+            ...old._count,
+            followers: old.isFollowing ? old._count.followers - 1 : old._count.followers + 1,
+          },
+        };
+      });
+      return { previousProfile };
+    },
+    onError: (_err, _userId, context) => {
+      if (context?.previousProfile) {
+        queryClient.setQueryData(['profile', username], context.previousProfile);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', username] });
@@ -113,7 +136,7 @@ export function ProfilePage() {
                   {isOwnProfile ? (
                     <>
                       <Link href="/edit-profile">
-                        <Button variant="outline" size="sm">Edit Profile</Button>
+                        <Button variant="outline" size="sm">{t('profile.editProfile')}</Button>
                       </Link>
                       <Button variant="outline" size="sm">
                         <Share2 className="w-4 h-4" />
@@ -126,10 +149,10 @@ export function ProfilePage() {
                         size="sm"
                         onClick={() => followMutation.mutate(profileData.id)}
                       >
-                        {profileData.isFollowing ? 'Following' : 'Follow'}
+                        {profileData.isFollowing ? t('common.following') : t('common.follow')}
                       </Button>
                       <Link href="/messages">
-                        <Button variant="outline" size="sm">Message</Button>
+                        <Button variant="outline" size="sm">{t('profile.message')}</Button>
                       </Link>
                     </>
                   )}
@@ -160,15 +183,15 @@ export function ProfilePage() {
               <div className="flex gap-8 mt-4">
                 <div className="text-center">
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.posts || 0)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Posts</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.posts')}</p>
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.followers || 0)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Followers</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.followers')}</p>
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.following || 0)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Following</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.following')}</p>
                 </div>
               </div>
             </div>
@@ -177,10 +200,10 @@ export function ProfilePage() {
             <div className="mt-6 border-b border-gray-200 dark:border-gray-800">
               <div className="flex gap-0">
                 {([
-                  { key: 'posts', icon: Grid3X3, label: 'Posts' },
-                  { key: 'products', icon: ShoppingBag, label: 'Products' },
-                  { key: 'saved', icon: Bookmark, label: 'Saved' },
-                  { key: 'likes', icon: Heart, label: 'Likes' },
+                  { key: 'posts', icon: Grid3X3, label: t('profile.posts') },
+                  { key: 'products', icon: ShoppingBag, label: t('profile.products') },
+                  { key: 'saved', icon: Bookmark, label: t('profile.saved') },
+                  { key: 'likes', icon: Heart, label: t('profile.likes') },
                 ] as const).map(({ key, icon: Icon, label }) => (
                   <button
                     key={key}
@@ -203,7 +226,7 @@ export function ProfilePage() {
               {activeTab === 'posts' && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {userPosts?.length === 0 ? (
-                    <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">No posts yet</p>
+                    <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">{t('profile.noPosts')}</p>
                   ) : (
                     userPosts?.map((post: Post) => (
                       <Link
@@ -229,7 +252,7 @@ export function ProfilePage() {
               {activeTab === 'products' && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {userListings?.length === 0 ? (
-                    <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">No products listed</p>
+                    <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">{t('profile.noProducts')}</p>
                   ) : (
                     userListings?.map((item: any) => (
                       <Link
@@ -259,7 +282,7 @@ export function ProfilePage() {
             {activeTab === 'saved' && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {savedPosts?.length === 0 ? (
-                  <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">No saved posts</p>
+                  <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">{t('profile.noSavedPosts')}</p>
                 ) : (
                   savedPosts?.map((post: any) => (
                     <Link

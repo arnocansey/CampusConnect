@@ -6,8 +6,10 @@ import { Notification } from '../types';
 import { formatDate } from '../utils';
 import { Bell, Check } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { useTranslation } from '../i18n';
 
 export function NotificationsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { data: notificationsData, isLoading } = useQuery({
@@ -57,7 +59,7 @@ export function NotificationsPage() {
 
       <div className="flex-1 max-w-2xl">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('notifications.title')}</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -65,7 +67,7 @@ export function NotificationsPage() {
             disabled={markAllReadMutation.isPending}
           >
             <Check className="w-4 h-4 mr-1" />
-            Mark all read
+            {t('notifications.markAllRead')}
           </Button>
         </div>
 
@@ -119,7 +121,7 @@ export function NotificationsPage() {
             {notificationsData?.notifications?.length === 0 && (
               <div className="text-center py-12">
                 <Bell className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No notifications yet</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('notifications.noNotifications')}</p>
               </div>
             )}
           </div>

@@ -7,8 +7,10 @@ import { Conversation } from '../types';
 import { formatDate } from '../utils';
 import { Search, MessageSquare, Plus, X, Users } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { useTranslation } from '../i18n';
 
 export function MessagesPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [showNewChat, setShowNewChat] = useState(false);
   const [userSearch, setUserSearch] = useState('');
@@ -48,7 +50,7 @@ export function MessagesPage() {
     <div className="max-w-7xl mx-auto p-4 flex gap-6">
       <div className="flex-1 max-w-2xl">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('messages.title')}</h1>
           <Button size="icon" onClick={() => setShowNewChat(true)}>
             <Plus className="w-5 h-5" />
           </Button>
@@ -59,7 +61,7 @@ export function MessagesPage() {
           <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            placeholder="Search messages..."
+            placeholder={t('messages.searchMessages')}
             className="bg-transparent flex-1 text-sm focus:outline-none dark:text-white dark:placeholder-gray-500"
           />
         </div>
@@ -75,7 +77,7 @@ export function MessagesPage() {
             }`}
           >
             <MessageSquare className="w-4 h-4" />
-            Chats
+            {t('messages.chats')}
           </button>
           <button
             onClick={() => setActiveTab('requests')}
@@ -86,7 +88,7 @@ export function MessagesPage() {
             }`}
           >
             <Users className="w-4 h-4" />
-            Requests
+            {t('messages.requests')}
           </button>
         </div>
 
@@ -129,7 +131,7 @@ export function MessagesPage() {
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {conversation.lastMessage?.content || 'No messages yet'}
+                    {conversation.lastMessage?.content || t('chat.noMessages')}
                   </p>
                 </div>
                 {conversation.unreadCount > 0 && (
@@ -143,16 +145,16 @@ export function MessagesPage() {
             {conversationsData?.length === 0 && (
               <div className="text-center py-12">
                 <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No conversations yet</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Start a conversation with your classmates</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('messages.noConversations')}</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">{t('messages.startConversation')}</p>
               </div>
             )}
           </div>
         ) : (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">No message requests</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Requests from people you don't follow will appear here</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('messages.noRequests')}</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">{t('messages.requestsSubtitle')}</p>
           </div>
         )}
 
@@ -161,7 +163,7 @@ export function MessagesPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md mx-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-lg dark:text-white">New Conversation</h3>
+                <h3 className="font-bold text-lg dark:text-white">{t('messages.newConversation')}</h3>
                 <button onClick={() => { setShowNewChat(false); setUserSearch(''); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
                   <X className="w-5 h-5" />
                 </button>
@@ -171,7 +173,7 @@ export function MessagesPage() {
                 <Search className="w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by name or username..."
+                  placeholder={t('messages.searchByName')}
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   className="bg-transparent flex-1 text-sm focus:outline-none dark:text-white dark:placeholder-gray-500"
@@ -202,9 +204,9 @@ export function MessagesPage() {
                     </button>
                   ))
                 ) : userSearch.length >= 2 ? (
-                  <p className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">No users found</p>
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">{t('messages.noUsersFound')}</p>
                 ) : (
-                  <p className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">Type at least 2 characters to search</p>
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">{t('messages.typeToSearch')}</p>
                 )}
               </div>
             </div>

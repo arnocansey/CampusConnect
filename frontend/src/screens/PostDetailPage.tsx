@@ -48,6 +48,11 @@ export function PostDetailPage() {
       }));
       return { previous };
     },
+    onError: (_err, _postId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['post', id], context.previous);
+      }
+    },
   });
 
   const saveMutation = useMutation({
@@ -57,10 +62,17 @@ export function PostDetailPage() {
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['post', id] });
+      const previous = queryClient.getQueryData(['post', id]);
       queryClient.setQueryData(['post', id], (old: any) => ({
         ...old,
         isSaved: !old.isSaved,
       }));
+      return { previous };
+    },
+    onError: (_err, _postId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['post', id], context.previous);
+      }
     },
   });
 
