@@ -99,6 +99,12 @@ export function LandingPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link
+              href="/admin/login"
+              className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 transition hidden sm:block"
+            >
+              Admin
+            </Link>
+            <Link
               href="/login"
               className="text-sm font-bold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 transition"
             >
@@ -266,6 +272,7 @@ export function LandingPage() {
           <div className="flex items-center gap-6 text-sm text-gray-550 dark:text-gray-400 font-medium">
             <Link href="/login" className="hover:text-blue-600 transition">Sign In</Link>
             <Link href="/signup" className="hover:text-blue-600 transition">Register</Link>
+            <Link href="/admin/login" className="hover:text-blue-600 transition">Admin</Link>
             <a href="mailto:support@campusconnect.com" className="hover:text-blue-600 transition">Contact</a>
           </div>
         </div>
