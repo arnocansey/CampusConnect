@@ -38,6 +38,15 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
     throw new AppError('Poll must have 2-6 options', 400);
   }
 
+  let parsedTags: string[] = [];
+  if (tags) {
+    try {
+      parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+    } catch {
+      parsedTags = [];
+    }
+  }
+
   const post = await prisma.post.create({
     data: {
       content,
@@ -45,7 +54,7 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
       images,
       videoUrl,
       location: location || undefined,
-      tags: tags || [],
+      tags: parsedTags,
       authorId: req.user!.id,
       ...(parsedPoll && {
         poll: {

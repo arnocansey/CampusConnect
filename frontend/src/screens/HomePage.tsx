@@ -105,6 +105,9 @@ export function HomePage() {
       resetComposer();
       toast.success(t('home.postCreated'));
     },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || t('common.error'));
+    },
   });
 
   const voteMutation = useMutation({
