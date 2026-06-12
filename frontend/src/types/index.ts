@@ -29,14 +29,31 @@ export interface User {
   };
 }
 
+export interface PollOption {
+  id: string;
+  text: string;
+  _count: { votes: number };
+}
+
+export interface Poll {
+  id: string;
+  postId: string;
+  options: PollOption[];
+  userVote?: string | null;
+  expiresAt?: string | null;
+  createdAt: string;
+}
+
 export interface Post {
   id: string;
   content?: string;
   images: string[];
   videoUrl?: string;
+  location?: string;
   type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'POLL' | 'MARKETPLACE';
   tags: string[];
   author: Pick<User, 'id' | 'username' | 'fullName' | 'profilePicture' | 'isVerified'>;
+  poll?: Poll | null;
   _count: {
     likes: number;
     comments: number;

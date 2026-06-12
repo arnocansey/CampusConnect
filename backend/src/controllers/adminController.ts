@@ -119,7 +119,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
 };
 
 export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { page = '1', limit = '20', search, role } = req.query;
+  const { page = '1', limit = '20', search, role, status } = req.query;
 
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
@@ -132,6 +132,9 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
     ];
   }
   if (role) where.role = role;
+  if (status === 'SUSPENDED') where.isSuspended = true;
+  else if (status === 'BANNED') where.isBanned = true;
+  else if (status === 'ACTIVE') { where.isSuspended = false; where.isBanned = false; }
 
   const users = await prisma.user.findMany({
     where,
@@ -142,6 +145,8 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
       email: true,
       role: true,
       isVerified: true,
+      isSuspended: true,
+      isBanned: true,
       createdAt: true,
       _count: {
         select: { posts: true, followers: true },
@@ -189,12 +194,14 @@ export const updateUserRole = async (req: AuthRequest, res: Response): Promise<v
 // ==================== REPORTS ====================
 
 export const getReports = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { page = '1', limit = '20', status } = req.query;
+  const { page = '1', limit = '20', status, reason, contentType } = req.query;
 
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
   const where: any = {};
   if (status) where.status = status;
+  if (reason) where.reason = reason;
+  if (contentType) where.contentType = contentType;
 
   const reports = await prisma.report.findMany({
     where,
@@ -529,10 +536,17 @@ export const unbanUser = async (req: AuthRequest, res: Response): Promise<void> 
 // ==================== CONTENT MANAGEMENT ====================
 
 export const getNotes = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { page = '1', limit = '20', isApproved } = req.query;
+  const { page = '1', limit = '20', isApproved, search } = req.query;
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
   const where: any = {};
   if (isApproved !== undefined) where.isApproved = isApproved === 'true';
+  if (search) {
+    where.OR = [
+      { title: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+      { subject: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
 
   const [notes, total] = await Promise.all([
     prisma.note.findMany({
@@ -546,8 +560,9 @@ export const getNotes = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const approveNote = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
-  const note = await prisma.note.update({ where: { id }, data: { isApproved: { not: undefined } as any } });
-  res.json({ success: true, data: note });
+  const note = await prisma.note.findUnique({ where: { id }, select: { isApproved: true } });
+  const updated = await prisma.note.update({ where: { id }, data: { isApproved: !note?.isApproved } });
+  res.json({ success: true, data: updated });
 };
 
 export const deleteNote = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -557,11 +572,17 @@ export const deleteNote = async (req: AuthRequest, res: Response): Promise<void>
 };
 
 export const getMarketplaceItems = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { page = '1', limit = '20', category, isApproved } = req.query;
+  const { page = '1', limit = '20', category, isApproved, search } = req.query;
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
   const where: any = {};
   if (category) where.category = category;
   if (isApproved !== undefined) where.isApproved = isApproved === 'true';
+  if (search) {
+    where.OR = [
+      { title: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
 
   const [items, total] = await Promise.all([
     prisma.marketplaceItem.findMany({
@@ -587,7 +608,17 @@ export const deleteMarketplaceItem = async (req: AuthRequest, res: Response): Pr
 };
 
 export const getGroups = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { search } = req.query;
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { name: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+      { subject: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
   const groups = await prisma.studyGroup.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     include: { _count: { select: { members: true } } },
   });
@@ -601,7 +632,15 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 };
 
 export const getHostels = async (req: AuthRequest, res: Response): Promise<void> => {
-  const hostels = await prisma.hostel.findMany({ orderBy: { createdAt: 'desc' } });
+  const { search } = req.query;
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { name: { contains: search as string, mode: 'insensitive' } },
+      { location: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
+  const hostels = await prisma.hostel.findMany({ where, orderBy: { createdAt: 'desc' } });
   res.json({ success: true, data: { hostels } });
 };
 
@@ -619,7 +658,16 @@ export const deleteHostel = async (req: AuthRequest, res: Response): Promise<voi
 };
 
 export const getJobs = async (req: AuthRequest, res: Response): Promise<void> => {
-  const jobs = await prisma.job.findMany({ orderBy: { createdAt: 'desc' } });
+  const { search } = req.query;
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { title: { contains: search as string, mode: 'insensitive' } },
+      { company: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
+  const jobs = await prisma.job.findMany({ where, orderBy: { createdAt: 'desc' } });
   res.json({ success: true, data: { jobs } });
 };
 
@@ -637,7 +685,16 @@ export const deleteJob = async (req: AuthRequest, res: Response): Promise<void> 
 };
 
 export const getEvents = async (req: AuthRequest, res: Response): Promise<void> => {
-  const events = await prisma.event.findMany({ orderBy: { createdAt: 'desc' } });
+  const { search } = req.query;
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { title: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+      { location: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
+  const events = await prisma.event.findMany({ where, orderBy: { createdAt: 'desc' } });
   res.json({ success: true, data: { events } });
 };
 

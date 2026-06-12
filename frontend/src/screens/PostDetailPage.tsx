@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { Comment } from '../types';
 import { formatDate, formatNumber } from '../utils';
-import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
@@ -73,6 +73,46 @@ export function PostDetailPage() {
       if (context?.previous) {
         queryClient.setQueryData(['post', id], context.previous);
       }
+    },
+  });
+
+  const voteMutation = useMutation({
+    mutationFn: async (optionId: string) => {
+      const { data } = await api.post(`/posts/${id}/vote`, { optionId });
+      return data.data;
+    },
+    onMutate: async (optionId) => {
+      await queryClient.cancelQueries({ queryKey: ['post', id] });
+      const previous = queryClient.getQueryData(['post', id]);
+      queryClient.setQueryData(['post', id], (old: any) => {
+        if (!old?.poll) return old;
+        const prevVote = old.poll.userVote;
+        const newVote = prevVote === optionId ? null : optionId;
+        return {
+          ...old,
+          poll: {
+            ...old.poll,
+            userVote: newVote,
+            options: old.poll.options.map((opt: any) => ({
+              ...opt,
+              _count: {
+                votes:
+                  opt._count.votes
+                  + (opt.id === optionId ? (prevVote === optionId ? -1 : 1) : (prevVote === optionId ? -1 : 0)),
+              },
+            })),
+          },
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['post', id], context.previous);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['post', id] });
     },
   });
 
@@ -151,6 +191,13 @@ export function PostDetailPage() {
             </button>
           </div>
 
+          {post.location && (
+            <div className="px-4 pb-2 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">{post.location}</span>
+            </div>
+          )}
+
           {post.content && (
             <div className="px-4 pb-3">
               <p className="text-sm leading-relaxed dark:text-white whitespace-pre-wrap">{post.content}</p>
@@ -162,6 +209,12 @@ export function PostDetailPage() {
               {post.tags.map((tag: string) => (
                 <span key={tag} className="text-blue-500 text-sm">#{tag}</span>
               ))}
+            </div>
+          )}
+
+          {post.videoUrl && (
+            <div className="px-4 pb-3">
+              <video src={post.videoUrl} controls className="w-full max-h-[500px] rounded-xl bg-black" />
             </div>
           )}
 
@@ -195,6 +248,53 @@ export function PostDetailPage() {
                   </div>
                 </>
               )}
+            </div>
+          )}
+
+          {(post as any).poll && (
+            <div className="px-4 pb-3 space-y-2">
+              {(() => {
+                const poll = (post as any).poll;
+                const totalVotes = poll.options.reduce((sum: number, opt: any) => sum + (opt._count?.votes || 0), 0);
+                const pollClosed = poll.expiresAt && new Date(poll.expiresAt) < new Date();
+                return (
+                  <>
+                    {poll.options.map((option: any) => {
+                      const pct = totalVotes > 0 ? Math.round((option._count.votes / totalVotes) * 100) : 0;
+                      const isSelected = poll.userVote === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => !pollClosed && voteMutation.mutate(option.id)}
+                          disabled={pollClosed}
+                          className={`w-full text-left rounded-xl border px-4 py-3 text-sm transition relative overflow-hidden ${
+                            isSelected
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                          } ${pollClosed ? 'cursor-default' : 'cursor-pointer'}`}
+                        >
+                          {totalVotes > 0 && (
+                            <div
+                              className={`absolute inset-0 transition-all duration-500 ${isSelected ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800'}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          )}
+                          <div className="relative flex items-center justify-between">
+                            <span className="dark:text-white font-medium">{option.text}</span>
+                            {totalVotes > 0 && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">{pct}%</span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      {formatNumber(totalVotes)} vote{totalVotes !== 1 ? 's' : ''}
+                      {pollClosed && ' · Poll closed'}
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           )}
 

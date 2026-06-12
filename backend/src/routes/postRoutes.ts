@@ -8,6 +8,7 @@ import {
   deletePost,
   likePost,
   savePost,
+  votePoll,
   getSavedPosts,
   getTrendingTopics,
 } from '../controllers/postController';
@@ -27,6 +28,7 @@ router.get('/:id', authenticate, getPost);
 router.delete('/:id', authenticate, deletePost);
 router.post('/:id/like', authenticate, likePost);
 router.post('/:id/save', authenticate, savePost);
+router.post('/:id/vote', authenticate, votePoll);
 router.post('/:postId/comments', authenticate, createComment);
 router.get('/:postId/comments', authenticate, getComments);
 router.delete('/comments/:id', authenticate, deleteComment);

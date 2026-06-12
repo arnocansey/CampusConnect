@@ -7,13 +7,9 @@ export function useSocket() {
   const socketRef = useRef(getSocket());
 
   useEffect(() => {
-    if (user) {
+    if (user && !socketRef.current.connected) {
       socketRef.current.connect();
     }
-
-    return () => {
-      socketRef.current.disconnect();
-    };
   }, [user]);
 
   const joinConversation = useCallback((conversationId: string) => {

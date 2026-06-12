@@ -72,6 +72,7 @@ model User {
   createdGroups   StudyGroup[]
   organizedEvents Event[]
   messageReactions MessageReaction[]
+  pollVotes       PollVote[]
   securityLogs    SecurityLog[]
   auditLogs       AuditLog[]
   sessions        ActiveSession[]
@@ -95,6 +96,7 @@ model Post {
   images      String[]
   videoUrl    String?
   documentUrl String?
+  location    String?
   type        PostType  @default(TEXT)
   authorId    String
   author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -102,6 +104,7 @@ model Post {
   comments    Comment[]
   savedPosts  SavedPost[]
   tags        String[]
+  poll        Poll?
   isEdited    Boolean   @default(false)
   isDeleted   Boolean   @default(false)
   createdAt   DateTime  @default(now())
@@ -110,6 +113,37 @@ model Post {
   @@index([authorId])
   @@index([createdAt])
   @@index([type])
+}
+
+model Poll {
+  id        String       @id @default(uuid())
+  postId    String       @unique
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  votes     PollVote[]
+  expiresAt DateTime?
+  createdAt DateTime     @default(now())
+}
+
+model PollOption {
+  id      String     @id @default(uuid())
+  pollId  String
+  poll    Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  text    String
+  votes   PollVote[]
+}
+
+model PollVote {
+  id       String     @id @default(uuid())
+  pollId   String
+  optionId String
+  userId   String
+  poll     Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option   PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([pollId, userId])
 }
 
 enum PostType {
