@@ -265,6 +265,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       phoneNumber: true,
       profilePicture: true,
       coverPhoto: true,
+      coverGradient: true,
       bio: true,
       department: true,
       program: true,

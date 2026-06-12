@@ -109,7 +109,23 @@ export function ProfilePage() {
         ) : profileData && (
           <>
             {/* Cover Photo */}
-            <div className="h-40 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl relative">
+            <div
+              className={`h-40 rounded-2xl relative ${
+                profileData.coverPhoto
+                  ? ''
+                  : profileData.coverGradient?.startsWith('custom:')
+                    ? ''
+                    : `bg-gradient-to-r ${profileData.coverGradient || 'from-blue-500 via-purple-500 to-pink-500'}`
+              }`}
+              style={
+                !profileData.coverPhoto && profileData.coverGradient?.startsWith('custom:')
+                  ? (() => {
+                      const parts = profileData.coverGradient.split(':');
+                      return { background: `linear-gradient(to right, ${parts[1]}, ${parts[2]})` };
+                    })()
+                  : undefined
+              }
+            >
               {profileData.coverPhoto && (
                 <img src={profileData.coverPhoto} alt="" className="w-full h-full object-cover rounded-2xl" />
               )}

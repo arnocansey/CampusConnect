@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { ArrowLeft, Camera, Save } from 'lucide-react';
+import { ArrowLeft, Camera, Save, Palette, X, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const profileSchema = z.object({
@@ -24,11 +24,30 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
+const PRESET_GRADIENTS = [
+  { name: 'Ocean', value: 'from-blue-500 via-purple-500 to-pink-500', colors: ['#3b82f6', '#a855f7', '#ec4899'] },
+  { name: 'Sunset', value: 'from-orange-400 via-red-500 to-pink-500', colors: ['#fb923c', '#ef4444', '#ec4899'] },
+  { name: 'Forest', value: 'from-green-400 via-emerald-500 to-teal-500', colors: ['#4ade80', '#10b981', '#14b8a6'] },
+  { name: 'Midnight', value: 'from-indigo-600 via-purple-600 to-blue-800', colors: ['#4f46e5', '#9333ea', '#1e40af'] },
+  { name: 'Peach', value: 'from-amber-300 via-orange-400 to-rose-400', colors: ['#fcd34d', '#fb923c', '#fb7185'] },
+  { name: 'Arctic', value: 'from-cyan-300 via-blue-400 to-indigo-500', colors: ['#67e8f9', '#60a5fa', '#6366f1'] },
+  { name: 'Lavender', value: 'from-violet-400 via-purple-400 to-fuchsia-500', colors: ['#a78bfa', '#c084fc', '#d946ef'] },
+  { name: 'Emerald', value: 'from-emerald-400 via-teal-500 to-cyan-500', colors: ['#34d399', '#14b8a6', '#06b6d4'] },
+  { name: 'Coral', value: 'from-rose-400 via-pink-500 to-purple-500', colors: ['#fb7185', '#ec4899', '#a855f7'] },
+  { name: 'Gold', value: 'from-yellow-400 via-amber-500 to-orange-500', colors: ['#facc15', '#f59e0b', '#f97316'] },
+];
+
 export function EditProfilePage() {
   const router = useRouter();
   const { user, updateUser } = useAuth();
   const queryClient = useQueryClient();
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [coverGradient, setCoverGradient] = useState(user?.coverGradient || PRESET_GRADIENTS[0].value);
+  const [customColor1, setCustomColor1] = useState('#3b82f6');
+  const [customColor2, setCustomColor2] = useState('#a855f7');
+  const [useCustomGradient, setUseCustomGradient] = useState(false);
+  const [showGradientPicker, setShowGradientPicker] = useState(false);
 
   const {
     register,
@@ -47,6 +66,12 @@ export function EditProfilePage() {
     },
   });
 
+  const currentCoverStyle = coverPhoto
+    ? {}
+    : useCustomGradient
+      ? { background: `linear-gradient(to right, ${customColor1}, ${customColor2})` }
+      : {};
+
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
       const payload = {
@@ -57,6 +82,9 @@ export function EditProfilePage() {
         interests: data.interests
           ? data.interests.split(',').map((i) => i.trim()).filter(Boolean)
           : [],
+        coverGradient: useCustomGradient
+          ? `custom:${customColor1}:${customColor2}`
+          : coverGradient,
       };
       const { data: response } = await api.put('/users/profile/update', payload);
       return response.data;
@@ -91,6 +119,36 @@ export function EditProfilePage() {
     }
   };
 
+  const handleCoverPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const { data } = await api.post('/users/profile/cover', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setCoverPhoto(data.data.coverPhoto);
+      updateUser({ coverPhoto: data.data.coverPhoto });
+      toast.success('Cover photo updated!');
+    } catch {
+      toast.error('Failed to upload cover photo');
+    }
+  };
+
+  const handleRemoveCoverPhoto = async () => {
+    try {
+      await api.put('/users/profile/update', { coverGradient: null });
+      setCoverPhoto(null);
+      updateUser({ coverPhoto: undefined });
+      toast.success('Cover photo removed');
+    } catch {
+      toast.error('Failed to remove cover photo');
+    }
+  };
+
   const onSubmit = (data: ProfileFormData) => {
     updateProfileMutation.mutate(data);
   };
@@ -106,7 +164,7 @@ export function EditProfilePage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-bold">Edit Profile</h1>
+          <h1 className="text-xl font-bold dark:text-white">Edit Profile</h1>
         </div>
         <Button
           onClick={handleSubmit(onSubmit)}
@@ -116,6 +174,121 @@ export function EditProfilePage() {
           <Save className="w-4 h-4 mr-2" />
           {isSubmitting ? 'Saving...' : 'Save'}
         </Button>
+      </div>
+
+      {/* Cover Photo */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-4">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Cover Photo</p>
+        <div
+          className={`relative h-40 rounded-xl overflow-hidden ${
+            coverPhoto ? '' : `bg-gradient-to-r ${coverGradient}`
+          }`}
+          style={currentCoverStyle}
+        >
+          {coverPhoto && (
+            <img src={coverPhoto} alt="" className="w-full h-full object-cover" />
+          )}
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition">
+            <label className="p-3 bg-white/90 dark:bg-gray-800/90 rounded-full cursor-pointer hover:bg-white dark:hover:bg-gray-800 transition">
+              <Camera className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoverPhotoUpload}
+              />
+            </label>
+            <button
+              onClick={() => setShowGradientPicker(!showGradientPicker)}
+              className="p-3 bg-white/90 dark:bg-gray-800/90 rounded-full hover:bg-white dark:hover:bg-gray-800 transition"
+            >
+              <Palette className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+            </button>
+            {coverPhoto && (
+              <button
+                onClick={handleRemoveCoverPhoto}
+                className="p-3 bg-white/90 dark:bg-gray-800/90 rounded-full hover:bg-white dark:hover:bg-gray-800 transition"
+              >
+                <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Gradient Picker */}
+        {showGradientPicker && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Choose Gradient</p>
+              <button
+                onClick={() => setUseCustomGradient(false)}
+                className={`text-xs px-2 py-1 rounded-lg transition ${
+                  !useCustomGradient
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                Presets
+              </button>
+              <button
+                onClick={() => setUseCustomGradient(true)}
+                className={`text-xs px-2 py-1 rounded-lg transition ${
+                  useCustomGradient
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                Custom
+              </button>
+            </div>
+
+            {!useCustomGradient ? (
+              <div className="grid grid-cols-5 gap-2">
+                {PRESET_GRADIENTS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => setCoverGradient(preset.value)}
+                    className={`relative h-12 rounded-lg bg-gradient-to-r ${preset.value} transition transform hover:scale-105 ${
+                      coverGradient === preset.value ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900' : ''
+                    }`}
+                  >
+                    {coverGradient === preset.value && (
+                      <Check className="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow" />
+                    )}
+                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-gray-500 dark:text-gray-400">From</label>
+                  <input
+                    type="color"
+                    value={customColor1}
+                    onChange={(e) => setCustomColor1(e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border-0"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-gray-500 dark:text-gray-400">To</label>
+                  <input
+                    type="color"
+                    value={customColor2}
+                    onChange={(e) => setCustomColor2(e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border-0"
+                  />
+                </div>
+                <div
+                  className="flex-1 h-10 rounded-lg"
+                  style={{ background: `linear-gradient(to right, ${customColor1}, ${customColor2})` }}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Profile Picture */}
@@ -144,7 +317,7 @@ export function EditProfilePage() {
             </label>
           </div>
           <div>
-            <p className="font-semibold">{user?.fullName}</p>
+            <p className="font-semibold dark:text-white">{user?.fullName}</p>
             <p className="text-sm text-gray-500">@{user?.username}</p>
           </div>
         </div>

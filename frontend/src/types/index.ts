@@ -7,6 +7,7 @@ export interface User {
   phoneNumber?: string;
   profilePicture?: string;
   coverPhoto?: string;
+  coverGradient?: string;
   bio?: string;
   department?: string;
   program?: string;

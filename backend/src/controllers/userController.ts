@@ -15,6 +15,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
       fullName: true,
       profilePicture: true,
       coverPhoto: true,
+      coverGradient: true,
       bio: true,
       department: true,
       program: true,
@@ -58,7 +59,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
 };
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { fullName, bio, department, program, level, skills, interests, socialLinks } = req.body;
+  const { fullName, bio, department, program, level, skills, interests, socialLinks, coverGradient } = req.body;
 
   const user = await prisma.user.update({
     where: { id: req.user!.id },
@@ -71,6 +72,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       ...(skills && { skills }),
       ...(interests && { interests }),
       ...(socialLinks && { socialLinks }),
+      ...(coverGradient !== undefined && { coverGradient }),
     },
     select: {
       id: true,
@@ -78,6 +80,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       fullName: true,
       profilePicture: true,
       coverPhoto: true,
+      coverGradient: true,
       bio: true,
       department: true,
       program: true,

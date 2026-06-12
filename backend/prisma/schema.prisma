@@ -20,6 +20,7 @@ model User {
   passwordHash    String
   profilePicture  String?
   coverPhoto      String?
+  coverGradient   String?
   bio             String?
   department      String?
   program         String?
