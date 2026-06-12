@@ -92,9 +92,8 @@ export function ProfilePage() {
   const isOwnProfile = currentUser?.username === username;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex gap-6">
-      <div className="hidden md:block w-64 shrink-0" />
-      <div className="flex-1 max-w-3xl">
+    <div className="max-w-7xl mx-auto p-4">
+      <div className="max-w-3xl mx-auto">
         {isLoading ? (
           <div className="animate-pulse">
             <div className="h-40 bg-gray-200 dark:bg-gray-800 rounded-2xl" />
@@ -137,7 +136,7 @@ export function ProfilePage() {
             </div>
 
             {/* Profile Info */}
-            <div className="px-4 -mt-14 relative z-10">
+            <div className="px-4 -mt-16 relative z-10">
               <div className="flex items-end justify-between">
                 <div className="w-28 h-28 rounded-full bg-white dark:bg-gray-900 p-1 shadow-lg">
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-3xl border-4 border-white dark:border-gray-900 overflow-hidden">

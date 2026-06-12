@@ -130,9 +130,7 @@ export function PostDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto flex">
-        <div className="hidden md:block w-64 shrink-0" />
-        <div className="flex-1 max-w-2xl p-4">
+      <div className="max-w-4xl mx-auto p-4">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/3" />
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-4">
@@ -146,7 +144,6 @@ export function PostDetailPage() {
               </div>
             </div>
           </div>
-        </div>
       </div>
     );
   }
@@ -154,9 +151,7 @@ export function PostDetailPage() {
   if (!post) return null;
 
   return (
-    <div className="max-w-4xl mx-auto flex">
-      <div className="hidden md:block w-64 shrink-0" />
-      <div className="flex-1 max-w-2xl p-4">
+    <div className="max-w-4xl mx-auto p-4">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
             <ArrowLeft className="w-5 h-5 dark:text-white" />
@@ -384,6 +379,5 @@ export function PostDetailPage() {
           ))}
         </div>
       </div>
-    </div>
   );
 }
