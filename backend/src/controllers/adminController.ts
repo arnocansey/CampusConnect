@@ -2,6 +2,7 @@ import { Response } from 'express';
 import prisma from '../config/database';
 import { AuthRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
+import { uploadImage } from '../utils/cloudinary';
 
 export const getDashboardStats = async (req: AuthRequest, res: Response): Promise<void> => {
   const now = new Date();
@@ -461,10 +462,19 @@ export const deleteAnnouncement = async (req: AuthRequest, res: Response): Promi
 // ==================== SETTINGS ====================
 
 export const getSettings = async (req: AuthRequest, res: Response): Promise<void> => {
+  const settings = await prisma.siteSetting.findMany();
+  const settingsMap: Record<string, string> = {};
+  for (const s of settings) settingsMap[s.key] = s.value;
+
   res.json({
     success: true,
     data: {
-      general: { siteName: 'UniHub', siteDescription: 'Campus social network', maintenanceMode: false },
+      general: {
+        siteName: settingsMap.siteName || 'CampusConnect',
+        siteDescription: settingsMap.siteDescription || 'Campus social network',
+        logoUrl: settingsMap.logoUrl || '',
+        maintenanceMode: settingsMap.maintenanceMode === 'true',
+      },
       email: { smtpHost: '', smtpPort: 587, smtpUser: '', smtpFrom: '', emailEnabled: false },
       security: { passwordMinLength: 8, passwordRequireUppercase: true, passwordRequireNumber: true, passwordRequireSpecial: false, sessionTimeoutMinutes: 60, maxLoginAttempts: 5, lockoutDurationMinutes: 15 },
       notifications: { emailNotifications: true, pushNotifications: true, mentionNotifications: true, messageNotifications: true, eventReminders: true, announcementNotifications: true },
@@ -474,7 +484,38 @@ export const getSettings = async (req: AuthRequest, res: Response): Promise<void
 
 export const updateSettings = async (req: AuthRequest, res: Response): Promise<void> => {
   const { section, data } = req.body;
+
+  if (section === 'general' && data) {
+    const upserts = Object.entries(data).map(([key, value]) =>
+      prisma.siteSetting.upsert({
+        where: { key },
+        update: { value: String(value) },
+        create: { key, value: String(value) },
+      })
+    );
+    await Promise.all(upserts);
+  }
+
   res.json({ success: true, message: `Settings for ${section} saved` });
+};
+
+export const uploadSiteLogo = async (req: AuthRequest, res: Response): Promise<void> => {
+  if (!req.file) {
+    throw new AppError('No file uploaded', 400);
+  }
+
+  const imageUrl = await uploadImage(req.file, 'campusconnect/site');
+
+  await prisma.siteSetting.upsert({
+    where: { key: 'logoUrl' },
+    update: { value: imageUrl },
+    create: { key: 'logoUrl', value: imageUrl },
+  });
+
+  res.json({
+    success: true,
+    data: { logoUrl: imageUrl },
+  });
 };
 
 // ==================== USER MANAGEMENT ====================

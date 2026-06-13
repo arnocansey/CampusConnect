@@ -10,6 +10,7 @@ import {
   Bell,
   Save,
   Loader2,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -18,6 +19,7 @@ import toast from 'react-hot-toast';
 interface GeneralSettings {
   siteName: string;
   siteDescription: string;
+  logoUrl: string;
   maintenanceMode: boolean;
 }
 
@@ -62,6 +64,7 @@ export default function AdminSettingsPage() {
   const [general, setGeneral] = useState<GeneralSettings>({
     siteName: '',
     siteDescription: '',
+    logoUrl: '',
     maintenanceMode: false,
   });
   const [email, setEmail] = useState<EmailSettings>({
@@ -136,6 +139,25 @@ export default function AdminSettingsPage() {
         break;
     }
   };
+
+  const logoUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('logo', file);
+      const { data } = await api.post('/admin/settings/logo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return data.data;
+    },
+    onSuccess: (data) => {
+      setGeneral((prev) => ({ ...prev, logoUrl: data.logoUrl }));
+      queryClient.invalidateQueries({ queryKey: ['siteSettings'] });
+      toast.success('Logo uploaded successfully');
+    },
+    onError: () => {
+      toast.error('Failed to upload logo');
+    },
+  });
 
   if (isLoading) {
     return (
@@ -213,6 +235,33 @@ export default function AdminSettingsPage() {
                   rows={3}
                   placeholder="A platform for university students..."
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Site Logo</label>
+                <div className="flex items-center gap-4">
+                  {general.logoUrl && (
+                    <div className="w-16 h-16 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                      <img src={general.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl cursor-pointer transition text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Upload className="w-4 h-4" />
+                    {general.logoUrl ? 'Change Logo' : 'Upload Logo'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) logoUploadMutation.mutate(file);
+                      }}
+                    />
+                  </label>
+                  {logoUploadMutation.isPending && (
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Recommended: 200x200px, PNG or SVG</p>
               </div>
               <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                 <div className="min-w-0">

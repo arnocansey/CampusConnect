@@ -25,6 +25,8 @@ import notificationRoutes from './routes/notificationRoutes';
 import storyRoutes from './routes/storyRoutes';
 import adminRoutes from './routes/adminRoutes';
 
+import prisma from './config/database';
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -61,6 +63,27 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Public site settings (no auth)
+app.get('/api/settings/public', async (req, res) => {
+  try {
+    const settings = await prisma.siteSetting.findMany();
+    const map: Record<string, string> = {};
+    for (const s of settings) map[s.key] = s.value;
+    res.json({
+      success: true,
+      data: {
+        siteName: map.siteName || 'CampusConnect',
+        logoUrl: map.logoUrl || '',
+      },
+    });
+  } catch {
+    res.json({
+      success: true,
+      data: { siteName: 'CampusConnect', logoUrl: '' },
+    });
+  }
 });
 
 // API Routes

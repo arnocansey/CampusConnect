@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import {
   GraduationCap,
   BookOpen,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 export function LandingPage() {
+  const { siteName, logoUrl } = useSiteSettings();
   const stats = [
     { number: '1,200+', label: 'Active Students', desc: 'Verified UCC scholars connected' },
     { number: '10+', label: 'Verified Hostels', desc: 'Atlantic, Casford, SRC & more' },
@@ -82,11 +84,15 @@ export function LandingPage() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-250/10 transition-colors">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
-              CC
-            </div>
+            {logoUrl ? (
+              <img src={logoUrl} alt={siteName} className="w-10 h-10 rounded-2xl object-contain" />
+            ) : (
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
+                CC
+              </div>
+            )}
             <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
-              CampusConnect
+              {siteName}
             </span>
           </Link>
 
@@ -261,11 +267,15 @@ export function LandingPage() {
       <footer className="relative z-10 border-t border-gray-200/50 dark:border-gray-850/50 bg-white dark:bg-gray-950 py-12 transition-colors">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow">
-              CC
-            </div>
+            {logoUrl ? (
+              <img src={logoUrl} alt={siteName} className="w-8 h-8 rounded-xl object-contain" />
+            ) : (
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow">
+                CC
+              </div>
+            )}
             <span className="font-bold text-sm text-gray-500">
-              © {new Date().getFullYear()} CampusConnect. All rights reserved.
+              © {new Date().getFullYear()} {siteName}. All rights reserved.
             </span>
           </div>
 

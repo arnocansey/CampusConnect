@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth';
+import { upload } from '../utils/cloudinary';
 import {
   getDashboardStats,
   getAnalytics,
@@ -27,6 +28,7 @@ import {
   deleteAnnouncement,
   getSettings,
   updateSettings,
+  uploadSiteLogo,
   getNotes,
   approveNote,
   deleteNote,
@@ -118,5 +120,6 @@ router.delete('/announcements/:id', authenticate, authorize('ADMIN'), deleteAnno
 // Settings
 router.get('/settings', authenticate, authorize('ADMIN'), getSettings);
 router.put('/settings', authenticate, authorize('ADMIN'), updateSettings);
+router.post('/settings/logo', authenticate, authorize('ADMIN'), upload.single('logo'), uploadSiteLogo);
 
 export default router;
