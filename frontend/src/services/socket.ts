@@ -11,9 +11,23 @@ export const getSocket = (): Socket => {
     socket = io(socketUrl, {
       auth: { token },
       autoConnect: false,
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
   }
   return socket;
+};
+
+export const updateSocketToken = (newToken: string): void => {
+  if (socket) {
+    socket.auth = { token: newToken };
+    if (socket.connected) {
+      socket.disconnect();
+      socket.connect();
+    }
+  }
 };
 
 export const connectSocket = (): void => {

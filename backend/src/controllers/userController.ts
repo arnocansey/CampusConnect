@@ -3,6 +3,7 @@ import prisma from '../config/database';
 import { AuthRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { uploadImage, deleteImage } from '../utils/cloudinary';
+import { getOnlineUsers } from '../sockets';
 
 export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   const { username } = req.params;
@@ -181,7 +182,7 @@ export const followUser = async (req: AuthRequest, res: Response): Promise<void>
       },
     });
 
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type: 'FOLLOW',
         content: `${req.user!.username} started following you`,
@@ -190,6 +191,11 @@ export const followUser = async (req: AuthRequest, res: Response): Promise<void>
         link: `/profile/${req.user!.username}`,
       },
     });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(userId).emit('notification_created', notification);
+    }
 
     res.json({
       success: true,
@@ -371,5 +377,20 @@ export const updateFcmToken = async (req: AuthRequest, res: Response): Promise<v
   res.json({
     success: true,
     message: 'FCM Token updated successfully',
+  });
+};
+
+export const getOnlineStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { userIds } = req.body;
+  const onlineUsers = getOnlineUsers();
+  const status: Record<string, boolean> = {};
+
+  for (const uid of userIds) {
+    status[uid] = onlineUsers.has(uid);
+  }
+
+  res.json({
+    success: true,
+    data: status,
   });
 };

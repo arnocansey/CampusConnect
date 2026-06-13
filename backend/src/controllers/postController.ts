@@ -330,7 +330,7 @@ export const likePost = async (req: AuthRequest, res: Response): Promise<void> =
     });
 
     if (post.authorId !== req.user!.id) {
-      await prisma.notification.create({
+      const notification = await prisma.notification.create({
         data: {
           type: 'LIKE',
           content: `${req.user!.username} liked your post`,
@@ -339,6 +339,11 @@ export const likePost = async (req: AuthRequest, res: Response): Promise<void> =
           link: `/post/${id}`,
         },
       });
+
+      const io = req.app.get('io');
+      if (io) {
+        io.to(post.authorId).emit('notification_created', notification);
+      }
     }
 
     res.json({

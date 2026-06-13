@@ -63,6 +63,7 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
         name: conv.isGroup ? conv.name : otherMember?.user.fullName,
         avatar: conv.isGroup ? conv.avatar : otherMember?.user.profilePicture,
         isGroup: conv.isGroup,
+        memberIds: conv.members.map((m) => m.userId),
         lastMessage: lastMessage
           ? {
               content: lastMessage.content,
@@ -365,7 +366,7 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
   });
 
   for (const member of otherMembers) {
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type: 'MESSAGE',
         content: `${req.user!.username} sent you a message`,
@@ -374,6 +375,11 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
         link: `/messages/${conversationId}`,
       },
     });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(member.userId).emit('notification_created', notification);
+    }
 
     sendPushNotification(member.userId, {
       title: `@${req.user!.username}`,

@@ -35,6 +35,7 @@ const io = initializeSocket(httpServer);
 app.set('io', io);
 
 // Security
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
   origin: config.frontendUrl,

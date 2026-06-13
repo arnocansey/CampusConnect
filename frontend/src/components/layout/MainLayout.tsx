@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { useGlobalNotifications } from '../../hooks/useGlobalNotifications';
 import api from '../../services/api';
 import {
   Home,
@@ -41,6 +42,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useGlobalNotifications();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -210,6 +210,7 @@ export interface Conversation {
   name?: string;
   avatar?: string;
   isGroup: boolean;
+  memberIds?: string[];
   lastMessage?: {
     content?: string;
     sender: string;

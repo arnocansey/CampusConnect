@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import api from '../services/api';
@@ -8,6 +8,7 @@ import { formatDate } from '../utils';
 import { Search, MessageSquare, Plus, X, Users } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useTranslation } from '../i18n';
+import { useSocket } from '../hooks/useSocket';
 
 export function MessagesPage() {
   const { t } = useTranslation();
@@ -15,6 +16,8 @@ export function MessagesPage() {
   const [showNewChat, setShowNewChat] = useState(false);
   const [userSearch, setUserSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'chats' | 'requests'>('chats');
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const { onUserOnline } = useSocket();
 
   const { data: conversationsData, isLoading } = useQuery({
     queryKey: ['conversations'],
@@ -23,6 +26,42 @@ export function MessagesPage() {
       return data.data;
     },
   });
+
+  const allMemberIds = useMemo(() => {
+    if (!conversationsData) return [];
+    const ids = new Set<string>();
+    for (const conv of conversationsData) {
+      if (conv.memberIds) {
+        for (const id of conv.memberIds) ids.add(id);
+      }
+    }
+    return Array.from(ids);
+  }, [conversationsData]);
+
+  useEffect(() => {
+    if (allMemberIds.length === 0) return;
+    api.post('/users/online-status', { userIds: allMemberIds }).then(({ data }) => {
+      if (data.data) {
+        const online = new Set<string>();
+        for (const [uid, isOnline] of Object.entries(data.data)) {
+          if (isOnline) online.add(uid);
+        }
+        setOnlineUsers(online);
+      }
+    });
+  }, [allMemberIds]);
+
+  useEffect(() => {
+    const cleanup = onUserOnline(({ userId, isOnline }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        if (isOnline) next.add(userId);
+        else next.delete(userId);
+        return next;
+      });
+    });
+    return cleanup;
+  }, [onUserOnline]);
 
   const { data: searchResults } = useQuery({
     queryKey: ['userSearch', userSearch],
@@ -47,8 +86,8 @@ export function MessagesPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex gap-6">
-      <div className="flex-1 max-w-2xl">
+    <div className="max-w-7xl mx-auto p-4">
+      <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('messages.title')}</h1>
           <Button size="icon" onClick={() => setShowNewChat(true)}>
@@ -107,40 +146,45 @@ export function MessagesPage() {
           </div>
         ) : activeTab === 'chats' ? (
           <div className="space-y-1">
-            {conversationsData?.map((conversation: Conversation) => (
-              <button
-                key={conversation.id}
-                onClick={() => router.push(`/messages/${conversation.id}`)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition text-left"
-              >
-                <div className="relative shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold">
-                    {conversation.avatar ? (
-                      <img src={conversation.avatar} alt="" className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      conversation.name?.charAt(0) || 'U'
+            {conversationsData?.map((conversation: Conversation) => {
+              const isOnline = conversation.memberIds?.some((id) => onlineUsers.has(id)) ?? false;
+              return (
+                <button
+                  key={conversation.id}
+                  onClick={() => router.push(`/messages/${conversation.id}`)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition text-left"
+                >
+                  <div className="relative shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold">
+                      {conversation.avatar ? (
+                        <img src={conversation.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        conversation.name?.charAt(0) || 'U'
+                      )}
+                    </div>
+                    {isOnline && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-sm dark:text-white">{conversation.name || 'Unknown'}</p>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                      {conversation.lastMessage?.createdAt ? formatDate(conversation.lastMessage.createdAt) : ''}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-sm dark:text-white">{conversation.name || 'Unknown'}</p>
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                        {conversation.lastMessage?.createdAt ? formatDate(conversation.lastMessage.createdAt) : ''}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {conversation.lastMessage?.content || t('chat.noMessages')}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {conversation.lastMessage?.content || t('chat.noMessages')}
-                  </p>
-                </div>
-                {conversation.unreadCount > 0 && (
-                  <span className="bg-blue-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shrink-0">
-                    {conversation.unreadCount}
-                  </span>
-                )}
-              </button>
-            ))}
+                  {conversation.unreadCount > 0 && (
+                    <span className="bg-blue-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shrink-0">
+                      {conversation.unreadCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
 
             {conversationsData?.length === 0 && (
               <div className="text-center py-12">

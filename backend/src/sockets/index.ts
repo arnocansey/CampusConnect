@@ -10,6 +10,10 @@ interface AuthenticatedSocket {
   username: string;
 }
 
+let onlineUsersMap: Map<string, string> = new Map();
+
+export const getOnlineUsers = (): Map<string, string> => onlineUsersMap;
+
 export const initializeSocket = (httpServer: HttpServer): SocketServer => {
   const io = new SocketServer(httpServer, {
     cors: {
@@ -19,7 +23,7 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     },
   });
 
-  const onlineUsers = new Map<string, string>(); // userId -> socketId
+  const onlineUsers = onlineUsersMap;
 
   io.use(async (socket, next) => {
     try {
@@ -113,6 +117,13 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
         });
 
         io.to(`conversation:${data.conversationId}`).emit('new_message', message);
+
+        const otherMembers = await prisma.conversationMember.findMany({
+          where: { conversationId: data.conversationId, userId: { not: userId } },
+        });
+        for (const member of otherMembers) {
+          io.to(member.userId).emit('conversation_updated', { conversationId: data.conversationId });
+        }
       } catch (error) {
         console.error('Error sending message:', error);
       }

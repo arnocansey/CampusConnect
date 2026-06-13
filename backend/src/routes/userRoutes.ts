@@ -12,12 +12,14 @@ import {
   searchUsers,
   getSuggestedUsers,
   updateFcmToken,
+  getOnlineStatus,
 } from '../controllers/userController';
 
 const router = Router();
 
 router.get('/search', authenticate, searchUsers);
 router.get('/suggested', authenticate, getSuggestedUsers);
+router.post('/online-status', authenticate, getOnlineStatus);
 router.post('/fcm-token', authenticate, updateFcmToken);
 router.get('/:username', authenticate, getUserProfile);
 router.put('/profile/update', authenticate, updateProfile);

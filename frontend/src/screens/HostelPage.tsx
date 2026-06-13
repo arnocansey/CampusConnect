@@ -14,7 +14,7 @@ export const formatPrice = (price: number, currency: string) => {
   return `${symbol}${price.toLocaleString()}`;
 };
 
-const roomTypes = ['All', 'Single Room', 'Shared', 'Self-contained'];
+const roomTypes = ['All', 'Single', 'Shared', 'Self-Contained'];
 const roomTypeOptions = [
   { label: 'Single Room', value: 'SINGLE' },
   { label: 'Shared Room', value: 'SHARED' },
@@ -44,13 +44,19 @@ export function HostelPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
+  const roomTypeMap: Record<string, string> = {
+    'Single': 'SINGLE',
+    'Shared': 'SHARED',
+    'Self-Contained': 'SELF_CONTAINED',
+  };
+
   const { data: hostelsData, isLoading } = useQuery({
     queryKey: ['hostels', searchQuery, selectedType],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
       if (selectedType !== 'All') {
-        params.append('roomType', selectedType.toUpperCase().replace(' ', '_'));
+        params.append('roomType', roomTypeMap[selectedType] || selectedType);
       }
       const { data } = await api.get(`/hostels?${params}`);
       return data.data;

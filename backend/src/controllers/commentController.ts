@@ -54,7 +54,7 @@ export const createComment = async (req: AuthRequest, res: Response): Promise<vo
   });
 
   if (post.authorId !== req.user!.id) {
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type: 'COMMENT',
         content: `${req.user!.username} commented on your post`,
@@ -63,6 +63,11 @@ export const createComment = async (req: AuthRequest, res: Response): Promise<vo
         link: `/post/${postId}`,
       },
     });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(post.authorId).emit('notification_created', notification);
+    }
   }
 
   res.status(201).json({

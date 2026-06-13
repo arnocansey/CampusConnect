@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import api from '../services/api';
-import { connectSocket, disconnectSocket } from '../services/socket';
+import { connectSocket, disconnectSocket, updateSocketToken } from '../services/socket';
 import { User } from '../types';
 
 interface AuthContextType {
@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               const storage = isPersisted ? localStorage : sessionStorage;
               storage.setItem('accessToken', data.data.accessToken);
               storage.setItem('refreshToken', data.data.refreshToken);
+              updateSocketToken(data.data.accessToken);
               const { data: meData } = await api.get('/auth/me');
               setUser(meData.data);
               connectSocket();

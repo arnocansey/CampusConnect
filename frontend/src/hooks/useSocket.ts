@@ -82,6 +82,20 @@ export function useSocket() {
     };
   }, []);
 
+  const onNotificationCreated = useCallback((callback: (notification: any) => void) => {
+    socketRef.current.on('notification_created', callback);
+    return () => {
+      socketRef.current.off('notification_created', callback);
+    };
+  }, []);
+
+  const onConversationUpdated = useCallback((callback: (data: { conversationId: string }) => void) => {
+    socketRef.current.on('conversation_updated', callback);
+    return () => {
+      socketRef.current.off('conversation_updated', callback);
+    };
+  }, []);
+
   return {
     socket: socketRef.current,
     joinConversation,
@@ -97,5 +111,7 @@ export function useSocket() {
     emitReactMessage,
     onMessagesRead,
     onReactionUpdated,
+    onNotificationCreated,
+    onConversationUpdated,
   };
 }
