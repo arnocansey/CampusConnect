@@ -165,16 +165,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <div className="max-w-7xl mx-auto flex">
         {/* Sidebar - Desktop */}
         <aside className="hidden md:block sticky top-[57px] w-64 h-[calc(100vh-57px)] shrink-0 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 p-4 overflow-y-auto transition-colors">
-          <Link href="/" className="flex items-center gap-3 mb-6 px-2">
-            {logoUrl ? (
-              <img src={logoUrl} alt={siteName} className="w-9 h-9 rounded-lg object-contain" />
-            ) : (
-              <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-xs">
-                CC
-              </div>
-            )}
-            <span className="font-bold text-base dark:text-white">{siteName}</span>
-          </Link>
           <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
