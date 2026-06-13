@@ -9,7 +9,7 @@ import { ThemeToggle } from '../ui/ThemeToggle';
 import { useGlobalNotifications } from '../../hooks/useGlobalNotifications';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import { AIChatWidget } from '../support/AIChatWidget';
-import { TawkWidget } from '../support/TawkWidget';
+// import { TawkWidget } from '../support/TawkWidget';
 import api from '../../services/api';
 import {
   Home,
@@ -322,8 +322,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       {/* AI Support Chat Widget */}
       <AIChatWidget />
 
-      {/* Tawk.to Live Chat */}
-      <TawkWidget />
+      {/* Tawk.to Live Chat (enable when ready) */}
+      {/* <TawkWidget /> */}
     </div>
   );
 }
