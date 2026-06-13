@@ -6,6 +6,7 @@ import {
   getFeed,
   getPost,
   deletePost,
+  getPostLikers,
   likePost,
   savePost,
   votePoll,
@@ -25,6 +26,7 @@ router.get('/trending', authenticate, getTrendingTopics);
 router.get('/saved', authenticate, getSavedPosts);
 router.post('/', authenticate, upload.array('images', 10), createPost);
 router.get('/:id', authenticate, getPost);
+router.get('/:id/likers', authenticate, getPostLikers);
 router.delete('/:id', authenticate, deletePost);
 router.post('/:id/like', authenticate, likePost);
 router.post('/:id/save', authenticate, savePost);

@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Post } from '../types';
 import { formatNumber } from '../utils';
 import { Button } from '../components/ui/Button';
+import { UserListModal } from '../components/ui/UserListModal';
 import { Settings, Share2, Grid3X3, Bookmark, ShoppingBag, Heart } from 'lucide-react';
 import { useTranslation } from '../i18n';
 
@@ -19,6 +20,7 @@ export function ProfilePage() {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<Tab>('posts');
+  const [userListModal, setUserListModal] = useState<'followers' | 'following' | null>(null);
 
   const { data: profileData, isLoading } = useQuery({
     queryKey: ['profile', username],
@@ -200,14 +202,20 @@ export function ProfilePage() {
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.posts || 0)}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.posts')}</p>
                 </div>
-                <div className="text-center">
+                <button
+                  onClick={() => setUserListModal('followers')}
+                  className="text-center hover:opacity-80 transition"
+                >
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.followers || 0)}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.followers')}</p>
-                </div>
-                <div className="text-center">
+                </button>
+                <button
+                  onClick={() => setUserListModal('following')}
+                  className="text-center hover:opacity-80 transition"
+                >
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.following || 0)}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.following')}</p>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -327,6 +335,21 @@ export function ProfilePage() {
           </>
         )}
       </div>
+
+      <UserListModal
+        isOpen={userListModal === 'followers'}
+        onClose={() => setUserListModal(null)}
+        title="Followers"
+        type="followers"
+        username={username}
+      />
+      <UserListModal
+        isOpen={userListModal === 'following'}
+        onClose={() => setUserListModal(null)}
+        title="Following"
+        type="following"
+        username={username}
+      />
     </div>
   );
 }

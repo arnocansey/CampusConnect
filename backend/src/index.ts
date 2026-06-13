@@ -25,6 +25,7 @@ import notificationRoutes from './routes/notificationRoutes';
 import storyRoutes from './routes/storyRoutes';
 import adminRoutes from './routes/adminRoutes';
 import aiChatRoutes from './routes/aiChatRoutes';
+import announcementRoutes from './routes/announcementRoutes';
 
 import prisma from './config/database';
 
@@ -99,6 +100,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/announcements', announcementRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiChatRoutes);

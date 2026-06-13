@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { Comment } from '../types';
 import { formatDate, formatNumber } from '../utils';
+import { UserListModal } from '../components/ui/UserListModal';
 import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 export function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const [showLikers, setShowLikers] = useState(false);
   const [commentText, setCommentText] = useState('');
   const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -151,6 +153,7 @@ export function PostDetailPage() {
   if (!post) return null;
 
   return (
+    <>
     <div className="max-w-4xl mx-auto p-4">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
@@ -294,7 +297,17 @@ export function PostDetailPage() {
           )}
 
           <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-sm text-gray-500">
-            <span>❤️ {formatNumber(post._count.likes)} · 💬 {formatNumber(post._count.comments)}</span>
+            <div className="flex items-center gap-3">
+              {post._count.likes > 0 && (
+                <button
+                  onClick={() => setShowLikers(true)}
+                  className="hover:underline"
+                >
+                  ❤️ {formatNumber(post._count.likes)}
+                </button>
+              )}
+              <span>💬 {formatNumber(post._count.comments)}</span>
+            </div>
           </div>
 
           <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1">
@@ -379,5 +392,14 @@ export function PostDetailPage() {
           ))}
         </div>
       </div>
+
+      <UserListModal
+        isOpen={showLikers}
+        onClose={() => setShowLikers(false)}
+        title="Liked by"
+        type="likers"
+        postId={id}
+      />
+    </>
   );
 }

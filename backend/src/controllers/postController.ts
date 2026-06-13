@@ -292,6 +292,54 @@ export const deletePost = async (req: AuthRequest, res: Response): Promise<void>
   });
 };
 
+export const getPostLikers = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { page = '1', limit = '20' } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+  const post = await prisma.post.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+
+  if (!post) {
+    throw new AppError('Post not found', 404);
+  }
+
+  const likes = await prisma.like.findMany({
+    where: { postId: id },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          profilePicture: true,
+          department: true,
+          isVerified: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: parseInt(limit as string),
+  });
+
+  const total = await prisma.like.count({
+    where: { postId: id },
+  });
+
+  res.json({
+    success: true,
+    data: {
+      users: likes.map((like) => like.user),
+      total,
+      page: parseInt(page as string),
+      totalPages: Math.ceil(total / parseInt(limit as string)),
+    },
+  });
+};
+
 export const likePost = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
 

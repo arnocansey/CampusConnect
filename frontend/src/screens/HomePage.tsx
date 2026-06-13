@@ -8,6 +8,7 @@ import { Post } from '../types';
 import { formatDate, formatNumber } from '../utils';
 import { Button } from '../components/ui/Button';
 import { StoryTray } from '../components/feed/StoryTray';
+import { AnnouncementsBanner } from '../components/announcements/AnnouncementsBanner';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Image, X, Bookmark, MapPin, BarChart3, Video, Tag, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -323,6 +324,7 @@ export function HomePage() {
     <div className="max-w-7xl mx-auto p-4 flex gap-6 lg:gap-6">
       {/* Main Feed */}
       <div className="flex-1 max-w-2xl min-w-0">
+        <AnnouncementsBanner />
         <StoryTray />
 
         {/* Post Composer */}

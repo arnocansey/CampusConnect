@@ -25,6 +25,7 @@ import {
   Building,
   Briefcase,
   Calendar,
+  Megaphone,
 } from 'lucide-react';
 
 const navItems = [
@@ -36,6 +37,7 @@ const navItems = [
   { path: '/hostels', icon: Building, label: 'Hostel Finder' },
   { path: '/jobs', icon: Briefcase, label: 'Jobs & Internships' },
   { path: '/events', icon: Calendar, label: 'Campus Events' },
+  { path: '/announcements', icon: Megaphone, label: 'Announcements' },
   { path: '/messages', icon: MessageSquare, label: 'Messages' },
   { path: '/notifications', icon: Bell, label: 'Notifications' },
 ];
