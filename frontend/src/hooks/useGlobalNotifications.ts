@@ -10,7 +10,7 @@ export function useGlobalNotifications() {
   useEffect(() => {
     const cleanupNotification = onNotificationCreated((notification) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unreadCount'] });
       toast(notification.content, {
         icon: '🔔',
         duration: 4000,

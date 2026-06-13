@@ -68,7 +68,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     refetchInterval: 30000,
   });
 
-  const unreadCount = notificationData?.total || 0;
+  const unreadCount = notificationData?.unreadCount || 0;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">

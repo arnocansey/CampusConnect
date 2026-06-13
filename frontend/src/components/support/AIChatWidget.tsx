@@ -15,7 +15,7 @@ export function AIChatWidget() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-24 md:bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+        className={`fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 w-12 h-12 md:w-14 md:h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
           isOpen
             ? "bg-gray-800 dark:bg-gray-700 rotate-0"
             : "bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
@@ -23,18 +23,18 @@ export function AIChatWidget() {
         aria-label={isOpen ? "Close chat" : "Open AI assistant"}
       >
         {isOpen ? (
-          <X className="w-6 h-6 text-white" />
+          <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
         ) : (
-          <MessageCircle className="w-6 h-6 text-white" />
+          <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-white" />
         )}
         {!isOpen && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white dark:border-gray-900" />
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white dark:border-gray-900" />
         )}
       </button>
 
       {/* Coming Soon Panel */}
       {isOpen && (
-        <div className="fixed bottom-40 md:bottom-24 right-6 z-50 w-[350px] sm:w-[400px] max-w-[calc(100vw-3rem)] h-[500px] max-h-[calc(100vh-14rem)] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300">
+        <div className="fixed bottom-32 md:bottom-24 right-2 md:right-6 z-50 w-[calc(100vw-1rem)] sm:w-[400px] h-[calc(100vh-10rem)] md:h-[500px] md:max-h-[calc(100vh-14rem)] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
