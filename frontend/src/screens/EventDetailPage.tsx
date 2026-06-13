@@ -58,14 +58,14 @@ export function EventDetailPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
+        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Event Details</h1>
+        <h1 className="text-lg sm:text-xl font-bold truncate">Event Details</h1>
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mb-4">
-        <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
+        <div className="h-40 sm:h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
           <div className="text-center text-white">
             <span className="text-4xl font-bold">{eventDate.getDate()}</span>
             <span className="block text-lg">{eventDate.toLocaleDateString('en-US', { month: 'short' })}</span>
@@ -73,9 +73,9 @@ export function EventDetailPage() {
         </div>
 
         <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold">{event.title}</h2>
-            <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs px-3 py-1 rounded-full font-semibold">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <h2 className="text-lg sm:text-xl font-bold min-w-0 truncate">{event.title}</h2>
+            <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-semibold shrink-0">
               {event.category}
             </span>
           </div>

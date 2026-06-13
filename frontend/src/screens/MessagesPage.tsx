@@ -88,8 +88,8 @@ export function MessagesPage() {
   return (
     <div className="max-w-7xl mx-auto p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('messages.title')}</h1>
+        <div className="flex items-center justify-between mb-6 gap-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{t('messages.title')}</h1>
           <Button size="icon" onClick={() => setShowNewChat(true)}>
             <Plus className="w-5 h-5" />
           </Button>

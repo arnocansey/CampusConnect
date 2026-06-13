@@ -35,6 +35,15 @@ import {
   getMarketplaceItems,
   approveMarketplaceItem,
   deleteMarketplaceItem,
+  createAdminMarketplaceItem,
+  getPromoCodes,
+  createPromoCode,
+  updatePromoCode,
+  deletePromoCode,
+  getPromotions,
+  createPromotion,
+  updatePromotion,
+  deletePromotion,
   getGroups,
   deleteGroup,
   getHostels,
@@ -82,8 +91,21 @@ router.delete('/notes/:id', authenticate, authorize('ADMIN'), deleteNote);
 
 // Marketplace
 router.get('/marketplace', authenticate, authorize('ADMIN'), getMarketplaceItems);
+router.post('/marketplace', authenticate, authorize('ADMIN'), upload.array('images', 10), createAdminMarketplaceItem);
 router.patch('/marketplace/:id/approve', authenticate, authorize('ADMIN'), approveMarketplaceItem);
 router.delete('/marketplace/:id', authenticate, authorize('ADMIN'), deleteMarketplaceItem);
+
+// Promo Codes
+router.get('/promos', authenticate, authorize('ADMIN'), getPromoCodes);
+router.post('/promos', authenticate, authorize('ADMIN'), createPromoCode);
+router.patch('/promos/:id', authenticate, authorize('ADMIN'), updatePromoCode);
+router.delete('/promos/:id', authenticate, authorize('ADMIN'), deletePromoCode);
+
+// Promotions
+router.get('/promotions', authenticate, authorize('ADMIN'), getPromotions);
+router.post('/promotions', authenticate, authorize('ADMIN'), upload.single('image'), createPromotion);
+router.patch('/promotions/:id', authenticate, authorize('ADMIN'), upload.single('image'), updatePromotion);
+router.delete('/promotions/:id', authenticate, authorize('ADMIN'), deletePromotion);
 
 // Groups
 router.get('/groups', authenticate, authorize('ADMIN'), getGroups);

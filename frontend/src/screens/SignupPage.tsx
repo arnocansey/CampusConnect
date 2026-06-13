@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import toast from 'react-hot-toast';
 import { useTranslation } from '../i18n';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const signupSchema = z
   .object({
@@ -36,6 +37,7 @@ type SignupFormData = z.infer<typeof signupSchema>;
 export function SignupPage() {
   const { t } = useTranslation();
   const { signup } = useAuth();
+  const { siteName, logoUrl } = useSiteSettings();
   const {
     register,
     handleSubmit,
@@ -57,8 +59,12 @@ export function SignupPage() {
   return (
     <div>
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 lg:hidden">
-          CC
+        <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 lg:hidden overflow-hidden">
+          {logoUrl ? (
+            <img src={logoUrl} alt={siteName} className="w-full h-full object-contain" />
+          ) : (
+            'CC'
+          )}
         </div>
         <h1 className="text-2xl font-bold text-gray-900">{t('auth.createAccount')}</h1>
         <p className="text-gray-500 mt-1">{t('auth.joinCampus')}</p>

@@ -31,28 +31,28 @@ export function MarketplaceDetailPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
+        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Item Details</h1>
+        <h1 className="text-lg sm:text-xl font-bold truncate">Item Details</h1>
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mb-4">
-        <div className="h-64 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+        <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
           <span className="text-gray-400 text-lg">No image</span>
         </div>
 
         <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold">{item.title}</h2>
-            <span className="text-blue-600 font-bold text-2xl">${item.price}</span>
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <h2 className="text-lg sm:text-xl font-bold min-w-0 truncate">{item.title}</h2>
+            <span className="text-blue-600 font-bold text-lg sm:text-2xl shrink-0">${item.price}</span>
           </div>
 
-          <div className="flex items-center gap-3 mb-4 text-sm text-gray-500">
-            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{item.category}</span>
-            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{item.condition}</span>
+          <div className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500">
+            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-xs">{item.category}</span>
+            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-xs">{item.condition}</span>
             {item.location && (
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 text-xs">
                 <MapPin className="w-3 h-3" /> {item.location}
               </span>
             )}

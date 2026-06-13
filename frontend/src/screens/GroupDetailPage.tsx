@@ -57,19 +57,19 @@ export function GroupDetailPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
+        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Study Group</h1>
+        <h1 className="text-lg sm:text-xl font-bold truncate">Study Group</h1>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-4">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-xl">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 sm:p-6 mb-4">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-lg sm:text-xl shrink-0">
             {group.name.substring(0, 2)}
           </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold">{group.name}</h2>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold truncate">{group.name}</h2>
             <p className="text-sm text-gray-500">{group._count.members} members</p>
           </div>
         </div>

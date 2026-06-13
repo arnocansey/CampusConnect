@@ -648,6 +648,194 @@ export const deleteMarketplaceItem = async (req: AuthRequest, res: Response): Pr
   res.json({ success: true, message: 'Listing deleted' });
 };
 
+// ==================== ADMIN ADD MARKETPLACE ITEM ====================
+
+export const createAdminMarketplaceItem = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { title, description, price, currency, category, condition, location, isApproved } = req.body;
+  const images: string[] = [];
+
+  if (req.files && Array.isArray(req.files)) {
+    for (const file of req.files) {
+      const url = await uploadImage(file, 'campusconnect/marketplace');
+      images.push(url);
+    }
+  }
+
+  const item = await prisma.marketplaceItem.create({
+    data: {
+      title,
+      description,
+      price: parseFloat(price),
+      currency: currency || 'GHS',
+      category: category || 'OTHER',
+      condition: condition || 'NEW',
+      location,
+      images,
+      isApproved: isApproved !== undefined ? isApproved === 'true' || isApproved === true : true,
+      sellerId: req.user!.id,
+    },
+    include: { seller: { select: { id: true, username: true, fullName: true, profilePicture: true } } },
+  });
+
+  res.status(201).json({ success: true, data: item });
+};
+
+// ==================== PROMO CODES ====================
+
+export const getPromoCodes = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { page = '1', limit = '20', search, isActive } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+  const where: any = {};
+  if (isActive !== undefined) where.isActive = isActive === 'true';
+  if (search) {
+    where.OR = [
+      { code: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
+
+  const [items, total] = await Promise.all([
+    prisma.promoCode.findMany({
+      where, skip, take: parseInt(limit as string), orderBy: { createdAt: 'desc' },
+    }),
+    prisma.promoCode.count({ where }),
+  ]);
+
+  res.json({
+    success: true,
+    data: { items, total, page: parseInt(page as string), totalPages: Math.ceil(total / parseInt(limit as string)) },
+  });
+};
+
+export const createPromoCode = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { code, description, discount, discountType, maxUses, minPurchase, expiresAt } = req.body;
+
+  const existing = await prisma.promoCode.findUnique({ where: { code: code.toUpperCase() } });
+  if (existing) throw new AppError('Promo code already exists', 400);
+
+  const item = await prisma.promoCode.create({
+    data: {
+      code: code.toUpperCase(),
+      description,
+      discount: parseFloat(discount),
+      discountType: discountType || 'PERCENTAGE',
+      maxUses: maxUses ? parseInt(maxUses) : null,
+      minPurchase: minPurchase ? parseFloat(minPurchase) : null,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+    },
+  });
+
+  res.status(201).json({ success: true, data: item });
+};
+
+export const updatePromoCode = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { isActive, maxUses, expiresAt, description } = req.body;
+
+  const item = await prisma.promoCode.update({
+    where: { id },
+    data: {
+      ...(isActive !== undefined && { isActive }),
+      ...(maxUses !== undefined && { maxUses: parseInt(maxUses) }),
+      ...(expiresAt !== undefined && { expiresAt: new Date(expiresAt) }),
+      ...(description !== undefined && { description }),
+    },
+  });
+
+  res.json({ success: true, data: item });
+};
+
+export const deletePromoCode = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  await prisma.promoCode.delete({ where: { id } });
+  res.json({ success: true, message: 'Promo code deleted' });
+};
+
+// ==================== PROMOTIONS ====================
+
+export const getPromotions = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { page = '1', limit = '20', search, isActive } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+  const where: any = {};
+  if (isActive !== undefined) where.isActive = isActive === 'true';
+  if (search) {
+    where.OR = [
+      { title: { contains: search as string, mode: 'insensitive' } },
+      { description: { contains: search as string, mode: 'insensitive' } },
+    ];
+  }
+
+  const [items, total] = await Promise.all([
+    prisma.promotion.findMany({
+      where, skip, take: parseInt(limit as string), orderBy: { createdAt: 'desc' },
+    }),
+    prisma.promotion.count({ where }),
+  ]);
+
+  res.json({
+    success: true,
+    data: { items, total, page: parseInt(page as string), totalPages: Math.ceil(total / parseInt(limit as string)) },
+  });
+};
+
+export const createPromotion = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { title, description, discount, discountType, category, startDate, endDate } = req.body;
+
+  let imageUrl: string | undefined;
+  if (req.file) {
+    imageUrl = await uploadImage(req.file, 'campusconnect/promotions');
+  }
+
+  const item = await prisma.promotion.create({
+    data: {
+      title,
+      description,
+      discount: parseFloat(discount),
+      discountType: discountType || 'PERCENTAGE',
+      category: category || undefined,
+      imageUrl,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      createdBy: req.user!.id,
+    },
+  });
+
+  res.status(201).json({ success: true, data: item });
+};
+
+export const updatePromotion = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { isActive, title, description, discount, discountType, category, startDate, endDate } = req.body;
+
+  let imageUrl: string | undefined;
+  if (req.file) {
+    imageUrl = await uploadImage(req.file, 'campusconnect/promotions');
+  }
+
+  const item = await prisma.promotion.update({
+    where: { id },
+    data: {
+      ...(isActive !== undefined && { isActive }),
+      ...(title !== undefined && { title }),
+      ...(description !== undefined && { description }),
+      ...(discount !== undefined && { discount: parseFloat(discount) }),
+      ...(discountType !== undefined && { discountType }),
+      ...(category !== undefined && { category: category || null }),
+      ...(imageUrl && { imageUrl }),
+      ...(startDate !== undefined && { startDate: new Date(startDate) }),
+      ...(endDate !== undefined && { endDate: new Date(endDate) }),
+    },
+  });
+
+  res.json({ success: true, data: item });
+};
+
+export const deletePromotion = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  await prisma.promotion.delete({ where: { id } });
+  res.json({ success: true, message: 'Promotion deleted' });
+};
+
 export const getGroups = async (req: AuthRequest, res: Response): Promise<void> => {
   const { search } = req.query;
   const where: any = {};

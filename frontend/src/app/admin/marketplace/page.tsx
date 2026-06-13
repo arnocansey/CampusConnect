@@ -13,8 +13,11 @@ import {
   X,
   AlertTriangle,
   ImageOff,
+  Plus,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import toast from "react-hot-toast";
 
 interface AdminMarketplaceItem {
@@ -46,6 +49,14 @@ export default function AdminMarketplacePage() {
   const [viewItem, setViewItem] = useState<AdminMarketplaceItem | null>(null);
   const [removeReason, setRemoveReason] = useState("");
   const [removeTarget, setRemoveTarget] = useState<AdminMarketplaceItem | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addTitle, setAddTitle] = useState("");
+  const [addDescription, setAddDescription] = useState("");
+  const [addPrice, setAddPrice] = useState("");
+  const [addCategory, setAddCategory] = useState("OTHER");
+  const [addCondition, setAddCondition] = useState("NEW");
+  const [addLocation, setAddLocation] = useState("");
+  const [addImages, setAddImages] = useState<FileList | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-marketplace", search, categoryFilter, approvedFilter],
@@ -89,17 +100,61 @@ export default function AdminMarketplacePage() {
     },
   });
 
+  const createItemMutation = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData();
+      formData.append("title", addTitle);
+      formData.append("description", addDescription);
+      formData.append("price", addPrice);
+      formData.append("category", addCategory);
+      formData.append("condition", addCondition);
+      formData.append("isApproved", "true");
+      if (addLocation) formData.append("location", addLocation);
+      if (addImages) {
+        for (let i = 0; i < addImages.length; i++) {
+          formData.append("images", addImages[i]);
+        }
+      }
+      const { data } = await api.post("/admin/marketplace", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-marketplace"] });
+      setShowAddModal(false);
+      setAddTitle("");
+      setAddDescription("");
+      setAddPrice("");
+      setAddCategory("OTHER");
+      setAddCondition("NEW");
+      setAddLocation("");
+      setAddImages(null);
+      toast.success("Item created");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to create item");
+    },
+  });
+
   const items: AdminMarketplaceItem[] = data?.items || [];
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <ShoppingCart className="w-6 h-6" /> Marketplace Moderation
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Review, approve, and remove marketplace listings
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <ShoppingCart className="w-6 h-6" /> Marketplace Moderation
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Review, approve, and remove marketplace listings
+            </p>
+          </div>
+          <Button onClick={() => setShowAddModal(true)} size="sm">
+            <Plus className="w-4 h-4 mr-1" /> Add Item
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -387,6 +442,86 @@ export default function AdminMarketplacePage() {
                 }
               >
                 {removeMutation.isPending ? "Removing..." : "Remove Listing"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Item Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full border border-gray-100 dark:border-gray-800 p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-950 dark:text-white mb-4">Add Marketplace Item</h2>
+            <div className="space-y-3">
+              <Input
+                placeholder="Title *"
+                value={addTitle}
+                onChange={(e) => setAddTitle(e.target.value)}
+              />
+              <textarea
+                placeholder="Description *"
+                value={addDescription}
+                onChange={(e) => setAddDescription(e.target.value)}
+                className="w-full text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent p-2.5 dark:text-white focus:outline-none"
+                rows={3}
+              />
+              <Input
+                type="number"
+                placeholder="Price (GH₵) *"
+                value={addPrice}
+                onChange={(e) => setAddPrice(e.target.value)}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <select
+                  value={addCategory}
+                  onChange={(e) => setAddCategory(e.target.value)}
+                  className="text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2.5 dark:text-white"
+                >
+                  {["BOOKS", "ELECTRONICS", "CLOTHING", "ACCESSORIES", "SERVICES", "HOSTEL_ITEMS", "OTHER"].map((c) => (
+                    <option key={c} value={c}>{c.replace("_", " ")}</option>
+                  ))}
+                </select>
+                <select
+                  value={addCondition}
+                  onChange={(e) => setAddCondition(e.target.value)}
+                  className="text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2.5 dark:text-white"
+                >
+                  {["NEW", "LIKE_NEW", "GOOD", "FAIR", "POOR"].map((c) => (
+                    <option key={c} value={c}>{c.replace("_", " ")}</option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                placeholder="Location (optional)"
+                value={addLocation}
+                onChange={(e) => setAddLocation(e.target.value)}
+              />
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Images (optional)</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => setAddImages(e.target.files)}
+                  className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-300 hover:file:bg-blue-100"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="ghost" onClick={() => setShowAddModal(false)}>Cancel</Button>
+              <Button
+                disabled={!addTitle.trim() || !addDescription.trim() || !addPrice || createItemMutation.isPending}
+                onClick={() => createItemMutation.mutate()}
+              >
+                {createItemMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                {createItemMutation.isPending ? "Creating..." : "Create Item"}
               </Button>
             </div>
           </div>

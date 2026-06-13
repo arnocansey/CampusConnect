@@ -90,12 +90,12 @@ export function NotesPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">📚 Notes Hub</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Share and discover academic resources</p>
+      <div className="flex items-center justify-between mb-6 gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">📚 Notes Hub</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">Share and discover academic resources</p>
         </div>
-        <Button size="sm" onClick={() => setShowUploadModal(true)}>
+        <Button size="sm" onClick={() => setShowUploadModal(true)} className="shrink-0">
           <Plus className="w-4 h-4 mr-1" />
           Upload
         </Button>

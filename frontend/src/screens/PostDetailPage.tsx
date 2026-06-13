@@ -297,28 +297,28 @@ export function PostDetailPage() {
             <span>❤️ {formatNumber(post._count.likes)} · 💬 {formatNumber(post._count.comments)}</span>
           </div>
 
-          <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2">
+          <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1">
             <button
               onClick={() => likeMutation.mutate()}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
             >
               <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
-              <span className="text-sm font-medium">Like</span>
+              <span className="text-xs sm:text-sm font-medium">Like</span>
             </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
+            <button className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
               <MessageCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">Comment</span>
+              <span className="text-xs sm:text-sm font-medium">Comment</span>
             </button>
             <button
               onClick={() => saveMutation.mutate()}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isSaved ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isSaved ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`}
             >
               <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-current' : ''}`} />
-              <span className="text-sm font-medium">Save</span>
+              <span className="text-xs sm:text-sm font-medium">Save</span>
             </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
+            <button className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
               <Share2 className="w-5 h-5" />
-              <span className="text-sm font-medium">Share</span>
+              <span className="text-xs sm:text-sm font-medium">Share</span>
             </button>
           </div>
         </div>

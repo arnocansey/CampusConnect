@@ -82,8 +82,8 @@ export function LandingPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-250/10 transition-colors">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+          <Link href="/" className="flex items-center gap-3 shrink-0">
             {logoUrl ? (
               <img src={logoUrl} alt={siteName} className="w-10 h-10 rounded-2xl object-contain" />
             ) : (
@@ -91,7 +91,7 @@ export function LandingPage() {
                 CC
               </div>
             )}
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
+            <span className="font-bold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent hidden sm:block">
               {siteName}
             </span>
           </Link>
@@ -102,23 +102,23 @@ export function LandingPage() {
             <a href="#about" className="hover:text-blue-600 dark:hover:text-blue-400 transition">About UCC</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <ThemeToggle />
             <Link
               href="/admin/login"
-              className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 transition hidden sm:block"
+              className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-2 sm:px-3 py-2 transition hidden sm:block"
             >
               Admin
             </Link>
             <Link
               href="/login"
-              className="text-sm font-bold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 transition"
+              className="text-sm font-bold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 px-3 sm:px-4 py-2 transition hidden sm:block"
             >
               Sign In
             </Link>
             <Link
               href="/signup"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
             >
               Join Now
             </Link>
@@ -127,10 +127,10 @@ export function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-150/20 dark:border-blue-800/30 text-blue-600 dark:text-blue-400 text-xs font-bold mb-6">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>The All-In-One Campus Companion for UCC Students</span>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-12 sm:pb-16 text-center">
+        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-150/20 dark:border-blue-800/30 text-blue-600 dark:text-blue-400 text-[10px] sm:text-xs font-bold mb-6">
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="truncate">The All-In-One Campus Companion for UCC Students</span>
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-none text-gray-900 dark:text-white">
@@ -175,8 +175,8 @@ export function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section id="stats" className="relative z-10 max-w-7xl mx-auto px-6 py-12 border-t border-b border-gray-200/50 dark:border-gray-850/50">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+      <section id="stats" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 border-t border-b border-gray-200/50 dark:border-gray-850/50">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {stats.map((stat, i) => (
             <div key={i} className="text-center group">
               <p className="text-4xl sm:text-5xl font-black bg-gradient-to-tr from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
@@ -190,7 +190,7 @@ export function LandingPage() {
       </section>
 
       {/* Features Grid Section */}
-      <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+      <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white">
             Everything You Need, Built for Student Success
@@ -220,7 +220,7 @@ export function LandingPage() {
       </section>
 
       {/* Campus Info Callout (UCC specific) */}
-      <section id="about" className="relative z-10 max-w-7xl mx-auto px-6 pb-24">
+      <section id="about" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white relative shadow-2xl overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
           
@@ -264,8 +264,8 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-gray-200/50 dark:border-gray-850/50 bg-white dark:bg-gray-950 py-12 transition-colors">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <footer className="relative z-10 border-t border-gray-200/50 dark:border-gray-850/50 bg-white dark:bg-gray-950 py-8 sm:py-12 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="flex items-center gap-3">
             {logoUrl ? (
               <img src={logoUrl} alt={siteName} className="w-8 h-8 rounded-xl object-contain" />

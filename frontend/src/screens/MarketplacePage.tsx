@@ -102,14 +102,14 @@ export function MarketplacePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex gap-6">
+    <div className="max-w-7xl mx-auto p-4 flex gap-6 lg:gap-6">
       <div className="flex-1 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('marketplace.title')}</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('marketplace.subtitle')}</p>
+        <div className="flex items-center justify-between mb-6 gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{t('marketplace.title')}</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">{t('marketplace.subtitle')}</p>
           </div>
-          <Button size="sm" onClick={() => setShowSellModal(true)}>
+          <Button size="sm" onClick={() => setShowSellModal(true)} className="shrink-0">
             <Plus className="w-4 h-4 mr-1" />
             {t('marketplace.sellItem')}
           </Button>

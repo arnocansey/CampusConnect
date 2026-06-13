@@ -51,24 +51,24 @@ export function JobDetailPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
+        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Job Details</h1>
+        <h1 className="text-lg sm:text-xl font-bold truncate">Job Details</h1>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-4">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 sm:p-6 mb-4">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl shrink-0">
               💼
             </div>
-            <div>
-              <h2 className="text-xl font-bold">{job.title}</h2>
-              <p className="text-gray-500">{job.company}</p>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold truncate">{job.title}</h2>
+              <p className="text-gray-500 text-sm truncate">{job.company}</p>
             </div>
           </div>
-          <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs px-3 py-1 rounded-full font-semibold">
+          <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-semibold shrink-0">
             {job.jobType.replace('_', ' ')}
           </span>
         </div>

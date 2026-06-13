@@ -320,7 +320,7 @@ export function HomePage() {
     poll?.expiresAt && new Date(poll.expiresAt) < new Date();
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex gap-6">
+    <div className="max-w-7xl mx-auto p-4 flex gap-6 lg:gap-6">
       {/* Main Feed */}
       <div className="flex-1 max-w-2xl min-w-0">
         <StoryTray />
@@ -689,25 +689,25 @@ export function HomePage() {
                 <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1">
                   <button
                     onClick={() => likeMutation.mutate(post.id)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
+                    className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
                   >
                     <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                    <span className="text-sm font-medium">{t('common.like')}</span>
+                    <span className="text-xs sm:text-sm font-medium">{t('common.like')}</span>
                   </button>
-                  <Link href={`/post/${post.id}`} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
+                  <Link href={`/post/${post.id}`} className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
                     <MessageCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">{t('common.comment')}</span>
+                    <span className="text-xs sm:text-sm font-medium">{t('common.comment')}</span>
                   </Link>
                   <button
                     onClick={() => saveMutation.mutate(post.id)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isSaved ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`}
+                    className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isSaved ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`}
                   >
                     <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-current' : ''}`} />
-                    <span className="text-sm font-medium">{t('common.save')}</span>
+                    <span className="text-xs sm:text-sm font-medium">{t('common.save')}</span>
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
+                  <button className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
                     <Share2 className="w-5 h-5" />
-                    <span className="text-sm font-medium">{t('common.share')}</span>
+                    <span className="text-xs sm:text-sm font-medium">{t('common.share')}</span>
                   </button>
                 </div>
               </div>

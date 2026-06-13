@@ -195,7 +195,7 @@ export function ProfilePage() {
               </div>
 
               {/* Stats */}
-              <div className="flex gap-8 mt-4">
+              <div className="flex gap-6 sm:gap-8 mt-4">
                 <div className="text-center">
                   <p className="font-bold text-lg dark:text-white">{formatNumber(profileData._count?.posts || 0)}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.posts')}</p>
@@ -223,14 +223,14 @@ export function ProfilePage() {
                   <button
                     key={key}
                     onClick={() => setActiveTab(key)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium border-b-2 transition ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-3 text-xs sm:text-sm font-medium border-b-2 transition ${
                       activeTab === key
                         ? 'border-blue-500 text-blue-600 dark:text-blue-400 dark:border-blue-400'
                         : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    {label}
+                    <span className="hidden sm:inline">{label}</span>
                   </button>
                 ))}
               </div>

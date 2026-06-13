@@ -72,20 +72,20 @@ export function NoteDetailPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">
+        <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Note Details</h1>
+        <h1 className="text-lg sm:text-xl font-bold truncate">Note Details</h1>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-4">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-            <FileText className="w-7 h-7 text-blue-600" />
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 sm:p-6 mb-4">
+        <div className="flex items-start gap-3 sm:gap-4 mb-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+            <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
           </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold">{note.title}</h2>
-            <p className="text-sm text-gray-500">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold truncate">{note.title}</h2>
+            <p className="text-xs sm:text-sm text-gray-500">
               {note.course} · Level {note.level} · {note.fileType}
             </p>
             <p className="text-xs text-gray-400 mt-1">
@@ -106,7 +106,7 @@ export function NoteDetailPage() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 text-xs sm:text-sm text-gray-500">
           <span className="flex items-center gap-1">
             <Download className="w-4 h-4" /> {note._count.downloads} downloads
           </span>

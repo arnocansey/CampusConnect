@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -17,6 +18,7 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
+  const { siteName, logoUrl } = useSiteSettings();
   const {
     register,
     handleSubmit,
@@ -55,8 +57,12 @@ export function ForgotPasswordPage() {
   return (
     <div>
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 lg:hidden">
-          CC
+        <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 lg:hidden overflow-hidden">
+          {logoUrl ? (
+            <img src={logoUrl} alt={siteName} className="w-full h-full object-contain" />
+          ) : (
+            'CC'
+          )}
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Forgot password?</h1>
         <p className="text-gray-500 mt-1">

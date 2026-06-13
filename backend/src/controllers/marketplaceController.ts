@@ -57,6 +57,7 @@ export const getMarketplaceItems = async (req: AuthRequest, res: Response): Prom
   const where: any = {
     isAvailable: true,
     isSold: false,
+    isApproved: true,
   };
 
   if (sellerId) {

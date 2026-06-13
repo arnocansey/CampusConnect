@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Moon, Sun, ArrowLeft, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -25,6 +26,7 @@ export default function AdminLoginPage() {
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { siteName, logoUrl } = useSiteSettings();
 
   const {
     register,
@@ -91,10 +93,14 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-8 transition-colors">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-4 overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt={siteName} className="w-full h-full object-contain" />
+              ) : (
+                <Shield className="w-8 h-8 text-white" />
+              )}
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Panel</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{siteName} Admin</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">Sign in with admin credentials</p>
           </div>
 
