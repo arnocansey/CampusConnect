@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { useGlobalNotifications } from '../../hooks/useGlobalNotifications';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
+import { AIChatWidget } from '../support/AIChatWidget';
 import api from '../../services/api';
 import {
   Home,
@@ -316,6 +317,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           })}
         </div>
       </nav>
+
+      {/* AI Support Chat Widget */}
+      <AIChatWidget />
     </div>
   );
 }

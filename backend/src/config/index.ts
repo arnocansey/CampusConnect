@@ -27,4 +27,9 @@ export const config = {
   },
 
   emailFrom: process.env.EMAIL_FROM || 'CampusConnect <noreply@campusconnect.com>',
+
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  },
 };
