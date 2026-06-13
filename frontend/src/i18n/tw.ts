@@ -38,6 +38,7 @@ const tw = {
     no: "Daabi",
     ok: "Yoo",
     confirm: "Si So Dua",
+    repost: "San Twa Mu",
   },
   auth: {
     login: "Bra Mu",
@@ -104,6 +105,7 @@ const tw = {
     removeVideo: "Yi video",
     videoPreview: "Video nhwɛso",
     addLocation: "Fa baabi ka ho",
+    endOfFeed: "Wo sesae wo nsɛm nyinaa",
   },
   marketplace: {
     title: "Dwumadie",

@@ -6,8 +6,8 @@ import api from '../services/api';
 import { Comment } from '../types';
 import { formatDate, formatNumber } from '../utils';
 import { UserListModal } from '../components/ui/UserListModal';
-import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight, MapPin, Repeat, Flag } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -18,6 +18,10 @@ export function PostDetailPage() {
   const [commentText, setCommentText] = useState('');
   const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedReason, setSelectedReason] = useState<string>('');
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['post', id],
@@ -26,6 +30,22 @@ export function PostDetailPage() {
       return data.data;
     },
   });
+
+  useEffect(() => {
+    if (id && post) {
+      api.post(`/posts/${id}/view`).catch(() => {});
+    }
+  }, [id, post]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { data: commentsData } = useQuery({
     queryKey: ['comments', id],
@@ -75,6 +95,48 @@ export function PostDetailPage() {
       if (context?.previous) {
         queryClient.setQueryData(['post', id], context.previous);
       }
+    },
+  });
+
+  const repostMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post(`/posts/${id}/repost`);
+      return data.data;
+    },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['post', id] });
+      const previous = queryClient.getQueryData(['post', id]);
+      queryClient.setQueryData(['post', id], (old: any) => ({
+        ...old,
+        isReposted: !old.isReposted,
+        shareCount: (old.shareCount || 0) + (old.isReposted ? -1 : 1),
+      }));
+      return { previous };
+    },
+    onError: (_err, _postId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['post', id], context.previous);
+      }
+    },
+  });
+
+  const reportMutation = useMutation({
+    mutationFn: async (reason: string) => {
+      const { data } = await api.post('/users/report', {
+        contentType: 'POST',
+        contentId: post.id,
+        reason,
+      });
+      return data.data;
+    },
+    onSuccess: () => {
+      setShowReportModal(false);
+      setSelectedReason('');
+      setShowMoreMenu(false);
+      toast.success('Report submitted');
+    },
+    onError: () => {
+      toast.error('Failed to submit report');
     },
   });
 
@@ -184,9 +246,25 @@ export function PostDetailPage() {
                 <p className="text-xs text-gray-500">@{post.author.username} · {formatDate(post.createdAt)}</p>
               </div>
             </Link>
-            <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
-              <MoreHorizontal className="w-5 h-5 text-gray-400" />
-            </button>
+            <div className="relative" ref={moreMenuRef}>
+              <button
+                onClick={() => setShowMoreMenu(!showMoreMenu)}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              >
+                <MoreHorizontal className="w-5 h-5 text-gray-400" />
+              </button>
+              {showMoreMenu && (
+                <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-1 z-50 min-w-[160px]">
+                  <button
+                    onClick={() => { setShowReportModal(true); setShowMoreMenu(false); }}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  >
+                    <Flag className="w-4 h-4" />
+                    Report
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {post.location && (
@@ -307,6 +385,12 @@ export function PostDetailPage() {
                 </button>
               )}
               <span>💬 {formatNumber(post._count.comments)}</span>
+              {(post.shareCount ?? 0) > 0 && (
+                <span>🔁 {formatNumber(post.shareCount!)}</span>
+              )}
+              {(post.viewCount ?? 0) > 0 && (
+                <span>👁️ {formatNumber(post.viewCount!)}</span>
+              )}
             </div>
           </div>
 
@@ -321,6 +405,13 @@ export function PostDetailPage() {
             <button className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
               <MessageCircle className="w-5 h-5" />
               <span className="text-xs sm:text-sm font-medium">Comment</span>
+            </button>
+            <button
+              onClick={() => repostMutation.mutate()}
+              className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isReposted ? 'text-green-500' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              <Repeat className="w-5 h-5" />
+              <span className="text-xs sm:text-sm font-medium">Repost</span>
             </button>
             <button
               onClick={() => saveMutation.mutate()}
@@ -400,6 +491,45 @@ export function PostDetailPage() {
         type="likers"
         postId={id}
       />
+
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 w-full max-w-sm shadow-xl">
+            <h3 className="text-lg font-semibold dark:text-white mb-1">Report Post</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Select a reason for reporting this post.</p>
+            <div className="space-y-2">
+              {(['SPAM', 'HARASSMENT', 'INAPPROPRIATE_CONTENT', 'MISINFORMATION', 'OTHER'] as const).map((reason) => (
+                <button
+                  key={reason}
+                  onClick={() => setSelectedReason(reason)}
+                  className={`w-full text-left px-4 py-2.5 rounded-xl text-sm transition border ${
+                    selectedReason === reason
+                      ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-600 text-red-700 dark:text-red-400'
+                      : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-white'
+                  }`}
+                >
+                  {reason.replace(/_/g, ' ')}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={() => { setShowReportModal(false); setSelectedReason(''); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-white transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { if (selectedReason) reportMutation.mutate(selectedReason); }}
+                disabled={!selectedReason || reportMutation.isPending}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50"
+              >
+                {reportMutation.isPending ? 'Submitting...' : 'Submit Report'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

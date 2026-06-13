@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { ArrowLeft, Camera, Save, Palette, X, Check } from 'lucide-react';
+import { ArrowLeft, Camera, Save, Palette, X, Check, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const profileSchema = z.object({
@@ -48,6 +48,7 @@ export function EditProfilePage() {
   const [customColor2, setCustomColor2] = useState('#a855f7');
   const [useCustomGradient, setUseCustomGradient] = useState(false);
   const [showGradientPicker, setShowGradientPicker] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(user?.isPrivate || false);
 
   const {
     register,
@@ -97,6 +98,22 @@ export function EditProfilePage() {
     },
     onError: () => {
       toast.error('Failed to update profile');
+    },
+  });
+
+  const togglePrivateMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await api.put('/users/profile/private');
+      return data.data;
+    },
+    onSuccess: (data) => {
+      setIsPrivate(data.isPrivate);
+      updateUser({ isPrivate: data.isPrivate });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast.success(data.isPrivate ? 'Account set to private' : 'Account set to public');
+    },
+    onError: () => {
+      toast.error('Failed to update privacy setting');
     },
   });
 
@@ -321,6 +338,34 @@ export function EditProfilePage() {
             <p className="font-semibold dark:text-white">{user?.fullName}</p>
             <p className="text-sm text-gray-500">@{user?.username}</p>
           </div>
+        </div>
+      </div>
+
+      {/* Private Account Toggle */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <Lock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+            <div>
+              <p className="font-medium dark:text-white">Private Account</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Only followers can see your posts</p>
+            </div>
+          </div>
+          <button
+            onClick={() => togglePrivateMutation.mutate()}
+            disabled={togglePrivateMutation.isPending}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              isPrivate ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isPrivate ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
       </div>
 

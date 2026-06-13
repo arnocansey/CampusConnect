@@ -394,3 +394,104 @@ export const getOnlineStatus = async (req: AuthRequest, res: Response): Promise<
     data: status,
   });
 };
+
+export const blockUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { userId } = req.params;
+
+  if (userId === req.user!.id) {
+    throw new AppError('Cannot block yourself', 400);
+  }
+
+  const existing = await prisma.block.findUnique({
+    where: { blockerId_blockedId: { blockerId: req.user!.id, blockedId: userId } },
+  });
+
+  if (existing) {
+    await prisma.block.delete({ where: { id: existing.id } });
+    res.json({ success: true, message: 'User unblocked', data: { isBlocked: false } });
+  } else {
+    await prisma.block.create({
+      data: { blockerId: req.user!.id, blockedId: userId },
+    });
+    // Also unfollow if following
+    await prisma.follow.deleteMany({
+      where: {
+        OR: [
+          { followerId: req.user!.id, followingId: userId },
+          { followerId: userId, followingId: req.user!.id },
+        ],
+      },
+    });
+    res.json({ success: true, message: 'User blocked', data: { isBlocked: true } });
+  }
+};
+
+export const muteUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { userId } = req.params;
+
+  const existing = await prisma.mute.findUnique({
+    where: { muterId_mutedId: { muterId: req.user!.id, mutedId: userId } },
+  });
+
+  if (existing) {
+    await prisma.mute.delete({ where: { id: existing.id } });
+    res.json({ success: true, message: 'User unmuted', data: { isMuted: false } });
+  } else {
+    await prisma.mute.create({
+      data: { muterId: req.user!.id, mutedId: userId },
+    });
+    res.json({ success: true, message: 'User muted', data: { isMuted: true } });
+  }
+};
+
+export const getBlockMuteStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { userId } = req.params;
+
+  const [blocked, muted] = await Promise.all([
+    prisma.block.findUnique({
+      where: { blockerId_blockedId: { blockerId: req.user!.id, blockedId: userId } },
+    }),
+    prisma.mute.findUnique({
+      where: { muterId_mutedId: { muterId: req.user!.id, mutedId: userId } },
+    }),
+  ]);
+
+  res.json({
+    success: true,
+    data: { isBlocked: !!blocked, isMuted: !!muted },
+  });
+};
+
+export const reportUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { contentType, contentId, reason, description } = req.body;
+
+  if (!contentType || !contentId || !reason) {
+    throw new AppError('contentType, contentId, and reason are required', 400);
+  }
+
+  const report = await prisma.report.create({
+    data: {
+      reporterId: req.user!.id,
+      contentType,
+      contentId,
+      reason,
+      description: description || '',
+    },
+  });
+
+  res.status(201).json({ success: true, data: report });
+};
+
+export const togglePrivate = async (req: AuthRequest, res: Response): Promise<void> => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: { isPrivate: true },
+  });
+
+  await prisma.user.update({
+    where: { id: req.user!.id },
+    data: { isPrivate: !user?.isPrivate },
+  });
+
+  res.json({ success: true, data: { isPrivate: !user?.isPrivate } });
+};

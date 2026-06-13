@@ -32,6 +32,7 @@ model User {
   isVerified      Boolean   @default(false)
   isSuspended     Boolean   @default(false)
   isBanned        Boolean   @default(false)
+  isPrivate       Boolean   @default(false)
   verificationToken String?
   resetPasswordToken String?
   resetPasswordExpires DateTime?
@@ -78,6 +79,15 @@ model User {
   auditLogs       AuditLog[]
   sessions        ActiveSession[]
   announcements   Announcement[]
+  reposts         Repost[]
+  blockedUsers    Block[]       @relation("blocker")
+  blockedBy       Block[]       @relation("blocked")
+  mutedUsers      Mute[]        @relation("muter")
+  mutedBy         Mute[]        @relation("muted")
+  profileViews    ProfileView[] @relation("viewedProfile")
+  viewedProfiles  ProfileView[] @relation("profileViewer")
+  mentions        Mention[]     @relation("mentionedUser")
+  mentionedIn     Mention[]     @relation("mentionAuthor")
 
   @@index([email])
   @@index([username])
@@ -106,6 +116,10 @@ model Post {
   savedPosts  SavedPost[]
   tags        String[]
   poll        Poll?
+  reposts     Repost[]
+  mentions    Mention[]
+  viewCount   Int       @default(0)
+  shareCount  Int       @default(0)
   isEdited    Boolean   @default(false)
   isDeleted   Boolean   @default(false)
   createdAt   DateTime  @default(now())
@@ -245,6 +259,72 @@ model Follow {
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+model Block {
+  id          String   @id @default(uuid())
+  blockerId   String
+  blocker     User     @relation("blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId   String
+  blocked     User     @relation("blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model Mute {
+  id          String   @id @default(uuid())
+  muterId     String
+  muter       User     @relation("muter", fields: [muterId], references: [id], onDelete: Cascade)
+  mutedId     String
+  muted       User     @relation("muted", fields: [mutedId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([muterId, mutedId])
+  @@index([muterId])
+  @@index([mutedId])
+}
+
+model Repost {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model ProfileView {
+  id          String   @id @default(uuid())
+  viewerId    String
+  viewer      User     @relation("profileViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  viewedId    String
+  viewed      User     @relation("viewedProfile", fields: [viewedId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([viewerId, viewedId])
+  @@index([viewedId])
+}
+
+model Mention {
+  id          String   @id @default(uuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation("mentionedUser", fields: [userId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User     @relation("mentionAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
 }
 
 // ==================== MESSAGING ====================
@@ -728,6 +808,7 @@ enum NotificationType {
   MARKETPLACE
   GROUP
   SYSTEM
+  MENTION
 }
 
 // ==================== REPORTS & MODERATION ====================

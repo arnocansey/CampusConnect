@@ -24,7 +24,16 @@ export function ExplorePage() {
       const { data } = await api.get(`/users/search?q=${searchQuery}`);
       return data.data;
     },
-    enabled: searchQuery.length > 0,
+    enabled: searchQuery.length > 0 && activeTab === 'people',
+  });
+
+  const { data: postSearchData } = useQuery({
+    queryKey: ['postSearch', searchQuery],
+    queryFn: async () => {
+      const { data } = await api.get(`/posts/search?q=${searchQuery}`);
+      return data.data;
+    },
+    enabled: searchQuery.length > 0 && activeTab === 'posts',
   });
 
   const { data: trendingTopics } = useQuery({
@@ -133,24 +142,62 @@ export function ExplorePage() {
 
       {/* Posts Tab */}
       {activeTab === 'posts' && (
-        <div className="grid grid-cols-2 gap-3">
-          {(trendingData?.posts || []).slice(0, 4).map((post: Post) => (
-            <Link
-              key={post.id}
-              href={`/post/${post.id}`}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-md transition"
-            >
-              {post.images?.[0] ? (
-                <img src={post.images[0]} alt="" className="h-32 w-full object-cover" />
-              ) : (
-                <div className="h-32 bg-gradient-to-br from-blue-400 to-purple-500" />
-              )}
-              <div className="p-3">
-                <p className="text-xs font-medium line-clamp-2 dark:text-white">{post.content}</p>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">by {post.author.fullName}</p>
+        <div>
+          {searchQuery.length > 0 ? (
+            postSearchData?.length > 0 ? (
+              <div className="space-y-3">
+                {postSearchData.map((post: Post) => (
+                  <Link
+                    key={post.id}
+                    href={`/post/${post.id}`}
+                    className="block bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 hover:shadow-md transition"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                        {post.author.profilePicture ? (
+                          <img src={post.author.profilePicture} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          post.author.fullName?.charAt(0)
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold dark:text-white truncate">{post.author.fullName}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">@{post.author.username}</p>
+                      </div>
+                    </div>
+                    {post.content && (
+                      <p className="text-sm text-gray-700 dark:text-gray-200 line-clamp-3">{post.content}</p>
+                    )}
+                    {post.images?.[0] && (
+                      <img src={post.images[0]} alt="" className="mt-2 rounded-xl w-full h-40 object-cover" />
+                    )}
+                  </Link>
+                ))}
               </div>
-            </Link>
-          ))}
+            ) : (
+              <p className="text-center text-gray-500 dark:text-gray-400 py-8">No posts found for "{searchQuery}"</p>
+            )
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {(trendingData?.posts || []).slice(0, 4).map((post: Post) => (
+                <Link
+                  key={post.id}
+                  href={`/post/${post.id}`}
+                  className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-md transition"
+                >
+                  {post.images?.[0] ? (
+                    <img src={post.images[0]} alt="" className="h-32 w-full object-cover" />
+                  ) : (
+                    <div className="h-32 bg-gradient-to-br from-blue-400 to-purple-500" />
+                  )}
+                  <div className="p-3">
+                    <p className="text-xs font-medium line-clamp-2 dark:text-white">{post.content}</p>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">by {post.author.fullName}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

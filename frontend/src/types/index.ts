@@ -22,6 +22,7 @@ export interface User {
   };
   role: 'STUDENT' | 'MODERATOR' | 'ADMIN';
   isVerified: boolean;
+  isPrivate?: boolean;
   createdAt: string;
   _count?: {
     posts: number;
@@ -61,6 +62,9 @@ export interface Post {
   };
   isLiked?: boolean;
   isSaved?: boolean;
+  isReposted?: boolean;
+  shareCount?: number;
+  viewCount?: number;
   createdAt: string;
 }
 

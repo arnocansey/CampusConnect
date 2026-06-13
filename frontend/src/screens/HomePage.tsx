@@ -1,7 +1,7 @@
 "use client";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '../i18n';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { Post } from '../types';
@@ -9,7 +9,7 @@ import { formatDate, formatNumber } from '../utils';
 import { Button } from '../components/ui/Button';
 import { StoryTray } from '../components/feed/StoryTray';
 import { AnnouncementsBanner } from '../components/announcements/AnnouncementsBanner';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Image, X, Bookmark, MapPin, BarChart3, Video, Tag, Plus, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Repeat, MoreHorizontal, Image, X, Bookmark, MapPin, BarChart3, Video, Tag, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -45,14 +45,43 @@ export function HomePage() {
   const [locationMode, setLocationMode] = useState<'preset' | 'custom'>('preset');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const feedEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: feedData, isLoading } = useQuery({
+  const {
+    data: feedData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['feed'],
-    queryFn: async () => {
-      const { data } = await api.get('/posts/feed');
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get('/posts/feed', { params: { page: pageParam, limit: 20 } });
       return data.data;
     },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.posts?.length < 20) return undefined;
+      return (lastPage.page || 1) + 1;
+    },
+    initialPageParam: 1,
   });
+
+  const allPosts = feedData?.pages?.flatMap((page) => page.posts) ?? [];
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const el = feedEndRef.current;
+    if (el) observer.observe(el);
+    return () => { if (el) observer.unobserve(el); };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const { data: trendingData } = useQuery({
     queryKey: ['trending'],
@@ -121,26 +150,29 @@ export function HomePage() {
       const previousFeed = queryClient.getQueryData(['feed']);
       queryClient.setQueryData(['feed'], (old: any) => ({
         ...old,
-        posts: old.posts.map((post: Post) => {
-          if (post.id !== postId || !post.poll) return post;
-          const prevVote = post.poll.userVote;
-          const newVote = prevVote === optionId ? null : optionId;
-          return {
-            ...post,
-            poll: {
-              ...post.poll,
-              userVote: newVote,
-              options: post.poll.options.map((opt: any) => ({
-                ...opt,
-                _count: {
-                  votes:
-                    opt._count.votes
-                    + (opt.id === optionId ? (prevVote === optionId ? -1 : 1) : (prevVote === optionId ? -1 : 0)),
-                },
-              })),
-            },
-          };
-        }),
+        pages: old.pages?.map((page: any) => ({
+          ...page,
+          posts: page.posts.map((post: Post) => {
+            if (post.id !== postId || !post.poll) return post;
+            const prevVote = post.poll.userVote;
+            const newVote = prevVote === optionId ? null : optionId;
+            return {
+              ...post,
+              poll: {
+                ...post.poll,
+                userVote: newVote,
+                options: post.poll.options.map((opt: any) => ({
+                  ...opt,
+                  _count: {
+                    votes:
+                      opt._count.votes
+                      + (opt.id === optionId ? (prevVote === optionId ? -1 : 1) : (prevVote === optionId ? -1 : 0)),
+                  },
+                })),
+              },
+            };
+          }),
+        })),
       }));
       return { previousFeed };
     },
@@ -164,18 +196,21 @@ export function HomePage() {
       const previousFeed = queryClient.getQueryData(['feed']);
       queryClient.setQueryData(['feed'], (old: any) => ({
         ...old,
-        posts: old.posts.map((post: Post) =>
-          post.id === postId
-            ? {
-                ...post,
-                isLiked: !post.isLiked,
-                _count: {
-                  ...post._count,
-                  likes: post.isLiked ? post._count.likes - 1 : post._count.likes + 1,
-                },
-              }
-            : post
-        ),
+        pages: old.pages?.map((page: any) => ({
+          ...page,
+          posts: page.posts.map((post: Post) =>
+            post.id === postId
+              ? {
+                  ...post,
+                  isLiked: !post.isLiked,
+                  _count: {
+                    ...post._count,
+                    likes: post.isLiked ? post._count.likes - 1 : post._count.likes + 1,
+                  },
+                }
+              : post
+          ),
+        })),
       }));
       return { previousFeed };
     },
@@ -191,11 +226,46 @@ export function HomePage() {
       const previousFeed = queryClient.getQueryData(['feed']);
       queryClient.setQueryData(['feed'], (old: any) => ({
         ...old,
-        posts: old.posts.map((post: Post) =>
-          post.id === postId ? { ...post, isSaved: !post.isSaved } : post
-        ),
+        pages: old.pages?.map((page: any) => ({
+          ...page,
+          posts: page.posts.map((post: Post) =>
+            post.id === postId ? { ...post, isSaved: !post.isSaved } : post
+          ),
+        })),
       }));
       return { previousFeed };
+    },
+  });
+
+  const repostMutation = useMutation({
+    mutationFn: async (postId: string) => {
+      const { data } = await api.post(`/posts/${postId}/repost`);
+      return data.data;
+    },
+    onMutate: async (postId) => {
+      await queryClient.cancelQueries({ queryKey: ['feed'] });
+      const previousFeed = queryClient.getQueryData(['feed']);
+      queryClient.setQueryData(['feed'], (old: any) => ({
+        ...old,
+        pages: old.pages?.map((page: any) => ({
+          ...page,
+          posts: page.posts.map((post: Post) =>
+            post.id === postId
+              ? {
+                  ...post,
+                  isReposted: !post.isReposted,
+                  shareCount: (post.shareCount ?? 0) + (post.isReposted ? -1 : 1),
+                }
+              : post
+          ),
+        })),
+      }));
+      return { previousFeed };
+    },
+    onError: (_err, _postId, context) => {
+      if (context?.previousFeed) {
+        queryClient.setQueryData(['feed'], context.previousFeed);
+      }
     },
   });
 
@@ -567,7 +637,7 @@ export function HomePage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {feedData?.posts?.map((post: Post) => {
+            {allPosts.map((post: Post) => {
               const pollVotes = totalPollVotes(post.poll);
               const pollClosed = isPollClosed(post.poll);
 
@@ -685,7 +755,10 @@ export function HomePage() {
                 )}
 
                 <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <span>{formatNumber(post._count.likes)} likes · {formatNumber(post._count.comments)} comments</span>
+                  <span>
+                    {formatNumber(post._count.likes)} likes · {formatNumber(post._count.comments)} comments
+                    {(post.shareCount ?? 0) > 0 && ` · ${formatNumber(post.shareCount!)} reposts`}
+                  </span>
                 </div>
 
                 <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1">
@@ -707,14 +780,28 @@ export function HomePage() {
                     <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-current' : ''}`} />
                     <span className="text-xs sm:text-sm font-medium">{t('common.save')}</span>
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-300">
-                    <Share2 className="w-5 h-5" />
-                    <span className="text-xs sm:text-sm font-medium">{t('common.share')}</span>
+                  <button
+                    onClick={() => repostMutation.mutate(post.id)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition ${post.isReposted ? 'text-green-500' : 'text-gray-600 dark:text-gray-300'}`}
+                  >
+                    <Repeat className="w-5 h-5" />
+                    <span className="text-xs sm:text-sm font-medium">{t('common.repost')}</span>
                   </button>
                 </div>
               </div>
               );
             })}
+            <div ref={feedEndRef} className="h-4" />
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <div className="w-8 h-8 border-4 border-gray-200 dark:border-gray-700 border-t-blue-500 rounded-full animate-spin" />
+              </div>
+            )}
+            {!hasNextPage && allPosts.length > 0 && (
+              <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-4">
+                {t('home.endOfFeed')}
+              </p>
+            )}
           </div>
         )}
       </div>

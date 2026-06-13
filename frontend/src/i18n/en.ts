@@ -38,6 +38,7 @@ const en = {
     no: "No",
     ok: "OK",
     confirm: "Confirm",
+    repost: "Repost",
   },
   auth: {
     login: "Log In",
@@ -104,6 +105,7 @@ const en = {
     removeVideo: "Remove video",
     videoPreview: "Video preview",
     addLocation: "Add location",
+    endOfFeed: "You've reached the end of your feed",
   },
   marketplace: {
     title: "Marketplace",

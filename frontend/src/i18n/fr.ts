@@ -38,6 +38,7 @@ const fr = {
     no: "Non",
     ok: "OK",
     confirm: "Confirmer",
+    repost: "Republier",
   },
   auth: {
     login: "Se connecter",
@@ -104,6 +105,7 @@ const fr = {
     removeVideo: "Supprimer la vidéo",
     videoPreview: "Aperçu de la vidéo",
     addLocation: "Ajouter un lieu",
+    endOfFeed: "Vous avez atteint la fin de votre fil",
   },
   marketplace: {
     title: "Marketplace",

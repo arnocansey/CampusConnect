@@ -93,6 +93,36 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
     },
   });
 
+  // Parse @mentions and create notifications
+  if (content) {
+    const mentionRegex = /@(\w+)/g;
+    let match;
+    while ((match = mentionRegex.exec(content)) !== null) {
+      const mentionedUser = await prisma.user.findUnique({
+        where: { username: match[1] },
+        select: { id: true },
+      });
+      if (mentionedUser && mentionedUser.id !== req.user!.id) {
+        await prisma.mention.create({
+          data: {
+            postId: post.id,
+            userId: mentionedUser.id,
+            authorId: req.user!.id,
+          },
+        });
+        await prisma.notification.create({
+          data: {
+            type: 'MENTION',
+            content: `${req.user!.username} mentioned you in a post`,
+            userId: mentionedUser.id,
+            senderId: req.user!.id,
+            link: `/post/${post.id}`,
+          },
+        });
+      }
+    }
+  }
+
   res.status(201).json({
     success: true,
     message: 'Post created successfully',
@@ -119,6 +149,7 @@ export const getFeed = async (req: AuthRequest, res: Response): Promise<void> =>
     where.authorId = authorId as string;
   } else {
     where.OR = [
+      { authorId: req.user?.id },
       { authorId: { in: followingIds } },
       { author: { isVerified: true } },
     ];
@@ -154,6 +185,12 @@ export const getFeed = async (req: AuthRequest, res: Response): Promise<void> =>
             select: { id: true },
           }
         : false,
+      reposts: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
       poll: {
         include: {
           options: {
@@ -179,8 +216,10 @@ export const getFeed = async (req: AuthRequest, res: Response): Promise<void> =>
         ...p,
         isLiked: p.likes?.length > 0,
         isSaved: p.savedPosts?.length > 0,
+        isReposted: (p as any).reposts?.length > 0,
         likes: undefined,
         savedPosts: undefined,
+        reposts: undefined,
         poll: p.poll
           ? {
               ...p.poll,
@@ -229,6 +268,12 @@ export const getPost = async (req: AuthRequest, res: Response): Promise<void> =>
             select: { id: true },
           }
         : false,
+      reposts: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
       poll: {
         include: {
           options: {
@@ -252,8 +297,10 @@ export const getPost = async (req: AuthRequest, res: Response): Promise<void> =>
       ...post,
       isLiked: post.likes?.length > 0,
       isSaved: post.savedPosts?.length > 0,
+      isReposted: (post as any).reposts?.length > 0,
       likes: undefined,
       savedPosts: undefined,
+      reposts: undefined,
       poll: post.poll
         ? {
             ...post.poll,
@@ -561,4 +608,183 @@ export const getTrendingTopics = async (req: AuthRequest, res: Response): Promis
     success: true,
     data: trending,
   });
+};
+
+export const repostPost = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  const post = await prisma.post.findUnique({ where: { id }, select: { id: true, authorId: true } });
+  if (!post) throw new AppError('Post not found', 404);
+
+  const existing = await prisma.repost.findUnique({
+    where: { userId_postId: { userId: req.user!.id, postId: id } },
+  });
+
+  if (existing) {
+    await prisma.repost.delete({ where: { id: existing.id } });
+    await prisma.post.update({ where: { id }, data: { shareCount: { decrement: 1 } } });
+    res.json({ success: true, message: 'Repost removed', data: { isReposted: false } });
+  } else {
+    await prisma.repost.create({ data: { userId: req.user!.id, postId: id } });
+    await prisma.post.update({ where: { id }, data: { shareCount: { increment: 1 } } });
+    if (post.authorId !== req.user!.id) {
+      await prisma.notification.create({
+        data: {
+          type: 'LIKE',
+          content: `${req.user!.username} reposted your post`,
+          userId: post.authorId,
+          senderId: req.user!.id,
+          link: `/post/${id}`,
+        },
+      });
+    }
+    res.json({ success: true, message: 'Reposted', data: { isReposted: true } });
+  }
+};
+
+export const searchPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { q, page = '1', limit = '20' } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+  if (!q || (q as string).trim().length === 0) {
+    res.json({ success: true, data: { posts: [], total: 0, page: 1, totalPages: 0 } });
+    return;
+  }
+
+  const searchTerm = (q as string).trim();
+
+  const blockedIds = await prisma.block.findMany({
+    where: { blockerId: req.user!.id },
+    select: { blockedId: true },
+  });
+  const blocked = blockedIds.map((b) => b.blockedId);
+
+  const posts = await prisma.post.findMany({
+    where: {
+      isDeleted: false,
+      authorId: { notIn: blocked },
+      OR: [
+        { content: { contains: searchTerm, mode: 'insensitive' } },
+        { tags: { has: searchTerm.toLowerCase().replace('#', '') } },
+        { location: { contains: searchTerm, mode: 'insensitive' } },
+      ],
+    },
+    include: {
+      author: { select: { id: true, username: true, fullName: true, profilePicture: true, isVerified: true } },
+      _count: { select: { likes: true, comments: true } },
+      likes: { where: { userId: req.user!.id }, select: { id: true } },
+      savedPosts: { where: { userId: req.user!.id }, select: { id: true } },
+      reposts: { where: { userId: req.user!.id }, select: { id: true } },
+      poll: {
+        include: {
+          options: { include: { _count: { select: { votes: true } } } },
+          votes: { where: { userId: req.user!.id }, select: { optionId: true } },
+        },
+      },
+    },
+    skip,
+    take: parseInt(limit as string),
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const total = await prisma.post.count({
+    where: {
+      isDeleted: false,
+      authorId: { notIn: blocked },
+      OR: [
+        { content: { contains: searchTerm, mode: 'insensitive' } },
+        { tags: { has: searchTerm.toLowerCase().replace('#', '') } },
+        { location: { contains: searchTerm, mode: 'insensitive' } },
+      ],
+    },
+  });
+
+  res.json({
+    success: true,
+    data: {
+      posts: posts.map((p) => ({
+        ...p,
+        isLiked: p.likes.length > 0,
+        isSaved: p.savedPosts.length > 0,
+        isReposted: p.reposts.length > 0,
+        likes: undefined,
+        savedPosts: undefined,
+        reposts: undefined,
+        poll: p.poll
+          ? { ...p.poll, userVote: (p.poll as any).votes[0]?.optionId || null, votes: undefined }
+          : null,
+      })),
+      total,
+      page: parseInt(page as string),
+      totalPages: Math.ceil(total / parseInt(limit as string)),
+    },
+  });
+};
+
+export const getPostsByHashtag = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { tag } = req.params;
+  const { page = '1', limit = '20' } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+  const blockedIds = await prisma.block.findMany({
+    where: { blockerId: req.user!.id },
+    select: { blockedId: true },
+  });
+  const blocked = blockedIds.map((b) => b.blockedId);
+
+  const posts = await prisma.post.findMany({
+    where: {
+      isDeleted: false,
+      authorId: { notIn: blocked },
+      tags: { has: tag.toLowerCase() },
+    },
+    include: {
+      author: { select: { id: true, username: true, fullName: true, profilePicture: true, isVerified: true } },
+      _count: { select: { likes: true, comments: true } },
+      likes: { where: { userId: req.user!.id }, select: { id: true } },
+      savedPosts: { where: { userId: req.user!.id }, select: { id: true } },
+      reposts: { where: { userId: req.user!.id }, select: { id: true } },
+      poll: {
+        include: {
+          options: { include: { _count: { select: { votes: true } } } },
+          votes: { where: { userId: req.user!.id }, select: { optionId: true } },
+        },
+      },
+    },
+    skip,
+    take: parseInt(limit as string),
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const total = await prisma.post.count({
+    where: { isDeleted: false, authorId: { notIn: blocked }, tags: { has: tag.toLowerCase() } },
+  });
+
+  res.json({
+    success: true,
+    data: {
+      posts: posts.map((p) => ({
+        ...p,
+        isLiked: p.likes.length > 0,
+        isSaved: p.savedPosts.length > 0,
+        isReposted: p.reposts.length > 0,
+        likes: undefined,
+        savedPosts: undefined,
+        reposts: undefined,
+        poll: p.poll
+          ? { ...p.poll, userVote: (p.poll as any).votes[0]?.optionId || null, votes: undefined }
+          : null,
+      })),
+      total,
+      tag,
+      page: parseInt(page as string),
+      totalPages: Math.ceil(total / parseInt(limit as string)),
+    },
+  });
+};
+
+export const trackPostView = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  await prisma.post.update({ where: { id }, data: { viewCount: { increment: 1 } } });
+  res.json({ success: true });
 };
