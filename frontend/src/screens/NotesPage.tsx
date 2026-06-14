@@ -114,7 +114,7 @@ export function NotesPage() {
       </div>
 
       {/* Level Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none -mx-4 px-4">
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
         {levels.map((level) => (
           <button
             key={level}

@@ -130,7 +130,7 @@ export function MarketplacePage() {
         </div>
 
         {/* Category Icons */}
-        <div className="flex gap-3 overflow-x-auto pb-2 mb-4 scrollbar-none -mx-4 px-4">
+        <div className="flex gap-3 overflow-x-auto pb-2 mb-4 scrollbar-none">
           {categoryButtons.map((cat) => (
             <button
               key={cat.value}
