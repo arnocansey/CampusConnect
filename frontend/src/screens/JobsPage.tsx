@@ -130,7 +130,7 @@ export function JobsPage() {
       </div>
 
       {/* Job Type Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-4 -mx-4 px-4">
         {jobTypes.map((type) => (
           <button
             key={type}

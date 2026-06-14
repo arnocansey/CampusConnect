@@ -103,7 +103,7 @@ export function MarketplacePage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4 lg:gap-6">
-      <div className="flex-1 max-w-4xl">
+      <div className="flex-1 min-w-0 max-w-4xl">
         <div className="flex items-center justify-between mb-6 gap-3">
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{t('marketplace.title')}</h1>
@@ -130,7 +130,7 @@ export function MarketplacePage() {
         </div>
 
         {/* Category Icons */}
-        <div className="flex gap-3 overflow-x-auto pb-2 mb-4 scrollbar-none">
+        <div className="flex gap-3 overflow-x-auto pb-2 mb-4 scrollbar-none -mx-4 px-4">
           {categoryButtons.map((cat) => (
             <button
               key={cat.value}
