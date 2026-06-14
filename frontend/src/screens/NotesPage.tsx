@@ -119,7 +119,7 @@ export function NotesPage() {
           <button
             key={level}
             onClick={() => setSelectedLevel(level)}
-            className={`px-4 py-2 rounded-full text-sm font-medium border whitespace-nowrap transition ${
+            className={`px-4 py-2 rounded-full text-sm font-medium border whitespace-nowrap shrink-0 transition ${
               selectedLevel === level
                 ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
