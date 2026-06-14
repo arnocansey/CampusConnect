@@ -73,7 +73,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const unreadCount = notificationData?.unreadCount || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* Top Header */}
       <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-4 py-3 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -162,7 +162,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto flex">
+      <div className="max-w-7xl mx-auto flex flex-1">
         {/* Sidebar - Desktop */}
         <aside className="hidden md:block sticky top-[57px] w-64 h-[calc(100vh-57px)] shrink-0 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 p-4 overflow-y-auto transition-colors">
           <nav className="space-y-1">
@@ -277,7 +277,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main Content */}
-        <main className="flex-1 min-h-[calc(100vh-57px)] pb-20 md:pb-0">
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           {children}
         </main>
       </div>
