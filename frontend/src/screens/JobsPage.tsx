@@ -219,7 +219,7 @@ export function JobsPage() {
             </button>
             <h2 className="text-xl font-bold text-gray-955 dark:text-white mb-4">Post a Job / Internship</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Job Title *</label>
                   <Input
@@ -262,7 +262,7 @@ export function JobsPage() {
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Salary Range</label>
                   <Input
@@ -285,7 +285,7 @@ export function JobsPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Location</label>
                   <Input
@@ -317,7 +317,7 @@ export function JobsPage() {
                   Remote Position
                 </label>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Application URL</label>
                   <Input

@@ -102,7 +102,7 @@ export function MarketplacePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex gap-6 lg:gap-6">
+    <div className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4 lg:gap-6">
       <div className="flex-1 max-w-4xl">
         <div className="flex items-center justify-between mb-6 gap-3">
           <div className="min-w-0">
@@ -254,7 +254,7 @@ export function MarketplacePage() {
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.price')}</label>
                   <Input
@@ -276,7 +276,7 @@ export function MarketplacePage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.category')}</label>
                   <select

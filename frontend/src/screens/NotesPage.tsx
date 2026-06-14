@@ -220,7 +220,7 @@ export function NotesPage() {
                   rows={2}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Course Code *</label>
                   <Input
@@ -242,7 +242,7 @@ export function NotesPage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Level *</label>
                   <select

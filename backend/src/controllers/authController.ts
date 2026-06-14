@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '../config/database';
+import { config } from '../config';
 import { AuthRequest } from '../types';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateTokens, verifyRefreshToken } from '../utils/jwt';
@@ -58,10 +59,12 @@ export const signup = async (req: AuthRequest, res: Response): Promise<void> => 
     data: { refreshToken: tokens.refreshToken },
   });
 
-  try {
-    await sendVerificationEmail(email, verificationToken);
-  } catch (emailError) {
-    console.error('Failed to send verification email:', emailError);
+  if (config.smtp.user && !config.smtp.user.includes('your-email')) {
+    try {
+      await sendVerificationEmail(email, verificationToken);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+    }
   }
 
   res.status(201).json({
@@ -185,10 +188,12 @@ export const forgotPassword = async (req: AuthRequest, res: Response): Promise<v
     },
   });
 
-  try {
-    await sendPasswordResetEmail(email, resetToken);
-  } catch (emailError) {
-    console.error('Failed to send password reset email:', emailError);
+  if (config.smtp.user && !config.smtp.user.includes('your-email')) {
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+    }
   }
 
   res.json({
