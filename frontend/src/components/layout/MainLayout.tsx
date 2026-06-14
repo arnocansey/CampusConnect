@@ -9,6 +9,7 @@ import { ThemeToggle } from '../ui/ThemeToggle';
 import { useGlobalNotifications } from '../../hooks/useGlobalNotifications';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import { AIChatWidget } from '../support/AIChatWidget';
+import { ConstructionBanner } from '../ui/ConstructionBanner';
 // import { TawkWidget } from '../support/TawkWidget';
 import api from '../../services/api';
 import {
@@ -161,6 +162,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+
+      <ConstructionBanner />
 
       <div className="max-w-7xl mx-auto flex flex-1">
         {/* Sidebar - Desktop */}
