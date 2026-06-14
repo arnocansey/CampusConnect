@@ -226,7 +226,7 @@ export function PostDetailPage() {
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mb-4">
           <div className="p-4 flex items-center justify-between">
-            <Link href={`/profile/${post.author.username}`} className="flex items-center gap-3">
+            <Link href={`/profile/${post.author.username}`} className="flex items-center gap-3 min-w-0">
               {post.author.profilePicture ? (
                 <img src={post.author.profilePicture} alt="" className="w-10 h-10 rounded-full object-cover" />
               ) : (

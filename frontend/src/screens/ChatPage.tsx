@@ -224,7 +224,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto h-screen flex flex-col">
+    <div className="max-w-2xl mx-auto h-[calc(100vh-57px)] flex flex-col pb-16 md:pb-0">
       {/* Header */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 p-3 flex items-center gap-3">
         <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition">

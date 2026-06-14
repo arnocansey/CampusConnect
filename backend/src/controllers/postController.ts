@@ -494,6 +494,44 @@ export const savePost = async (req: AuthRequest, res: Response): Promise<void> =
   }
 };
 
+export const getLikedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { page = '1', limit = '20' } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+  const likes = await prisma.like.findMany({
+    where: { userId: req.user!.id },
+    include: {
+      post: {
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              profilePicture: true,
+              isVerified: true,
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
+      },
+    },
+    skip,
+    take: parseInt(limit as string),
+    orderBy: { createdAt: 'desc' },
+  });
+
+  res.json({
+    success: true,
+    data: likes.map((like) => like.post),
+  });
+};
+
 export const getSavedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
   const { page = '1', limit = '20' } = req.query;
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -787,4 +825,81 @@ export const trackPostView = async (req: AuthRequest, res: Response): Promise<vo
   const { id } = req.params;
   await prisma.post.update({ where: { id }, data: { viewCount: { increment: 1 } } });
   res.json({ success: true });
+};
+
+export const getUserPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { username } = req.params;
+  const { page = '1', limit = '20' } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  const posts = await prisma.post.findMany({
+    where: { authorId: user.id, isDeleted: false },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          profilePicture: true,
+          isVerified: true,
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+        },
+      },
+      likes: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
+      savedPosts: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
+      reposts: req.user
+        ? {
+            where: { userId: req.user.id },
+            select: { id: true },
+          }
+        : false,
+      poll: true,
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: parseInt(limit as string),
+  });
+
+  const total = await prisma.post.count({
+    where: { authorId: user.id, isDeleted: false },
+  });
+
+  const postsWithStatus = posts.map((post) => ({
+    ...post,
+    isLiked: Array.isArray(post.likes) ? post.likes.length > 0 : false,
+    isSaved: Array.isArray(post.savedPosts) ? post.savedPosts.length > 0 : false,
+    isReposted: Array.isArray(post.reposts) ? post.reposts.length > 0 : false,
+  }));
+
+  res.json({
+    success: true,
+    data: postsWithStatus,
+    total,
+    page: parseInt(page as string),
+    totalPages: Math.ceil(total / parseInt(limit as string)),
+  });
 };

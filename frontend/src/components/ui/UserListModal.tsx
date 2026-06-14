@@ -19,7 +19,7 @@ interface UserListModalProps {
 export function UserListModal({ isOpen, onClose, title, type, username, postId }: UserListModalProps) {
   const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: [type, username || postId],
     queryFn: async () => {
       let endpoint = "";
@@ -31,12 +31,14 @@ export function UserListModal({ isOpen, onClose, title, type, username, postId }
       return data.data;
     },
     enabled: isOpen,
+    refetchOnMount: "always",
+    retry: 1,
   });
 
   if (!isOpen) return null;
 
   const users: Pick<User, "id" | "username" | "fullName" | "profilePicture" | "department" | "isVerified">[] =
-    data?.users || [];
+    data?.followers || data?.following || data?.users || [];
 
   const filtered = users.filter(
     (u) =>
@@ -89,6 +91,13 @@ export function UserListModal({ isOpen, onClose, title, type, username, postId }
                   </div>
                 </div>
               ))}
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <Users className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Failed to load {type}. Please try again.
+              </p>
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">

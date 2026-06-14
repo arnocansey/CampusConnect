@@ -11,11 +11,13 @@ import {
   savePost,
   votePoll,
   getSavedPosts,
+  getLikedPosts,
   getTrendingTopics,
   repostPost,
   searchPosts,
   getPostsByHashtag,
   trackPostView,
+  getUserPosts,
 } from '../controllers/postController';
 import {
   createComment,
@@ -28,7 +30,9 @@ const router = Router();
 router.get('/feed', authenticate, getFeed);
 router.get('/trending', authenticate, getTrendingTopics);
 router.get('/saved', authenticate, getSavedPosts);
+router.get('/liked', authenticate, getLikedPosts);
 router.get('/search', authenticate, searchPosts);
+router.get('/user/:username', authenticate, getUserPosts);
 router.post('/', authenticate, upload.array('images', 10), createPost);
 router.get('/:id', authenticate, getPost);
 router.get('/:id/likers', authenticate, getPostLikers);

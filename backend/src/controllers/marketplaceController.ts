@@ -225,6 +225,58 @@ export const deleteMarketplaceItem = async (req: AuthRequest, res: Response): Pr
   });
 };
 
+export const getUserMarketplaceItems = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { username } = req.params;
+  const { page = '1', limit = '20' } = req.query;
+  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  const where: any = {
+    sellerId: user.id,
+    isAvailable: true,
+    isSold: false,
+    isApproved: true,
+  };
+
+  const items = await prisma.marketplaceItem.findMany({
+    where,
+    include: {
+      seller: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          profilePicture: true,
+        },
+      },
+      _count: {
+        select: { reviews: true },
+      },
+    },
+    skip,
+    take: parseInt(limit as string),
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const total = await prisma.marketplaceItem.count({ where });
+
+  res.json({
+    success: true,
+    data: items,
+    total,
+    page: parseInt(page as string),
+    totalPages: Math.ceil(total / parseInt(limit as string)),
+  });
+};
+
 export const reviewMarketplaceItem = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
   const { rating, comment } = req.body;

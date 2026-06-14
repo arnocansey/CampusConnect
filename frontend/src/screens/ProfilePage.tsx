@@ -80,6 +80,15 @@ export function ProfilePage() {
     enabled: activeTab === 'saved',
   });
 
+  const { data: likedPosts = [] } = useQuery<any[]>({
+    queryKey: ['likedPosts'],
+    queryFn: async () => {
+      const { data } = await api.get('/posts/liked');
+      return data.data || data;
+    },
+    enabled: activeTab === 'likes',
+  });
+
   const followMutation = useMutation({
     mutationFn: async (userId: string) => {
       await api.post(`/users/${userId}/follow`);
@@ -470,7 +479,29 @@ export function ProfilePage() {
                     )}
 
                     {activeTab === 'likes' && (
-                      <p className="text-center text-gray-500 dark:text-gray-400 py-12">Liked posts coming soon</p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {likedPosts?.length === 0 ? (
+                          <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">No liked posts yet</p>
+                        ) : (
+                          likedPosts?.map((post: any) => (
+                            <Link
+                              key={post.id}
+                              href={`/post/${post.id}`}
+                              className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-lg transition"
+                            >
+                              {post.images?.[0] ? (
+                                <div className="aspect-square overflow-hidden">
+                                  <img src={post.images[0]} alt="" className="w-full h-full object-cover" />
+                                </div>
+                              ) : (
+                                <div className="aspect-square bg-gray-50 dark:bg-gray-800 flex items-center justify-center p-4">
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center line-clamp-4">{post.content}</p>
+                                </div>
+                              )}
+                            </Link>
+                          ))
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

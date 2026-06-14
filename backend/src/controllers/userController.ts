@@ -25,6 +25,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
       interests: true,
       socialLinks: true,
       isVerified: true,
+      isPrivate: true,
       createdAt: true,
       _count: {
         select: {

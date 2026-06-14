@@ -8,11 +8,13 @@ import {
   updateMarketplaceItem,
   deleteMarketplaceItem,
   reviewMarketplaceItem,
+  getUserMarketplaceItems,
 } from '../controllers/marketplaceController';
 
 const router = Router();
 
 router.get('/', authenticate, getMarketplaceItems);
+router.get('/user/:username', authenticate, getUserMarketplaceItems);
 router.post('/', authenticate, upload.array('images', 10), createMarketplaceItem);
 router.get('/:id', authenticate, getMarketplaceItem);
 router.put('/:id', authenticate, updateMarketplaceItem);
