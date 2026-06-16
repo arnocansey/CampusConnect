@@ -300,6 +300,133 @@ export const getUserMarketplaceItems = async (req: AuthRequest, res: Response): 
   });
 };
 
+export const getSellerStorefront = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { username } = req.params;
+
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      username: true,
+      fullName: true,
+      profilePicture: true,
+      bio: true,
+      isVerified: true,
+      createdAt: true,
+      university: { select: { name: true } },
+    },
+  });
+
+  if (!user) throw new AppError('Seller not found', 404);
+
+  const [items, reviewStats, totalSold, subscription] = await Promise.all([
+    prisma.marketplaceItem.findMany({
+      where: { sellerId: user.id, isAvailable: true, isSold: false, isApproved: true },
+      include: {
+        _count: { select: { reviews: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.marketplaceReview.aggregate({
+      where: { sellerId: user.id },
+      _avg: { rating: true },
+      _count: { rating: true },
+    }),
+    prisma.marketplaceItem.count({
+      where: { sellerId: user.id, isSold: true },
+    }),
+    prisma.userSubscription.findFirst({
+      where: { userId: user.id, status: 'ACTIVE', expiresAt: { gt: new Date() } },
+      include: { plan: { select: { name: true } } },
+    }),
+  ]);
+
+  const recentReviews = await prisma.marketplaceReview.findMany({
+    where: { sellerId: user.id },
+    include: {
+      reviewer: { select: { id: true, username: true, fullName: true, profilePicture: true } },
+      item: { select: { id: true, title: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+  });
+
+  res.json({
+    success: true,
+    data: {
+      seller: user,
+      items,
+      stats: {
+        totalListings: items.length,
+        totalSold,
+        averageRating: reviewStats._avg.rating || 0,
+        totalReviews: reviewStats._count.rating,
+      },
+      subscription: subscription ? { plan: subscription.plan.name } : null,
+      recentReviews,
+    },
+  });
+};
+
+export const getSellerStats = async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id;
+
+  const [items, soldItems, reviewStats, subscription, recentReviews] = await Promise.all([
+    prisma.marketplaceItem.findMany({
+      where: { sellerId: userId, isAvailable: true, isSold: false, isApproved: true },
+      include: { _count: { select: { reviews: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.marketplaceItem.findMany({
+      where: { sellerId: userId, isSold: true },
+      select: { id: true, title: true, price: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+      take: 10,
+    }),
+    prisma.marketplaceReview.aggregate({
+      where: { sellerId: userId },
+      _avg: { rating: true },
+      _count: { rating: true },
+    }),
+    prisma.userSubscription.findFirst({
+      where: { userId, status: 'ACTIVE', expiresAt: { gt: new Date() } },
+      include: { plan: { select: { name: true, adLimit: true } } },
+    }),
+    prisma.marketplaceReview.findMany({
+      where: { sellerId: userId },
+      include: {
+        reviewer: { select: { id: true, username: true, fullName: true, profilePicture: true } },
+        item: { select: { id: true, title: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    }),
+  ]);
+
+  res.json({
+    success: true,
+    data: {
+      activeListings: items,
+      soldItems,
+      stats: {
+        totalActive: items.length,
+        totalSold: soldItems.length,
+        averageRating: reviewStats._avg.rating || 0,
+        totalReviews: reviewStats._count.rating,
+      },
+      subscription: subscription
+        ? {
+            plan: subscription.plan.name,
+            adsRemaining: subscription.adsRemaining === -1 ? -1 : subscription.adsRemaining,
+            adsUsed: subscription.adsUsed,
+            expiresAt: subscription.expiresAt,
+          }
+        : null,
+      recentReviews,
+    },
+  });
+};
+
 export const reviewMarketplaceItem = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
   const { rating, comment } = req.body;

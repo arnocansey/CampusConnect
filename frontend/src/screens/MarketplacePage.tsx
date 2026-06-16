@@ -232,12 +232,16 @@ export function MarketplacePage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5 mt-2">
+                  <Link
+                    href={`/seller/${item.seller.username}`}
+                    onClick={e => e.stopPropagation()}
+                    className="flex items-center gap-1.5 mt-2 hover:opacity-80 transition"
+                  >
                     <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px]">
                       {item.seller.fullName?.charAt(0)}
                     </div>
                     <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{item.seller.fullName}</span>
-                  </div>
+                  </Link>
                 </div>
               </Link>
             ))}

@@ -28,12 +28,14 @@ import {
   Calendar,
   Megaphone,
   Crown,
+  Store,
 } from 'lucide-react';
 
 const navItems = [
   { path: '/feed', icon: Home, label: 'Home' },
   { path: '/explore', icon: Search, label: 'Explore' },
   { path: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
+  { path: '/my-shop', icon: Store, label: 'My Shop' },
   { path: '/notes', icon: BookOpen, label: 'Notes Hub' },
   { path: '/groups', icon: Users, label: 'Study Groups' },
   { path: '/hostels', icon: Building, label: 'Hostel Finder' },
