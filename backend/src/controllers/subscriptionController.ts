@@ -306,3 +306,79 @@ export const getRevenueStats = async (req: AuthRequest, res: Response): Promise<
     },
   });
 };
+
+export const getSubscriptionById = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const subscription = await prisma.userSubscription.findUnique({
+    where: { id },
+    include: {
+      user: { select: { id: true, fullName: true, email: true, username: true } },
+      plan: true,
+    },
+  });
+  if (!subscription) throw new AppError('Subscription not found', 404);
+  res.json({ success: true, data: subscription });
+};
+
+export const createSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { userId, planId, expiresAt } = req.body;
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new AppError('User not found', 404);
+
+  const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
+  if (!plan) throw new AppError('Plan not found', 404);
+  if (!plan.isActive) throw new AppError('Plan is not active', 400);
+
+  const subscription = await prisma.userSubscription.create({
+    data: {
+      userId,
+      planId,
+      status: 'ACTIVE',
+      adsRemaining: plan.adLimit,
+      adsUsed: 0,
+      expiresAt: new Date(expiresAt),
+    },
+    include: { plan: true },
+  });
+
+  res.status(201).json({ success: true, data: subscription });
+};
+
+export const updateSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { planId, expiresAt, adsRemaining, status } = req.body;
+
+  const subscription = await prisma.userSubscription.findUnique({ where: { id } });
+  if (!subscription) throw new AppError('Subscription not found', 404);
+
+  const updateData: any = {};
+  if (planId) {
+    const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
+    if (!plan) throw new AppError('Plan not found', 404);
+    if (!plan.isActive) throw new AppError('Plan is not active', 400);
+    updateData.planId = planId;
+    updateData.adsRemaining = plan.adLimit;
+    updateData.adsUsed = 0;
+  }
+  if (expiresAt) updateData.expiresAt = new Date(expiresAt);
+  if (adsRemaining !== undefined) updateData.adsRemaining = adsRemaining;
+  if (status) updateData.status = status;
+
+  const updated = await prisma.userSubscription.update({
+    where: { id },
+    data: updateData,
+    include: { plan: true, user: { select: { id: true, fullName: true, email: true, username: true } } },
+  });
+
+  res.json({ success: true, data: updated });
+};
+
+export const deleteSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const subscription = await prisma.userSubscription.findUnique({ where: { id } });
+  if (!subscription) throw new AppError('Subscription not found', 404);
+
+  await prisma.userSubscription.delete({ where: { id } });
+  res.json({ success: true, message: 'Subscription deleted' });
+};
