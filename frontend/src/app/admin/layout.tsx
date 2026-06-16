@@ -21,6 +21,8 @@ import {
   Megaphone,
   Tag,
   Zap,
+  CreditCard,
+  Crown,
   Settings,
   Menu,
   X,
@@ -44,6 +46,8 @@ const navItems = [
   { path: '/admin/security', icon: Shield, label: 'Security' },
   { path: '/admin/audit', icon: FileText, label: 'Audit' },
   { path: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
+  { path: '/admin/plans', icon: CreditCard, label: 'Plans' },
+  { path: '/admin/subscriptions', icon: Crown, label: 'Subscriptions' },
   { path: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 

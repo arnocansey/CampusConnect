@@ -5,6 +5,18 @@ import { AppError } from '../middleware/errorHandler';
 import { uploadImage } from '../utils/cloudinary';
 
 export const createMarketplaceItem = async (req: AuthRequest, res: Response): Promise<void> => {
+  // Check subscription
+  const { checkMarketplaceAccess } = await import('./subscriptionController');
+  const access = await checkMarketplaceAccess(req.user!.id);
+  if (!access.canPost) {
+    if (access.reason === 'no_subscription') {
+      throw new AppError('You need an active subscription to post items. Please choose a plan.', 403);
+    }
+    if (access.reason === 'ads_exhausted') {
+      throw new AppError('You have used all your ad slots. Please renew your subscription.', 403);
+    }
+  }
+
   const { title, description, price, currency, category, condition, location } = req.body;
   const images: string[] = [];
 
@@ -47,6 +59,17 @@ export const createMarketplaceItem = async (req: AuthRequest, res: Response): Pr
     message: 'Item listed successfully',
     data: item,
   });
+
+  // Decrement subscription ads remaining
+  if (access.subscription && access.subscription.adsRemaining !== -1) {
+    await prisma.userSubscription.update({
+      where: { id: access.subscription.id },
+      data: {
+        adsRemaining: { decrement: 1 },
+        adsUsed: { increment: 1 },
+      },
+    });
+  }
 };
 
 export const getMarketplaceItems = async (req: AuthRequest, res: Response): Promise<void> => {

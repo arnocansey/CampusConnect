@@ -182,7 +182,7 @@ export function ProfilePage() {
   return (
     <>
       <div className="max-w-7xl mx-auto p-4">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {isLoading ? (
             <div className="animate-pulse">
               <div className="h-40 bg-gray-200 dark:bg-gray-800 rounded-2xl" />

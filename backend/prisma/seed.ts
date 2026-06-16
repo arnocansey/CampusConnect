@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../src/utils/password';
 
@@ -301,6 +302,43 @@ async function main() {
     console.log('Created conversations and messages');
   } else {
     console.log(`Conversations already exist (${convCount}), skipping...`);
+  }
+
+  // ==================== SUBSCRIPTION PLANS (skip if exists) ====================
+  const planCount = await prisma.subscriptionPlan.count();
+  if (planCount === 0) {
+    console.log('Creating subscription plans...');
+    await prisma.subscriptionPlan.createMany({
+      data: [
+        { name: 'Free', description: 'Get started with basic features', price: 0, currency: 'GHS', adLimit: 2, durationDays: 30, isActive: true, sortOrder: 0 },
+        { name: 'Basic', description: 'Perfect for occasional sellers', price: 10, currency: 'GHS', adLimit: 15, durationDays: 30, isActive: true, sortOrder: 1 },
+        { name: 'Pro', description: 'For serious student sellers', price: 25, currency: 'GHS', adLimit: 50, durationDays: 30, isActive: true, sortOrder: 2 },
+        { name: 'Business', description: 'Unlimited listings for power sellers', price: 50, currency: 'GHS', adLimit: -1, durationDays: 30, isActive: true, sortOrder: 3 },
+      ],
+    });
+    console.log('Created 4 subscription plans');
+  } else {
+    console.log(`Subscription plans already exist (${planCount}), skipping...`);
+  }
+
+  // ==================== FREE SUBSCRIPTIONS FOR EXISTING USERS ====================
+  const subCount = await prisma.userSubscription.count();
+  if (subCount === 0) {
+    console.log('Assigning Free plan to existing users...');
+    const freePlan = await prisma.subscriptionPlan.findFirst({ where: { name: 'Free' } });
+    if (freePlan) {
+      const allUsers = await prisma.user.findMany({ select: { id: true } });
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + freePlan.durationDays);
+      for (const u of allUsers) {
+        await prisma.userSubscription.create({
+          data: { userId: u.id, planId: freePlan.id, status: 'ACTIVE', adsRemaining: freePlan.adLimit, adsUsed: 0, expiresAt },
+        });
+      }
+      console.log(`Assigned Free plan to ${allUsers.length} users`);
+    }
+  } else {
+    console.log(`Subscriptions already exist (${subCount}), skipping...`);
   }
 
   console.log('\nSeeding complete (safe mode)! No existing data was deleted.');

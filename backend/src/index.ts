@@ -1,3 +1,4 @@
+import 'dotenv/config';
 // import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
@@ -26,6 +27,7 @@ import storyRoutes from './routes/storyRoutes';
 import adminRoutes from './routes/adminRoutes';
 import aiChatRoutes from './routes/aiChatRoutes';
 import announcementRoutes from './routes/announcementRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
 
 import prisma from './config/database';
 
@@ -104,6 +106,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiChatRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Error handling
 app.use(notFound);

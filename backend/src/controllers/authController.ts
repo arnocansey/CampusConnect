@@ -59,6 +59,29 @@ export const signup = async (req: AuthRequest, res: Response): Promise<void> => 
     data: { refreshToken: tokens.refreshToken },
   });
 
+  // Auto-assign Free subscription plan
+  try {
+    const freePlan = await prisma.subscriptionPlan.findFirst({
+      where: { name: 'Free', isActive: true },
+    });
+    if (freePlan) {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + freePlan.durationDays);
+      await prisma.userSubscription.create({
+        data: {
+          userId: user.id,
+          planId: freePlan.id,
+          status: 'ACTIVE',
+          adsRemaining: freePlan.adLimit,
+          adsUsed: 0,
+          expiresAt,
+        },
+      });
+    }
+  } catch (subError) {
+    console.error('Failed to auto-assign Free plan:', subError);
+  }
+
   if (config.smtp.user && !config.smtp.user.includes('your-email')) {
     try {
       await sendVerificationEmail(email, verificationToken);

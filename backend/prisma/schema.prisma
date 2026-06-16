@@ -88,6 +88,8 @@ model User {
   viewedProfiles  ProfileView[] @relation("profileViewer")
   mentions        Mention[]     @relation("mentionedUser")
   mentionedIn     Mention[]     @relation("mentionAuthor")
+  subscriptions   UserSubscription[]
+  payments        Payment[]
 
   @@index([email])
   @@index([username])
@@ -1015,4 +1017,77 @@ model Promotion {
 enum DiscountType {
   PERCENTAGE
   FIXED
+}
+
+// ==================== SUBSCRIPTIONS & PAYMENTS ====================
+
+model SubscriptionPlan {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  currency    String   @default("GHS")
+  adLimit     Int      // -1 = unlimited
+  durationDays Int     // how many days the subscription lasts
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions UserSubscription[]
+  payments      Payment[]
+
+  @@index([isActive])
+}
+
+model UserSubscription {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId        String
+  plan          SubscriptionPlan @relation(fields: [planId], references: [id])
+  adsRemaining  Int      // -1 = unlimited
+  adsUsed       Int      @default(0)
+  startDate     DateTime @default(now())
+  expiresAt     DateTime
+  status        SubscriptionStatus @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId          String?
+  plan            SubscriptionPlan? @relation(fields: [planId], references: [id])
+  amount          Float
+  currency        String   @default("GHS")
+  reference       String   @unique // Paystack reference
+  status          PaymentStatus @default(PENDING)
+  paystackResponse Json?
+  subscriptionId  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([reference])
+  @@index([status])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
 }

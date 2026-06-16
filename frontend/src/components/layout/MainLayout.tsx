@@ -27,6 +27,7 @@ import {
   Briefcase,
   Calendar,
   Megaphone,
+  Crown,
 } from 'lucide-react';
 
 const navItems = [
@@ -41,6 +42,7 @@ const navItems = [
   { path: '/announcements', icon: Megaphone, label: 'Announcements' },
   { path: '/messages', icon: MessageSquare, label: 'Messages' },
   { path: '/notifications', icon: Bell, label: 'Notifications' },
+  { path: '/subscriptions', icon: Crown, label: 'Subscriptions' },
 ];
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
@@ -165,7 +167,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
       <ConstructionBanner />
 
-      <div className="max-w-7xl mx-auto flex flex-1">
+      <div className="flex flex-1">
         {/* Sidebar - Desktop */}
         <aside className="hidden md:block sticky top-[57px] w-64 h-[calc(100vh-57px)] shrink-0 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 p-4 overflow-y-auto transition-colors">
           <nav className="space-y-1">

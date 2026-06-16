@@ -45,7 +45,7 @@ export function ExplorePage() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-4">
       {/* Search Bar */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center gap-2 mb-4 transition-colors">
         <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />

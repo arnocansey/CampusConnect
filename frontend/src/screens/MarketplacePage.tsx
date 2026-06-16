@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { MarketplaceItem } from '../types';
-import { Search, ShoppingCart, Star, X, Plus } from 'lucide-react';
+import { Search, ShoppingCart, Star, X, Plus, Crown, AlertTriangle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import Link from 'next/link';
@@ -49,6 +49,16 @@ export function MarketplacePage() {
     },
   });
 
+  const { data: mySub } = useQuery({
+    queryKey: ['mySubscription'],
+    queryFn: async () => {
+      const { data } = await api.get('/subscriptions/my-subscription');
+      return data.data;
+    },
+  });
+
+  const canPost = mySub && (mySub.adsRemaining === -1 || mySub.adsRemaining > 0);
+
   const createItemMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       const { data } = await api.post('/marketplace', formData, {
@@ -60,6 +70,7 @@ export function MarketplacePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketplace'] });
+      queryClient.invalidateQueries({ queryKey: ['mySubscription'] });
       setShowSellModal(false);
       setTitle('');
       setDescription('');
@@ -104,15 +115,35 @@ export function MarketplacePage() {
   return (
     <div className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4 lg:gap-6">
       <div className="flex-1 min-w-0 max-w-4xl">
-        <div className="flex items-center justify-between mb-6 gap-3">
+        <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">{t('marketplace.title')}</h1>
             <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">{t('marketplace.subtitle')}</p>
           </div>
-          <Button size="sm" onClick={() => setShowSellModal(true)} className="shrink-0 whitespace-nowrap">
-            <Plus className="w-4 h-4 mr-1" />
-            {t('marketplace.sellItem')}
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            {mySub && (
+              <span className={`text-xs px-2.5 py-1.5 rounded-full font-medium ${
+                canPost
+                  ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
+                  : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
+              }`}>
+                {mySub.adsRemaining === -1 ? '∞ listings' : `${mySub.adsRemaining} listings left`}
+              </span>
+            )}
+            {canPost ? (
+              <Button size="sm" onClick={() => setShowSellModal(true)} className="whitespace-nowrap">
+                <Plus className="w-4 h-4 mr-1" />
+                {t('marketplace.sellItem')}
+              </Button>
+            ) : (
+              <Link href="/subscriptions">
+                <Button size="sm" className="whitespace-nowrap bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                  <Crown className="w-4 h-4 mr-1" />
+                  {mySub ? 'Get More Listings' : 'Subscribe to Sell'}
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Search */}
@@ -233,6 +264,23 @@ export function MarketplacePage() {
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-xl font-bold text-gray-950 dark:text-white mb-4">{t('marketplace.listForSale')}</h2>
+            {mySub && mySub.adsRemaining !== -1 && mySub.adsRemaining <= 1 && (
+              <div className={`flex items-center gap-2 p-3 rounded-xl mb-4 text-sm ${
+                mySub.adsRemaining === 0
+                  ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
+                  : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+              }`}>
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>
+                  {mySub.adsRemaining === 0
+                    ? 'No listings remaining. '
+                    : 'This is your last free listing. '}
+                  <Link href="/subscriptions" className="font-semibold underline" onClick={() => setShowSellModal(false)}>
+                    Upgrade plan
+                  </Link>
+                </span>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.itemTitle')}</label>
