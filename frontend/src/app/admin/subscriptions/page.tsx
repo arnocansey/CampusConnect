@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { Button } from '@/components/ui/Button';
@@ -60,12 +60,13 @@ export default function AdminSubscriptionsPage() {
       const { data } = await api.get('/subscriptions/admin/subscriptions?limit=100');
       return data;
     },
+    retry: 1,
   });
 
   const { data: plans = [] } = useQuery<Plan[]>({
-    queryKey: ['adminPlans'],
+    queryKey: ['subscriptionPlans'],
     queryFn: async () => {
-      const { data } = await api.get('/subscriptions/admin/plans');
+      const { data } = await api.get('/subscriptions/plans');
       return data.data;
     },
   });
@@ -78,15 +79,19 @@ export default function AdminSubscriptionsPage() {
     },
   });
 
-  // Search users
-  const searchUsers = async (query: string) => {
+  // Search users with debounce
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const searchUsers = (query: string) => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
     if (!query.trim()) { setSearchResults([]); return; }
-    try {
-      const { data } = await api.get(`/admin/users?search=${encodeURIComponent(query)}&limit=10`);
-      setSearchResults(data.data || []);
-    } catch {
-      setSearchResults([]);
-    }
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const { data } = await api.get(`/admin/users?search=${encodeURIComponent(query)}&limit=10`);
+        setSearchResults(data.data?.users || []);
+      } catch {
+        setSearchResults([]);
+      }
+    }, 300);
   };
 
   // Create subscription
