@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import Link from 'next/link';
-import { Store, Star, Package, ShoppingCart, TrendingUp, Crown, Edit, Trash2, Eye, ExternalLink, Plus, X } from 'lucide-react';
+import { Store, Star, Package, ShoppingCart, TrendingUp, Crown, Edit, Trash2, Eye, ExternalLink, Plus, X, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -34,13 +34,40 @@ export default function MyShopPage() {
   const { user } = useAuth();
   const [editingItem, setEditingItem] = useState<any>(null);
   const [editForm, setEditForm] = useState({ title: '', description: '', price: 0, category: '', condition: '', location: '' });
+  const [storeName, setStoreName] = useState('');
+  const [storeDescription, setStoreDescription] = useState('');
 
-  const { data: shopData, isLoading } = useQuery<ShopData>({
+  // Check if user has a store
+  const { data: storeInfo, isLoading: storeLoading } = useQuery({
+    queryKey: ['myStore'],
+    queryFn: async () => {
+      const { data } = await api.get('/marketplace/my-store');
+      return data.data;
+    },
+  });
+
+  // Create store mutation
+  const createStoreMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post('/marketplace/store', { storeName, storeDescription });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myStore'] });
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+      toast.success('Store created! Free plan activated.');
+    },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to create store'),
+  });
+
+  // Shop data (only fetches if store exists)
+  const { data: shopData, isLoading: shopLoading } = useQuery<ShopData>({
     queryKey: ['myShop'],
     queryFn: async () => {
       const { data } = await api.get('/marketplace/my-shop');
       return data.data;
     },
+    enabled: !!storeInfo?.hasStore,
   });
 
   const deleteMutation = useMutation({
@@ -91,7 +118,74 @@ export default function MyShopPage() {
     });
   };
 
-  if (isLoading) {
+  if (storeLoading) {
+    return (
+      <div className="max-w-5xl mx-auto p-4">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-48" />
+          <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
+  // Show create store flow if user has no store
+  if (!storeInfo?.hasStore) {
+    return (
+      <div className="max-w-5xl mx-auto p-4">
+        <div className="flex items-center gap-3 mb-6">
+          <Store className="w-6 h-6 text-blue-600" />
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">My Shop</h1>
+        </div>
+
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center mb-6">
+            <ShoppingBag className="w-12 h-12 text-blue-500 dark:text-blue-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Create Your Store</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-8">
+            Set up your storefront to start selling on CampusConnect. You&apos;ll get a free listing plan to get started!
+          </p>
+
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 w-full max-w-md">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Store Name *</label>
+                <input
+                  value={storeName}
+                  onChange={e => setStoreName(e.target.value)}
+                  placeholder="e.g. Arnold's Tech Store"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description (optional)</label>
+                <textarea
+                  value={storeDescription}
+                  onChange={e => setStoreDescription(e.target.value)}
+                  placeholder="What do you sell?"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+              <Button
+                className="w-full"
+                onClick={() => createStoreMutation.mutate()}
+                disabled={createStoreMutation.isPending || storeName.trim().length < 2}
+              >
+                {createStoreMutation.isPending ? 'Creating...' : 'Create Store & Get Free Plan'}
+              </Button>
+              <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                Free plan includes 2 marketplace listings for 30 days
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (shopLoading) {
     return (
       <div className="max-w-5xl mx-auto p-4">
         <div className="animate-pulse space-y-6">

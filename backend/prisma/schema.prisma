@@ -90,6 +90,17 @@ model User {
   mentionedIn     Mention[]     @relation("mentionAuthor")
   subscriptions   UserSubscription[]
   payments        Payment[]
+  isPremiumSeller Boolean   @default(false)
+  premiumExpiry   DateTime?
+  hasStore        Boolean   @default(false)
+  storeName       String?
+  storeDescription String?
+  storeCreatedAt  DateTime?
+  savedItems      SavedItem[]
+  notePurchases   NotePurchase[]
+  eventTickets    EventTicket[]
+  hostelBookings  HostelBooking[]
+  bannerAds       BannerAd[]
 
   @@index([email])
   @@index([username])
@@ -409,27 +420,32 @@ model MessageReaction {
 // ==================== MARKETPLACE ====================
 
 model MarketplaceItem {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  images      String[]
-  price       Float
-  currency    String   @default("GHS")
-  category    MarketplaceCategory
-  condition   ItemCondition @default(USED)
-  sellerId    String
-  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  isAvailable Boolean  @default(true)
-  isSold      Boolean  @default(false)
-  isApproved  Boolean  @default(false)
-  location    String?
-  reviews     MarketplaceReview[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  images          String[]
+  price           Float
+  currency        String   @default("GHS")
+  category        MarketplaceCategory
+  condition       ItemCondition @default(USED)
+  sellerId        String
+  seller          User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  isAvailable     Boolean  @default(true)
+  isSold          Boolean  @default(false)
+  isApproved      Boolean  @default(false)
+  isFeatured      Boolean  @default(false)
+  featuredAt      DateTime?
+  featuredExpiry  DateTime?
+  location        String?
+  reviews         MarketplaceReview[]
+  savedBy         SavedItem[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([sellerId])
   @@index([category])
   @@index([createdAt])
+  @@index([isFeatured])
 }
 
 enum MarketplaceCategory {
@@ -482,9 +498,12 @@ model Note {
   bookmarks   NoteBookmark[]
   ratings     NoteRating[]
   comments    NoteComment[]
+  purchases   NotePurchase[]
   tags        String[]
   isApproved  Boolean  @default(false)
   isRejected  Boolean  @default(false)
+  isPaid      Boolean  @default(false)
+  price       Float    @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -655,6 +674,7 @@ model Hostel {
   contactEmail String?
   isApproved   Boolean  @default(false)
   reviews     HostelReview[]
+  bookings    HostelBooking[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -751,7 +771,10 @@ model Event {
   category    EventCategory @default(ACADEMIC)
   maxAttendees Int?
   isApproved   Boolean  @default(false)
+  isFree       Boolean  @default(true)
+  ticketPrice  Float    @default(0)
   registrations EventRegistration[]
+  tickets     EventTicket[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -1090,4 +1113,124 @@ enum PaymentStatus {
   SUCCESS
   FAILED
   REFUNDED
+}
+
+// ==================== FEATURED LISTINGS ====================
+
+// isFeatured, featuredAt, featuredExpiry fields added to MarketplaceItem above
+
+// ==================== BANNER ADS ====================
+
+model BannerAd {
+  id          String   @id @default(uuid())
+  title       String
+  imageUrl    String
+  linkUrl     String?
+  position    BannerPosition @default(SIDEBAR)
+  isActive    Boolean  @default(true)
+  startDate   DateTime
+  endDate     DateTime
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  advertiserId String?
+  advertiser  User?    @relation(fields: [advertiserId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, position])
+  @@index([startDate, endDate])
+}
+
+enum BannerPosition {
+  SIDEBAR
+  FEED_TOP
+  FEED_MIDDLE
+  MARKETPLACE_TOP
+}
+
+// ==================== PREMIUM PROFILES ====================
+
+// isPremiumSeller, premiumExpiry fields added to User above
+
+// ==================== NOTES MARKETPLACE ====================
+
+model NotePurchase {
+  id              String   @id @default(uuid())
+  noteId          String
+  note            Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  buyerId         String
+  buyer           User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  amount          Float
+  platformFee     Float
+  uploaderEarning Float
+  status          PaymentStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+
+  @@unique([noteId, buyerId])
+  @@index([noteId])
+  @@index([buyerId])
+}
+
+// ==================== EVENT TICKETING ====================
+
+model EventTicket {
+  id              String   @id @default(uuid())
+  eventId         String
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  buyerId         String
+  buyer           User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  quantity        Int      @default(1)
+  totalAmount     Float
+  platformFee     Float
+  organizerEarning Float
+  status          PaymentStatus @default(PENDING)
+  ticketCode      String   @default(uuid())
+  checkedIn       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([eventId])
+  @@index([buyerId])
+}
+
+// ==================== HOSTEL BOOKINGS ====================
+
+model HostelBooking {
+  id                String   @id @default(uuid())
+  hostelId          String
+  hostel            Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  studentId         String
+  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  checkIn           DateTime
+  checkOut          DateTime
+  monthlyRent       Float
+  platformCommission Float
+  status            BookingStatus @default(PENDING)
+  contactPhone      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([hostelId])
+  @@index([studentId])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// ==================== SAVED ITEMS (for marketplace) ====================
+
+model SavedItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      MarketplaceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@index([itemId])
 }

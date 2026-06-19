@@ -4,7 +4,65 @@ import { AuthRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { uploadImage } from '../utils/cloudinary';
 
+export const createStore = async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id;
+  const { storeName, storeDescription } = req.body;
+
+  if (!storeName || storeName.trim().length < 2) {
+    throw new AppError('Store name is required (min 2 characters)', 400);
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { hasStore: true } });
+  if (user?.hasStore) throw new AppError('Store already exists', 409);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      hasStore: true,
+      storeName: storeName.trim(),
+      storeDescription: storeDescription?.trim() || null,
+      storeCreatedAt: new Date(),
+    },
+  });
+
+  // Auto-assign Free plan
+  const freePlan = await prisma.subscriptionPlan.findFirst({ where: { name: 'Free', isActive: true } });
+  if (freePlan) {
+    const existing = await prisma.userSubscription.findFirst({ where: { userId } });
+    if (!existing) {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + freePlan.durationDays);
+      await prisma.userSubscription.create({
+        data: {
+          userId,
+          planId: freePlan.id,
+          status: 'ACTIVE',
+          adsRemaining: freePlan.adLimit,
+          adsUsed: 0,
+          expiresAt,
+        },
+      });
+    }
+  }
+
+  res.status(201).json({ success: true, message: 'Store created! Free plan activated.' });
+};
+
+export const getMyStore = async (req: AuthRequest, res: Response): Promise<void> => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: { hasStore: true, storeName: true, storeDescription: true, storeCreatedAt: true },
+  });
+  res.json({ success: true, data: user });
+};
+
 export const createMarketplaceItem = async (req: AuthRequest, res: Response): Promise<void> => {
+  // Check store
+  const user = await prisma.user.findUnique({ where: { id: req.user!.id }, select: { hasStore: true } });
+  if (!user?.hasStore) {
+    throw new AppError('You must create a store before posting items. Visit My Shop to set up your store.', 403);
+  }
+
   // Check subscription
   const { checkMarketplaceAccess } = await import('./subscriptionController');
   const access = await checkMarketplaceAccess(req.user!.id);
@@ -312,12 +370,18 @@ export const getSellerStorefront = async (req: AuthRequest, res: Response): Prom
       profilePicture: true,
       bio: true,
       isVerified: true,
+      isPremiumSeller: true,
+      hasStore: true,
+      storeName: true,
+      storeDescription: true,
+      storeCreatedAt: true,
       createdAt: true,
       university: { select: { name: true } },
     },
   });
 
   if (!user) throw new AppError('Seller not found', 404);
+  if (!user.hasStore) throw new AppError('This user has not created a store yet', 404);
 
   const [items, reviewStats, totalSold, subscription] = await Promise.all([
     prisma.marketplaceItem.findMany({

@@ -29,6 +29,7 @@ import {
   Megaphone,
   Crown,
   Store,
+  DollarSign,
 } from 'lucide-react';
 
 const navItems = [
@@ -36,6 +37,7 @@ const navItems = [
   { path: '/explore', icon: Search, label: 'Explore' },
   { path: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
   { path: '/my-shop', icon: Store, label: 'My Shop' },
+  { path: '/earnings', icon: DollarSign, label: 'Earnings' },
   { path: '/notes', icon: BookOpen, label: 'Notes Hub' },
   { path: '/groups', icon: Users, label: 'Study Groups' },
   { path: '/hostels', icon: Building, label: 'Hostel Finder' },

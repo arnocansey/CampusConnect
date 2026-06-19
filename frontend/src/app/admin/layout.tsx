@@ -48,6 +48,8 @@ const navItems = [
   { path: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
   { path: '/admin/plans', icon: CreditCard, label: 'Plans' },
   { path: '/admin/subscriptions', icon: Crown, label: 'Subscriptions' },
+  { path: '/admin/revenue', icon: BarChart3, label: 'Revenue' },
+  { path: '/admin/banners', icon: Megaphone, label: 'Banner Ads' },
   { path: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
