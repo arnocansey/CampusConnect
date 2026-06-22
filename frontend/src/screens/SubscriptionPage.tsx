@@ -19,6 +19,74 @@ interface Plan {
   durationDays: number;
 }
 
+const planBenefits: Record<string, string[]> = {
+  'Free': [
+    'Access core social networking features',
+    'Standard search visibility',
+    'Up to 2 marketplace listings',
+    'Standard notes downloads'
+  ],
+  'Basic': [
+    'Access core social networking features',
+    'Standard search visibility',
+    'Up to 15 marketplace listings',
+    'Standard notes downloads'
+  ],
+  'Student Premium': [
+    'Profile Verification Badge',
+    'Priority Appearance in Search Results',
+    'Content Boosting (posts, listings, groups)',
+    'Featured Stories Placement',
+    'Unlimited Notes Uploads',
+    'Ad-Free Experience',
+    'AI-Powered Study Recommendations',
+    'AI Note Summaries'
+  ],
+  'Pro': [
+    'Unlimited Listings',
+    'Featured Products',
+    'Advanced Sales Analytics',
+    'Priority Search Ranking'
+  ],
+  'Pro Seller': [
+    'Unlimited Listings',
+    'Featured Store Profile & Products',
+    'Advanced Sales Analytics',
+    'Verified Seller Badge',
+    'Multiple Product Images',
+    'Customer Insights Dashboard'
+  ],
+  'Business': [
+    'Unlimited Listings & Dedicated Storefront',
+    'Sales Performance Reports & Tools',
+    'Priority Customer Support'
+  ],
+  'Business Seller': [
+    'Business Verification Badge',
+    'Dedicated Storefront Page',
+    'Bulk Product Upload Tools',
+    'Sponsored Listings Campaigns',
+    'Sales Performance Reports & Tools',
+    'Priority Customer Support'
+  ],
+  'Premium Hostel Partner': [
+    'Featured Hostel Placement',
+    'Homepage Promotion & Exposure',
+    'Verified Hostel Badge',
+    'Booking Analytics & Occupancy Reports',
+    'Student Engagement Insights',
+    'Promotional Campaign Tools'
+  ],
+  'Recruiter Premium': [
+    'Featured Job Listings',
+    'Employer Verification Badge',
+    'Priority Candidate Search',
+    'Unlimited Internship Listings',
+    'Access to Resume Database',
+    'Recruitment Analytics Dashboard'
+  ]
+};
+
 export function SubscriptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,6 +94,7 @@ export function SubscriptionPage() {
   const paymentRef = searchParams.get('ref');
   const queryClient = useQueryClient();
   const [verifying, setVerifying] = useState(false);
+  const [activeTab, setActiveTab] = useState<'student' | 'seller' | 'partner'>('student');
 
   const { data: plans = [], isLoading, error: plansError } = useQuery<Plan[]>({
     queryKey: ['subscriptionPlans'],
@@ -82,12 +151,28 @@ export function SubscriptionPage() {
   }, [paymentSuccess, paymentRef]);
 
   const getPlanIcon = (name: string) => {
-    if (name.toLowerCase().includes('free')) return <Zap className="w-6 h-6" />;
-    if (name.toLowerCase().includes('business')) return <Crown className="w-6 h-6" />;
-    return <Star className="w-6 h-6" />;
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('free')) return <Zap className="w-6 h-6" />;
+    if (lowerName.includes('business')) return <Crown className="w-6 h-6" />;
+    if (lowerName.includes('premium') || lowerName.includes('recruiter') || lowerName.includes('partner')) return <Crown className="w-6 h-6 text-yellow-500" />;
+    return <Star className="w-6 h-6 text-blue-500" />;
   };
 
   const getAdDisplay = (limit: number) => (limit === -1 ? 'Unlimited' : limit.toString());
+
+  const filteredPlans = plans.filter(plan => {
+    const name = plan.name;
+    if (activeTab === 'student') {
+      return name === 'Free' || name === 'Student Premium' || name === 'Basic';
+    }
+    if (activeTab === 'seller') {
+      return name === 'Pro Seller' || name === 'Business Seller' || name === 'Pro' || name === 'Business';
+    }
+    if (activeTab === 'partner') {
+      return name === 'Premium Hostel Partner' || name === 'Recruiter Premium';
+    }
+    return true;
+  });
 
   return (
     <div className="max-w-4xl mx-auto p-4 pb-20 md:pb-4">
@@ -97,7 +182,7 @@ export function SubscriptionPage() {
           Back to Marketplace
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Subscription Plans</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Choose a plan to start selling on CampusConnect</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Upgrade your account to unlock premium features and visibility</p>
       </div>
 
       {/* Active subscription banner */}
@@ -109,7 +194,7 @@ export function SubscriptionPage() {
             </div>
             <div>
               <p className="font-semibold text-sm text-green-800 dark:text-green-300">
-                Active: {mySub.plan.name}
+                Active Plan: {mySub.plan.name}
               </p>
               <p className="text-xs text-green-600 dark:text-green-400">
                 {mySub.adsRemaining === -1 ? 'Unlimited ads' : `${mySub.adsRemaining} ads remaining`} · Expires {new Date(mySub.expiresAt).toLocaleDateString()}
@@ -126,9 +211,43 @@ export function SubscriptionPage() {
         </div>
       )}
 
+      {/* Category Tabs */}
+      <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
+        <button
+          onClick={() => setActiveTab('student')}
+          className={`flex-1 py-2 text-center text-sm font-semibold rounded-lg transition ${
+            activeTab === 'student'
+              ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-800'
+              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+          }`}
+        >
+          🎓 Students
+        </button>
+        <button
+          onClick={() => setActiveTab('seller')}
+          className={`flex-1 py-2 text-center text-sm font-semibold rounded-lg transition ${
+            activeTab === 'seller'
+              ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-800'
+              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+          }`}
+        >
+          🛒 Sellers
+        </button>
+        <button
+          onClick={() => setActiveTab('partner')}
+          className={`flex-1 py-2 text-center text-sm font-semibold rounded-lg transition ${
+            activeTab === 'partner'
+              ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-800'
+              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+          }`}
+        >
+          💼 Partners & Recruiters
+        </button>
+      </div>
+
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+          {[1, 2].map((i) => (
             <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 animate-pulse">
               <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4" />
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2" />
@@ -140,77 +259,75 @@ export function SubscriptionPage() {
         <div className="text-center py-12 text-red-500">
           <p>Failed to load plans. Please try again.</p>
         </div>
-      ) : plans.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <p>No subscription plans available yet.</p>
-          <p className="text-sm mt-1">Check back later!</p>
+      ) : filteredPlans.length === 0 ? (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <p>No subscription plans available in this category yet.</p>
+          <p className="text-sm mt-1 text-gray-400">Run database seeds to import these packages!</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {plans.map((plan, index) => {
-            const isPopular = index === 1;
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredPlans.map((plan) => {
+            const isPopular = plan.name === 'Student Premium' || plan.name === 'Pro Seller' || plan.name === 'Premium Hostel Partner';
             const isFree = plan.price === 0;
 
             return (
               <div
                 key={plan.id}
-                className={`bg-white dark:bg-gray-900 rounded-2xl border-2 p-6 transition ${
+                className={`bg-white dark:bg-gray-900 rounded-2xl border-2 p-6 flex flex-col justify-between transition ${
                   isPopular
                     ? 'border-blue-500 dark:border-blue-400 shadow-lg shadow-blue-500/10'
                     : 'border-gray-200 dark:border-gray-800'
                 }`}
               >
-                {isPopular && (
-                  <span className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block">
-                    MOST POPULAR
-                  </span>
-                )}
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      isPopular ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                    }`}>
-                      {getPlanIcon(plan.name)}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg dark:text-white">{plan.name}</h3>
-                      {plan.description && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{plan.description}</p>
-                      )}
+                <div>
+                  {isPopular && (
+                    <span className="bg-blue-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-3 inline-block uppercase tracking-wider">
+                      Recommended
+                    </span>
+                  )}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                        isPopular ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                      }`}>
+                        {getPlanIcon(plan.name)}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg dark:text-white leading-tight">{plan.name}</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{plan.description}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold dark:text-white">
+
+                  <div className="mt-4 pb-4 border-b border-gray-100 dark:border-gray-800/80">
+                    <span className="text-3xl font-extrabold dark:text-white">
                       {isFree ? 'Free' : `GH₵${plan.price}`}
-                    </p>
+                    </span>
                     {!isFree && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">/{plan.durationDays} days</p>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">/{plan.durationDays} days</span>
                     )}
                   </div>
-                </div>
 
-                <div className="mt-4 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    {getAdDisplay(plan.adLimit)} ads
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    {plan.durationDays} days
-                  </span>
+                  {/* Benefits checklist */}
+                  <div className="mt-5 space-y-2.5">
+                    <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Features & Benefits:</p>
+                    {(planBenefits[plan.name] || [
+                      `${getAdDisplay(plan.adLimit)} active listings`,
+                      `Valid for ${plan.durationDays} days`
+                    ]).map((benefit, i) => (
+                      <div key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                        <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                        <span className="leading-tight">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <Button
-                  className={`w-full mt-4 ${isPopular ? '' : 'variant-outline'}`}
+                  className={`w-full mt-6 ${isPopular ? '' : 'variant-outline'}`}
                   variant={isPopular ? 'default' : 'outline'}
                   disabled={mySub?.planId === plan.id && mySub?.status === 'ACTIVE'}
-                  onClick={() => {
-                    if (isFree) {
-                      initPayment.mutate(plan.id);
-                    } else {
-                      initPayment.mutate(plan.id);
-                    }
-                  }}
+                  onClick={() => initPayment.mutate(plan.id)}
                 >
                   {mySub?.planId === plan.id && mySub?.status === 'ACTIVE'
                     ? 'Current Plan'

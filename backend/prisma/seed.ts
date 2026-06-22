@@ -304,22 +304,47 @@ async function main() {
     console.log(`Conversations already exist (${convCount}), skipping...`);
   }
 
-  // ==================== SUBSCRIPTION PLANS (skip if exists) ====================
-  const planCount = await prisma.subscriptionPlan.count();
-  if (planCount === 0) {
-    console.log('Creating subscription plans...');
-    await prisma.subscriptionPlan.createMany({
-      data: [
-        { name: 'Free', description: 'Get started with basic features', price: 0, currency: 'GHS', adLimit: 2, durationDays: 30, isActive: true, sortOrder: 0 },
-        { name: 'Basic', description: 'Perfect for occasional sellers', price: 10, currency: 'GHS', adLimit: 15, durationDays: 30, isActive: true, sortOrder: 1 },
-        { name: 'Pro', description: 'For serious student sellers', price: 25, currency: 'GHS', adLimit: 50, durationDays: 30, isActive: true, sortOrder: 2 },
-        { name: 'Business', description: 'Unlimited listings for power sellers', price: 50, currency: 'GHS', adLimit: -1, durationDays: 30, isActive: true, sortOrder: 3 },
-      ],
-    });
-    console.log('Created 4 subscription plans');
-  } else {
-    console.log(`Subscription plans already exist (${planCount}), skipping...`);
+  // ==================== SUBSCRIPTION PLANS (upsert) ====================
+  console.log('Creating/updating subscription plans...');
+  const newPlans = [
+    { name: 'Free', description: 'Basic student features & 2 listings', price: 0, currency: 'GHS', adLimit: 2, durationDays: 30, isActive: true, sortOrder: 0 },
+    { name: 'Student Premium', description: 'Verify profile, boost content, access premium groups, unlimited notes & AI features', price: 15, currency: 'GHS', adLimit: 5, durationDays: 30, isActive: true, sortOrder: 1 },
+    { name: 'Pro Seller', description: 'Unlimited listings, featured store profile, advanced sales analytics & verified seller badge', price: 25, currency: 'GHS', adLimit: -1, durationDays: 30, isActive: true, sortOrder: 2 },
+    { name: 'Business Seller', description: 'Dedicated storefront, bulk upload, promo banners & ad campaigns', price: 50, currency: 'GHS', adLimit: -1, durationDays: 30, isActive: true, sortOrder: 3 },
+    { name: 'Premium Hostel Partner', description: 'Featured hostel placement, booking analytics & occupancy reports', price: 100, currency: 'GHS', adLimit: -1, durationDays: 30, isActive: true, sortOrder: 4 },
+    { name: 'Recruiter Premium', description: 'Featured jobs, candidate search & resume database access', price: 150, currency: 'GHS', adLimit: -1, durationDays: 30, isActive: true, sortOrder: 5 },
+  ];
+
+  const nameUpdates: Record<string, string> = {
+    'Basic': 'Student Premium',
+    'Pro': 'Pro Seller',
+    'Business': 'Business Seller'
+  };
+
+  for (const [oldName, newName] of Object.entries(nameUpdates)) {
+    const existing = await prisma.subscriptionPlan.findFirst({ where: { name: oldName } });
+    if (existing) {
+      await prisma.subscriptionPlan.update({
+        where: { id: existing.id },
+        data: { name: newName }
+      });
+    }
   }
+
+  for (const plan of newPlans) {
+    const existing = await prisma.subscriptionPlan.findFirst({ where: { name: plan.name } });
+    if (existing) {
+      await prisma.subscriptionPlan.update({
+        where: { id: existing.id },
+        data: plan,
+      });
+    } else {
+      await prisma.subscriptionPlan.create({
+        data: plan,
+      });
+    }
+  }
+  console.log('Seeded subscription plans successfully');
 
   // ==================== FREE SUBSCRIPTIONS FOR EXISTING USERS ====================
   const subCount = await prisma.userSubscription.count();
