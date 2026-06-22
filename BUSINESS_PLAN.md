@@ -633,7 +633,136 @@ No competitor combines:
 
 ## Pricing Strategy
 
-### Tiered Subscription Model
+### PREMIUM SUBSCRIPTION SYSTEM
+
+CampusConnect will operate on a Freemium Model where all students can access core features for free, while premium subscriptions unlock advanced features and greater visibility.
+
+#### Student Premium Subscription
+
+**Benefits:**
+- Profile Verification Badge
+- Priority Appearance in Search Results
+- Content Boosting (posts reach more students)
+- Featured Stories Placement
+- Featured Marketplace Listings
+- Advanced Analytics on Posts
+- Unlimited Notes Uploads
+- Early Access to New Features
+- Exclusive Premium Communities
+- Increased File Upload Limits
+- Priority Customer Support
+- Ad-Free Experience
+- Custom Profile Themes
+- Enhanced Privacy Controls
+- AI-Powered Study Recommendations
+- AI Note Summaries
+- Internship Match Recommendations
+
+**Content Boosting:**
+Premium users can promote:
+- Posts
+- Marketplace Listings
+- Notes
+- Events
+- Study Groups
+
+Boosted content appears:
+- Higher in feeds
+- Explore pages
+- Search results
+- Trending sections
+
+#### Marketplace Seller Subscription
+Designed for students, businesses, hostel owners, and service providers.
+
+**Basic Seller:**
+- Limited Listings
+- Standard Search Visibility
+- Basic Analytics
+
+**Pro Seller:**
+- Unlimited Listings
+- Featured Products
+- Featured Store Profile
+- Product Boosting
+- Advanced Sales Analytics
+- Priority Search Ranking
+- Verified Seller Badge
+- Multiple Product Images
+- Promotional Banners
+- Customer Insights Dashboard
+
+**Business Seller:**
+- Business Verification Badge
+- Dedicated Storefront
+- Bulk Product Upload
+- Advertisement Campaign Management
+- Sponsored Listings
+- Sales Performance Reports
+- Priority Support
+- Marketing Tools
+
+#### Hostel Owner Subscription
+
+**Premium Hostel Partner:**
+- Featured Hostel Placement
+- Homepage Promotion
+- Verified Hostel Badge
+- Booking Analytics
+- Occupancy Reports
+- Student Engagement Insights
+- Promotional Campaign Tools
+
+#### Employer Subscription
+
+**Recruiter Premium:**
+- Featured Job Listings
+- Employer Verification Badge
+- Priority Candidate Search
+- Unlimited Internship Listings
+- Resume Database Access
+- Recruitment Analytics
+- Application Tracking Dashboard
+
+#### Advertisement & Sponsorship System
+CampusConnect can generate revenue through:
+
+**Sponsored Content:**
+- Sponsored Posts
+- Sponsored Marketplace Listings
+- Sponsored Events
+- Sponsored Hostels
+- Sponsored Jobs
+
+**Banner Advertising:**
+- Locations: Home Feed, Marketplace, Notes Hub, Events Section, Hostel Finder
+
+#### Premium Analytics Dashboard
+Premium users receive:
+
+**Social Analytics:**
+- Post Reach, Impressions, Engagement Rate, Profile Visits, Follower Growth
+
+**Marketplace Analytics:**
+- Product Views, Click Rate, Sales Conversion, Buyer Demographics
+
+**Academic Analytics:**
+- Notes Downloads, Notes Popularity, Study Group Engagement
+
+#### Revenue Model
+CampusConnect revenue streams include:
+- Student Premium Subscription
+- Marketplace Seller Subscription
+- Hostel Partner Subscription
+- Recruiter Subscription
+- Sponsored Content
+- Featured Listings
+- Advertising Revenue
+- University Partnership Packages
+- Event Promotion Packages
+- Verification Services
+
+### Tiered Subscription Model Pricing
 
 | Tier | Monthly Price | Annual Price | Target User |
 |---|---|---|---|
@@ -641,12 +770,6 @@ No competitor combines:
 | **Basic** | GHS 10 | GHS 100 (17% savings) | Occasional sellers, note seekers |
 | **Pro** | GHS 25 | GHS 250 (17% savings) | Active sellers, career-focused |
 | **Business** | GHS 50 | GHS 500 (17% savings) | Power sellers, campus businesses |
-
-### Pricing Rationale
-- **Free tier:** 2 marketplace listings + full social access. Low barrier to entry; drives adoption.
-- **Basic (GHS 10):** Less than a data bundle. 15 listings + notes access. Accessible to most students.
-- **Pro (GHS 25):** Price of a meal out. 50 listings + analytics + promotions. For serious sellers.
-- **Business (GHS 50):** Unlimited listings + storefront. For campus businesses and power sellers.
 
 ### Payment Methods
 - Mobile Money (MTN MoMo, Vodafone Cash, AirtelTigo Money)
