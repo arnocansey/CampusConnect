@@ -268,28 +268,18 @@ export function HostelPage() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Price per Month *</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Price per Month (GH₵) *</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm z-10">GH₵</span>
                   <Input
                     type="number"
                     placeholder="e.g. 150"
                     value={pricePerMonth}
                     onChange={(e) => setPricePerMonth(e.target.value)}
+                    className="pl-12"
                     required
                   />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Currency</label>
-                  <select
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent p-2.5 dark:text-white dark:bg-gray-800 focus:outline-none"
-                  >
-                    <option value="GHS">GH₵</option>
-                    <option value="USD">$</option>
-                    <option value="NGN">₦</option>
-                  </select>
                 </div>
               </div>
               <div>

@@ -2,7 +2,7 @@ import { Response } from 'express';
 import prisma from '../config/database';
 import { AuthRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
-import { uploadImage } from '../utils/cloudinary';
+import { uploadImage, uploadDocument } from '../utils/cloudinary';
 
 export const uploadNote = async (req: AuthRequest, res: Response): Promise<void> => {
   const { title, description, course, department, level, semester, tags } = req.body;
@@ -107,7 +107,7 @@ export const uploadNote = async (req: AuthRequest, res: Response): Promise<void>
     finalTags = parsedTags;
   }
 
-  const fileUrl = await uploadImage(req.file, 'campusconnect/notes');
+  const fileUrl = await uploadDocument(req.file, 'campusconnect/notes');
 
   const fileTypeMap: Record<string, string> = {
     'application/pdf': 'PDF',
@@ -115,6 +115,8 @@ export const uploadNote = async (req: AuthRequest, res: Response): Promise<void>
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
     'application/vnd.ms-powerpoint': 'PPT',
     'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPT',
+    'application/zip': 'ZIP',
+    'application/x-zip-compressed': 'ZIP',
   };
 
   const note = await prisma.note.create({

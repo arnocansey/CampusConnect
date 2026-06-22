@@ -308,14 +308,18 @@ export function MarketplacePage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.price')}</label>
-                  <Input
-                    type="number"
-                    placeholder="Price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                  />
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.price')} (GH₵)</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm z-10">GH₵</span>
+                    <Input
+                      type="number"
+                      placeholder="Price"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="pl-12"
+                      required
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('marketplace.location')}</label>

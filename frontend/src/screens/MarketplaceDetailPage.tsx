@@ -45,7 +45,7 @@ export function MarketplaceDetailPage() {
         <div className="p-4">
           <div className="flex items-center justify-between gap-3 mb-2">
             <h2 className="text-lg sm:text-xl font-bold min-w-0 truncate">{item.title}</h2>
-            <span className="text-blue-600 font-bold text-lg sm:text-2xl shrink-0">${item.price}</span>
+            <span className="text-blue-600 font-bold text-lg sm:text-2xl shrink-0">GH₵{item.price?.toLocaleString()}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500">

@@ -51,6 +51,26 @@ export const uploadVideo = async (
   });
 };
 
+export const uploadDocument = async (
+  file: Express.Multer.File,
+  folder: string = 'campusconnect'
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.v2.uploader.upload_stream(
+      {
+        folder,
+        resource_type: 'auto',
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result?.secure_url || '');
+      }
+    );
+
+    uploadStream.end(file.buffer);
+  });
+};
+
 export const deleteImage = async (url: string): Promise<void> => {
   const publicId = url.split('/').pop()?.split('.')[0];
   if (publicId) {
