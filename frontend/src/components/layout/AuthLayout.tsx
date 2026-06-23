@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -39,8 +41,17 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative">
+        <div className="absolute top-6 left-6">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 dark:bg-gray-900 transition text-xs font-semibold text-gray-700 dark:text-gray-300"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
+        <div className="w-full max-w-md mt-12 lg:mt-0">
           {children}
         </div>
       </div>
