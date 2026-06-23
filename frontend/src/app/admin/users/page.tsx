@@ -458,7 +458,7 @@ export default function AdminUsersPage() {
                   {new Date(viewUser.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              {viewUser._count && (
+               {viewUser._count && (
                 <>
                   <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
                     <span className="text-gray-500 dark:text-gray-400">Posts</span>
@@ -467,6 +467,10 @@ export default function AdminUsersPage() {
                   <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
                     <span className="text-gray-500 dark:text-gray-400">Followers</span>
                     <span className="text-gray-900 dark:text-white font-medium">{viewUser._count.followers}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                    <span className="text-gray-500 dark:text-gray-400">Following</span>
+                    <span className="text-gray-900 dark:text-white font-medium">{viewUser._count.following}</span>
                   </div>
                 </>
               )}

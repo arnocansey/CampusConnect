@@ -150,7 +150,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
       isBanned: true,
       createdAt: true,
       _count: {
-        select: { posts: true, followers: true },
+        select: { posts: true, followers: true, following: true },
       },
     },
     skip,
