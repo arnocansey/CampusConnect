@@ -21,6 +21,8 @@ import {
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -54,6 +56,12 @@ interface DashboardStats {
 interface AnalyticsData {
   userGrowth: { month: string; users: number }[];
   contentDistribution: { name: string; value: number }[];
+  engagementStats?: { dau: number; wau: number; mau: number };
+  roleDistribution?: { name: string; value: number }[];
+  verificationStats?: { name: string; value: number }[];
+  topDepartments?: { department: string; count: number }[];
+  deviceBreakdown?: { name: string; value: number }[];
+  browserBreakdown?: { name: string; value: number }[];
 }
 
 function KPICardSkeleton() {
@@ -276,6 +284,277 @@ export default function AdminDashboardPage() {
                       <span className="font-medium text-gray-900 dark:text-white">{entry.value}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Engagement Grid */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">User Engagement Insights</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {analyticsLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse rounded-2xl bg-gray-200 p-6 dark:bg-gray-800 h-28" />
+              ))
+            ) : (
+              <>
+                <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Active Users (DAU)</p>
+                  <p className="mt-2 text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                    {analytics?.engagementStats?.dau?.toLocaleString() ?? 0}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">Users active within last 24h</p>
+                </div>
+                <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Weekly Active Users (WAU)</p>
+                  <p className="mt-2 text-3xl font-extrabold text-violet-600 dark:text-violet-400">
+                    {analytics?.engagementStats?.wau?.toLocaleString() ?? 0}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">Users active within last 7 days</p>
+                </div>
+                <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Monthly Active Users (MAU)</p>
+                  <p className="mt-2 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {analytics?.engagementStats?.mau?.toLocaleString() ?? 0}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">Users active within last 30 days</p>
+                </div>
+                <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Engagement Stickiness</p>
+                  <p className="mt-2 text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+                    {analytics?.engagementStats?.mau
+                      ? ((analytics.engagementStats.dau / analytics.engagementStats.mau) * 100).toFixed(1)
+                      : '0.0'}%
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">DAU / MAU ratio (ideal: &gt;20%)</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* User Roles & Verification Ratio */}
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Role Distribution */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">User Roles Distribution</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Breakdown of platform users by role privileges</p>
+            {analyticsLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-6 sm:flex-row">
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie
+                      data={analytics?.roleDistribution ?? []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={95}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {(analytics?.roleDistribution ?? []).map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#f9fafb',
+                        fontSize: '13px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-2 min-w-[120px]">
+                  {(analytics?.roleDistribution ?? []).map((entry, index) => (
+                    <div key={entry.name} className="flex items-center justify-between gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                        />
+                        <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Verification Status */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Account Verification</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Ratio of verified students to unverified users</p>
+            {analyticsLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-6 sm:flex-row">
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie
+                      data={analytics?.verificationStats ?? []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={95}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {(analytics?.verificationStats ?? []).map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#ef4444'} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#f9fafb',
+                        fontSize: '13px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-2 min-w-[120px]">
+                  {(analytics?.verificationStats ?? []).map((entry, index) => (
+                    <div key={entry.name} className="flex items-center justify-between gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: index === 0 ? '#10b981' : '#ef4444' }}
+                        />
+                        <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Top Active Departments & Access Channels */}
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Top Departments */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900 flex flex-col justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Top Active Departments</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Departments with the most registered student profiles</p>
+              {analyticsLoading ? (
+                <div className="flex h-64 items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={analytics?.topDepartments ?? []} layout="vertical" margin={{ left: 10, right: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-30" horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                    <YAxis dataKey="department" type="category" width={80} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#f9fafb',
+                        fontSize: '13px',
+                      }}
+                    />
+                    <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={16} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* Access Channels (Device / Browser) */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Platforms & Access Channels</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Device types and browsers used in active sessions</p>
+            {analyticsLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Device Breakdown */}
+                <div className="flex flex-col items-center">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Devices</p>
+                  <ResponsiveContainer width="100%" height={140}>
+                    <PieChart>
+                      <Pie
+                        data={analytics?.deviceBreakdown ?? []}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={35}
+                        outerRadius={55}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {(analytics?.deviceBreakdown ?? []).map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={PIE_COLORS[(index + 1) % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap justify-center gap-2 mt-2">
+                    {(analytics?.deviceBreakdown ?? []).slice(0, 3).map((entry, index) => (
+                      <div key={entry.name} className="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-400">
+                        <span
+                          className="h-2 w-2 rounded-full"
+                          style={{ backgroundColor: PIE_COLORS[(index + 1) % PIE_COLORS.length] }}
+                        />
+                        <span>{entry.name}: {entry.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Browser Breakdown */}
+                <div className="flex flex-col items-center">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Browsers</p>
+                  <ResponsiveContainer width="100%" height={140}>
+                    <PieChart>
+                      <Pie
+                        data={analytics?.browserBreakdown ?? []}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={35}
+                        outerRadius={55}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {(analytics?.browserBreakdown ?? []).map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={PIE_COLORS[(index + 3) % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap justify-center gap-2 mt-2">
+                    {(analytics?.browserBreakdown ?? []).slice(0, 3).map((entry, index) => (
+                      <div key={entry.name} className="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-400">
+                        <span
+                          className="h-2 w-2 rounded-full"
+                          style={{ backgroundColor: PIE_COLORS[(index + 3) % PIE_COLORS.length] }}
+                        />
+                        <span>{entry.name}: {entry.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

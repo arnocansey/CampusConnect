@@ -283,11 +283,11 @@ export const getAnalytics = async (req: AuthRequest, res: Response): Promise<voi
   const { range = '30d' } = req.query;
   const months = range === '7d' ? 1 : range === '90d' ? 9 : 3;
 
+  const now = new Date();
   const monthsAgo = new Date();
   monthsAgo.setMonth(monthsAgo.getMonth() - months);
 
   const userGrowth: { month: string; users: number }[] = [];
-  const now = new Date();
   for (let i = months; i >= 0; i--) {
     const d = new Date(now);
     d.setMonth(d.getMonth() - i);
@@ -320,11 +320,84 @@ export const getAnalytics = async (req: AuthRequest, res: Response): Promise<voi
     { name: 'Jobs', value: jobs },
   ].filter((item) => item.value > 0);
 
+  // In-depth user engagement and demographics
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const [
+    dau,
+    wau,
+    mau,
+    students,
+    moderators,
+    admins,
+    verifiedUsers,
+    unverifiedUsers,
+    departmentsRaw,
+    sessionsRaw,
+  ] = await Promise.all([
+    prisma.user.count({ where: { lastSeen: { gte: oneDayAgo } } }),
+    prisma.user.count({ where: { lastSeen: { gte: sevenDaysAgo } } }),
+    prisma.user.count({ where: { lastSeen: { gte: thirtyDaysAgo } } }),
+    prisma.user.count({ where: { role: 'STUDENT' } }),
+    prisma.user.count({ where: { role: 'MODERATOR' } }),
+    prisma.user.count({ where: { role: 'ADMIN' } }),
+    prisma.user.count({ where: { isVerified: true } }),
+    prisma.user.count({ where: { isVerified: false } }),
+    prisma.user.groupBy({
+      by: ['department'],
+      _count: { id: true },
+      where: { department: { not: null, notIn: ['', ' '] } },
+      orderBy: { _count: { id: 'desc' } },
+      take: 5,
+    }),
+    prisma.activeSession.findMany({
+      select: { device: true, browser: true },
+    }),
+  ]);
+
+  const engagementStats = { dau, wau, mau };
+
+  const roleDistribution = [
+    { name: 'Student', value: students },
+    { name: 'Moderator', value: moderators },
+    { name: 'Admin', value: admins },
+  ];
+
+  const verificationStats = [
+    { name: 'Verified', value: verifiedUsers },
+    { name: 'Unverified', value: unverifiedUsers },
+  ];
+
+  const topDepartments = departmentsRaw.map((dept) => ({
+    department: dept.department || 'Unknown',
+    count: dept._count.id,
+  }));
+
+  const devices: Record<string, number> = {};
+  const browsers: Record<string, number> = {};
+  for (const s of sessionsRaw) {
+    const dev = s.device || 'Desktop';
+    devices[dev] = (devices[dev] || 0) + 1;
+    const br = s.browser || 'Chrome';
+    browsers[br] = (browsers[br] || 0) + 1;
+  }
+
+  const deviceBreakdown = Object.entries(devices).map(([name, value]) => ({ name, value }));
+  const browserBreakdown = Object.entries(browsers).map(([name, value]) => ({ name, value }));
+
   res.json({
     success: true,
     data: {
       userGrowth,
       contentDistribution,
+      engagementStats,
+      roleDistribution,
+      verificationStats,
+      topDepartments,
+      deviceBreakdown,
+      browserBreakdown,
     },
   });
 };
