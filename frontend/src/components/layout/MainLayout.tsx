@@ -30,6 +30,7 @@ import {
   Crown,
   Store,
   DollarSign,
+  RotateCw,
 } from 'lucide-react';
 
 const navItems = [
@@ -97,6 +98,22 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <button
+              onClick={() => {
+                if ('caches' in window) {
+                  caches.keys().then((names) => {
+                    for (let name of names) {
+                      caches.delete(name);
+                    }
+                  }).catch(() => {});
+                }
+                window.location.reload();
+              }}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition"
+              title="Refresh App"
+            >
+              <RotateCw className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </button>
             <Link
               href="/notifications"
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition relative"
