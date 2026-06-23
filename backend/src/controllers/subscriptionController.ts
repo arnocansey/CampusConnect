@@ -16,6 +16,7 @@ interface PaystackResponse {
 const paystackHeaders = () => ({
   Authorization: `Bearer ${config.paystack.secretKey}`,
   'Content-Type': 'application/json',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 });
 
 // ==================== PUBLIC ====================
@@ -110,8 +111,9 @@ export const initializePayment = async (req: AuthRequest, res: Response): Promis
     body: JSON.stringify({
       email: user!.email,
       amount: Math.round(plan.price * 100), // Paystack uses kobo/pesewas
+      currency: plan.currency || 'GHS',
       reference,
-      callback_url: `${config.paystack.baseUrl}/marketplace?payment=success&ref=${reference}`,
+      callback_url: `${config.paystack.baseUrl}/subscriptions?payment=success&ref=${reference}`,
       metadata: {
         userId: req.user!.id,
         planId: plan.id,
