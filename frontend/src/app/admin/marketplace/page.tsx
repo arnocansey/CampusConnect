@@ -68,6 +68,7 @@ export default function AdminMarketplacePage() {
       const { data } = await api.get(`/admin/marketplace?${params}`);
       return data.data;
     },
+    refetchInterval: 5000,
   });
 
   const approveMutation = useMutation({
@@ -77,6 +78,8 @@ export default function AdminMarketplacePage() {
     },
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["admin-marketplace"] });
+      queryClient.invalidateQueries({ queryKey: ["marketplace"] });
+      queryClient.invalidateQueries({ queryKey: ["marketplace-item"] });
       toast.success(vars.isApproved ? "Approval revoked" : "Item approved");
     },
     onError: (err: any) => {
@@ -91,6 +94,8 @@ export default function AdminMarketplacePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-marketplace"] });
+      queryClient.invalidateQueries({ queryKey: ["marketplace"] });
+      queryClient.invalidateQueries({ queryKey: ["marketplace-item"] });
       setRemoveTarget(null);
       setRemoveReason("");
       toast.success("Item removed");
@@ -122,6 +127,7 @@ export default function AdminMarketplacePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-marketplace"] });
+      queryClient.invalidateQueries({ queryKey: ["marketplace"] });
       setShowAddModal(false);
       setAddTitle("");
       setAddDescription("");

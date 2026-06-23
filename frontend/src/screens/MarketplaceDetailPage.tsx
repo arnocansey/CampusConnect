@@ -3,7 +3,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../services/api';
 import { Button } from '../components/ui/Button';
-import { ArrowLeft, MapPin, MessageCircle, Heart, Phone } from 'lucide-react';
+import { ArrowLeft, MapPin, MessageCircle, Heart, Phone, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function MarketplaceDetailPage() {
@@ -17,6 +17,7 @@ export function MarketplaceDetailPage() {
       const { data } = await api.get(`/marketplace/${id}`);
       return data.data;
     },
+    refetchInterval: 5000,
   });
 
   const chatMutation = useMutation({
@@ -51,9 +52,16 @@ export function MarketplaceDetailPage() {
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mb-4">
-        <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-          <span className="text-gray-400 text-lg">No image</span>
-        </div>
+        {item.images?.[0] ? (
+          <div className="relative h-64 sm:h-96 w-full bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+            <img src={item.images[0]} alt={item.title} className="w-full h-full object-contain" />
+          </div>
+        ) : (
+          <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+            <ShoppingCart className="w-10 h-10 text-gray-400 dark:text-gray-500 mr-2" />
+            <span className="text-gray-400 text-lg">No image</span>
+          </div>
+        )}
 
         <div className="p-4">
           <div className="flex items-center justify-between gap-3 mb-2">

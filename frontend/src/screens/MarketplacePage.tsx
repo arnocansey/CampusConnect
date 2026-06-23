@@ -47,6 +47,7 @@ export function MarketplacePage() {
       const { data } = await api.get(`/marketplace?${params}`);
       return data.data;
     },
+    refetchInterval: 10000,
   });
 
   const { data: mySub } = useQuery({
@@ -70,6 +71,7 @@ export function MarketplacePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketplace'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-marketplace'] });
       queryClient.invalidateQueries({ queryKey: ['mySubscription'] });
       setShowSellModal(false);
       setTitle('');
