@@ -9,9 +9,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import toast from 'react-hot-toast';
 
-export const formatPrice = (price: number, currency: string) => {
-  const symbol = currency === 'GHS' ? 'GH₵' : currency === 'USD' ? '$' : currency === 'NGN' ? '₦' : currency + ' ';
-  return `${symbol}${price.toLocaleString()}`;
+export const formatPrice = (price: number) => {
+  return `GH₵${price.toLocaleString()}`;
 };
 
 const roomTypes = ['All', 'Single', 'Shared', 'Self-Contained'];
@@ -209,7 +208,7 @@ export function HostelPage() {
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="font-bold text-sm dark:text-white">{hostel.name}</p>
-                  <span className="text-blue-600 dark:text-blue-400 font-bold">{formatPrice(hostel.pricePerMonth || 0, hostel.currency || 'GHS')}/mo</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-bold">{formatPrice(hostel.pricePerMonth || 0)}/mo</span>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
                   <MapPin className="w-3 h-3" /> {hostel.location}

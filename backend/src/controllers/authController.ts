@@ -280,6 +280,8 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       socialLinks: true,
       role: true,
       isVerified: true,
+      hasStore: true,
+      isPremiumSeller: true,
       createdAt: true,
       _count: {
         select: {

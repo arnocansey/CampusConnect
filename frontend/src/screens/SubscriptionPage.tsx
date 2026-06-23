@@ -8,6 +8,7 @@ import Link from 'next/link';
 import api from '../services/api';
 import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Plan {
   id: string;
@@ -95,6 +96,7 @@ export function SubscriptionPage() {
   const queryClient = useQueryClient();
   const [verifying, setVerifying] = useState(false);
   const [activeTab, setActiveTab] = useState<'student' | 'seller' | 'partner'>('student');
+  const { user } = useAuth();
 
   const { data: plans = [], isLoading, error: plansError } = useQuery<Plan[]>({
     queryKey: ['subscriptionPlans'],
@@ -311,10 +313,17 @@ export function SubscriptionPage() {
                   {/* Benefits checklist */}
                   <div className="mt-5 space-y-2.5">
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Features & Benefits:</p>
-                    {(planBenefits[plan.name] || [
-                      `${getAdDisplay(plan.adLimit)} active listings`,
-                      `Valid for ${plan.durationDays} days`
-                    ]).map((benefit, i) => (
+                    {(plan.name === 'Free'
+                      ? [
+                          'Access core social networking features',
+                          'Standard search visibility',
+                          user?.hasStore ? 'Up to 2 marketplace listings' : '0 marketplace listings (create shop to unlock)',
+                          'Standard notes downloads'
+                        ]
+                      : planBenefits[plan.name] || [
+                          `${getAdDisplay(plan.adLimit)} active listings`,
+                          `Valid for ${plan.durationDays} days`
+                        ]).map((benefit, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
                         <span className="leading-tight">{benefit}</span>

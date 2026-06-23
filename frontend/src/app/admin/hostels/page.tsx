@@ -18,16 +18,8 @@ interface Hostel {
   roomType: string;
 }
 
-function formatPrice(price: number, currency: string) {
-  const symbol =
-    currency === "GHS"
-      ? "GH\u20B5"
-      : currency === "USD"
-        ? "$"
-        : currency === "NGN"
-          ? "\u20A6"
-          : currency + " ";
-  return `${symbol}${price.toLocaleString()}`;
+function formatPrice(price: number) {
+  return `GH₵${price.toLocaleString()}`;
 }
 
 export default function AdminHostelsPage() {
@@ -159,7 +151,7 @@ export default function AdminHostelsPage() {
                       </span>
                     </td>
                     <td className="px-4 md:px-6 py-4 font-medium text-gray-900 dark:text-white hidden lg:table-cell">
-                      {formatPrice(hostel.pricePerMonth, hostel.currency || "GHS")}
+                      {formatPrice(hostel.pricePerMonth)}
                       <span className="text-gray-400 dark:text-gray-500 font-normal">
                         /mo
                       </span>

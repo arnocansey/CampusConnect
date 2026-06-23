@@ -79,7 +79,7 @@ export const createMarketplaceItemSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(10).max(2000),
   price: z.number().positive(),
-  currency: z.string().default('USD'),
+  currency: z.string().default('GHS'),
   category: z.enum([
     'BOOKS', 'ELECTRONICS', 'CLOTHING', 'ACCESSORIES',
     'SERVICES', 'HOSTEL_ITEMS', 'OTHER'
@@ -139,7 +139,7 @@ export const createHostelSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   pricePerMonth: z.number().positive(),
-  currency: z.string().default('USD'),
+  currency: z.string().default('GHS'),
   roomType: z.enum(['SINGLE', 'SHARED', 'SELF_CONTAINED']),
   facilities: z.array(z.string()),
   contactPhone: z.string().optional(),

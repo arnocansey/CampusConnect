@@ -1,18 +1,19 @@
 "use client";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { Comment } from '../types';
 import { formatDate, formatNumber } from '../utils';
 import { UserListModal } from '../components/ui/UserListModal';
-import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight, MapPin, Repeat, Flag } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share2, MoreHorizontal, Send, Bookmark, ChevronLeft, ChevronRight, MapPin, Repeat, Flag, Trash2 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
 export function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [showLikers, setShowLikers] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -192,6 +193,33 @@ export function PostDetailPage() {
     },
   });
 
+  const deletePostMutation = useMutation({
+    mutationFn: async () => {
+      await api.delete(`/posts/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      toast.success('Post deleted successfully');
+      router.push('/feed');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to delete post');
+    },
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      await api.delete(`/posts/comments/${commentId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', id] });
+      toast.success('Comment deleted successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to delete comment');
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto p-4">
@@ -255,13 +283,28 @@ export function PostDetailPage() {
               </button>
               {showMoreMenu && (
                 <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-1 z-50 min-w-[160px]">
-                  <button
-                    onClick={() => { setShowReportModal(true); setShowMoreMenu(false); }}
-                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                  >
-                    <Flag className="w-4 h-4" />
-                    Report
-                  </button>
+                  {(post.author.id === user?.id || user?.role === 'ADMIN' || user?.role === 'MODERATOR') ? (
+                    <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this post?')) {
+                          deletePostMutation.mutate();
+                        }
+                        setShowMoreMenu(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete Post
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => { setShowReportModal(true); setShowMoreMenu(false); }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
+                      <Flag className="w-4 h-4" />
+                      Report
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -472,9 +515,24 @@ export function PostDetailPage() {
                   </div>
                 )}
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm dark:text-white">{comment.author.fullName}</p>
-                    <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm dark:text-white">{comment.author.fullName}</p>
+                      <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                    </div>
+                    {(comment.author.id === user?.id || user?.role === 'ADMIN' || user?.role === 'MODERATOR') && (
+                      <button
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this comment?')) {
+                            deleteCommentMutation.mutate(comment.id);
+                          }
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                        title="Delete comment"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                   <p className="text-sm mt-1 dark:text-white">{comment.content}</p>
                 </div>

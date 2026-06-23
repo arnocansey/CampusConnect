@@ -37,7 +37,7 @@ export const createHostel = async (req: AuthRequest, res: Response): Promise<voi
       latitude: latitude ? parseFloat(latitude as string) : null,
       longitude: longitude ? parseFloat(longitude as string) : null,
       pricePerMonth: typeof pricePerMonth === 'string' ? parseFloat(pricePerMonth) : pricePerMonth,
-      currency: currency || 'USD',
+      currency: currency || 'GHS',
       roomType,
       facilities: facilitiesList,
       contactPhone,

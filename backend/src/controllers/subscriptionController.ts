@@ -65,6 +65,44 @@ export const initializePayment = async (req: AuthRequest, res: Response): Promis
     },
   });
 
+  if (plan.price === 0) {
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
+
+    // Deactivate previous active subscriptions for this user
+    await prisma.userSubscription.updateMany({
+      where: { userId: req.user!.id, status: 'ACTIVE' },
+      data: { status: 'EXPIRED' }
+    });
+
+    await prisma.$transaction([
+      prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: 'SUCCESS' },
+      }),
+      prisma.userSubscription.create({
+        data: {
+          userId: req.user!.id,
+          planId: plan.id,
+          adsRemaining: plan.adLimit,
+          adsUsed: 0,
+          startDate: now,
+          expiresAt,
+          status: 'ACTIVE',
+        },
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        authorization_url: `${config.paystack.baseUrl}/subscriptions?payment=success&ref=${reference}`,
+        reference,
+      },
+    });
+    return;
+  }
+
   // Initialize Paystack transaction
   const response = await fetch(`${PAYSTACK_API}/transaction/initialize`, {
     method: 'POST',
@@ -113,7 +151,7 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
     throw new AppError('Payment not found', 404);
   }
 
-  if (payment.status === 'SUCCESS') {
+  if (payment.status === 'SUCCESS' || payment.amount === 0) {
     res.json({ success: true, data: { status: 'already_verified' } });
     return;
   }

@@ -43,6 +43,7 @@ export function HomePage() {
   const [showLocation, setShowLocation] = useState(false);
   const [location, setLocation] = useState('');
   const [locationMode, setLocationMode] = useState<'preset' | 'custom'>('preset');
+  const [activePostMenuId, setActivePostMenuId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const feedEndRef = useRef<HTMLDivElement>(null);
@@ -266,6 +267,20 @@ export function HomePage() {
       if (context?.previousFeed) {
         queryClient.setQueryData(['feed'], context.previousFeed);
       }
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: async (postId: string) => {
+      await api.delete(`/posts/${postId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      toast.success('Post deleted successfully');
+      setActivePostMenuId(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to delete post');
     },
   });
 
@@ -664,9 +679,45 @@ export function HomePage() {
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">@{post.author.username} · {formatDate(post.createdAt)}</p>
                     </div>
                   </Link>
-                  <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full shrink-0">
-                    <MoreHorizontal className="w-5 h-5 text-gray-400" />
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setActivePostMenuId(activePostMenuId === post.id ? null : post.id)}
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full shrink-0"
+                    >
+                      <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                    </button>
+                    {activePostMenuId === post.id && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setActivePostMenuId(null)} />
+                        <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                          {(post.author.id === user?.id || user?.role === 'ADMIN' || user?.role === 'MODERATOR') ? (
+                            <button
+                              onClick={() => {
+                                if (confirm('Are you sure you want to delete this post?')) {
+                                  deletePostMutation.mutate(post.id);
+                                }
+                                setActivePostMenuId(null);
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600 font-medium transition"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                              <span>Delete Post</span>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                toast.success('Post reported');
+                                setActivePostMenuId(null);
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition"
+                            >
+                              <span>Report Post</span>
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {post.location && (

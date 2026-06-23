@@ -23,6 +23,8 @@ export interface User {
   role: 'STUDENT' | 'MODERATOR' | 'ADMIN';
   isVerified: boolean;
   isPrivate?: boolean;
+  hasStore?: boolean;
+  isPremiumSeller?: boolean;
   createdAt: string;
   _count?: {
     posts: number;
