@@ -1,18 +1,31 @@
 "use client";
-import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useParams, useRouter } from 'next/navigation';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../services/api';
 import { Button } from '../components/ui/Button';
-import { ArrowLeft, MapPin, MessageCircle, Heart } from 'lucide-react';
+import { ArrowLeft, MapPin, MessageCircle, Heart, Phone } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export function MarketplaceDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { user: currentUser } = useAuth();
 
   const { data: item, isLoading } = useQuery({
     queryKey: ['marketplace-item', id],
     queryFn: async () => {
       const { data } = await api.get(`/marketplace/${id}`);
       return data.data;
+    },
+  });
+
+  const chatMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { data } = await api.post('/messages/conversations', { userId });
+      return data.data;
+    },
+    onSuccess: (conversation) => {
+      router.push(`/messages/${conversation.id}`);
     },
   });
 
@@ -79,6 +92,11 @@ export function MarketplaceDetailPage() {
               <div>
                 <p className="font-semibold text-sm">{item.seller.fullName}</p>
                 <p className="text-xs text-gray-500">@{item.seller.username}</p>
+                {item.seller.phoneNumber && (
+                  <a href={`tel:${item.seller.phoneNumber}`} className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-1 font-medium hover:underline">
+                    <Phone className="w-3 h-3" /> {item.seller.phoneNumber}
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -88,10 +106,16 @@ export function MarketplaceDetailPage() {
               <Heart className="w-4 h-4 mr-2" />
               Save
             </Button>
-            <Button className="flex-1">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Chat Seller
-            </Button>
+            {currentUser?.id !== item.sellerId && (
+              <Button 
+                className="flex-1"
+                onClick={() => chatMutation.mutate(item.sellerId)}
+                disabled={chatMutation.isPending}
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                {chatMutation.isPending ? 'Connecting...' : 'Chat Seller'}
+              </Button>
+            )}
           </div>
         </div>
       </div>

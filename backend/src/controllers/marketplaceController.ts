@@ -206,6 +206,7 @@ export const getMarketplaceItem = async (req: AuthRequest, res: Response): Promi
           fullName: true,
           profilePicture: true,
           isVerified: true,
+          phoneNumber: true,
         },
       },
       reviews: {
